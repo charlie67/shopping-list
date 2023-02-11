@@ -1,0 +1,7 @@
+:4000/api {
+        reverse_proxy :8080
+}
+
+:4000 {
+        reverse_proxy :3000
+}
