@@ -1,4 +1,4 @@
-package to.charlie.foodPlanner.domain.repository;
+package to.charlie.foodPlanner.domain.dal.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

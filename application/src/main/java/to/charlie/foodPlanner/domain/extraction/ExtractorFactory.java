@@ -35,7 +35,7 @@ public class ExtractorFactory {
     return new ExtractorHolder(new BaseRecipeExtractor(), new BaseIngredientExtractor());
   }
 
-  public static ExtractorHolder getExtractor(String recipeHeader, Set<String> recipeElement,
+  public static ExtractorHolder getExtgractor(String recipeHeader, Set<String> recipeElement,
       String ingredientHeader, Set<String> ingredientElement) {
     return new ExtractorHolder(
         new CustomiseableRecipeExtractor(recipeHeader, recipeElement),

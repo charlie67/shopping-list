@@ -1,7 +1,11 @@
-:4000/api {
-        reverse_proxy :8080
-}
-
 :4000 {
-        reverse_proxy :3000
+        bind 0.0.0.0
+        route /api/* {
+                uri strip_prefix /api/
+                rewrite * /{uri}  # rewrite the request without the "/api" prefix
+                reverse_proxy :8080
+        }
+        route {
+                reverse_proxy :3000
+        }
 }
