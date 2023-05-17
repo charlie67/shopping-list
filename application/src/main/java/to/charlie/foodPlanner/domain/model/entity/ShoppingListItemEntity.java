@@ -7,8 +7,10 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Table(name = "shopping_list_item")
 @Entity
@@ -22,7 +24,7 @@ public class ShoppingListItemEntity {
 
 	@Id
 	@GeneratedValue
-	private long id;
+	private UUID id;
 
 	@NotEmpty(message = "Title is required")
 	private String title;
@@ -37,7 +39,6 @@ public class ShoppingListItemEntity {
 	@CreationTimestamp
 	private LocalDateTime createdAtTime = LocalDateTime.now();
 
-	public ShoppingListItemEntity(final String title) {
-		this.title = title;
-	}
+	@UpdateTimestamp
+	private LocalDateTime updatedAtTime;
 }

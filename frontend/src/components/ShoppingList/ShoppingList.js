@@ -6,6 +6,8 @@ import axios from 'axios';
 import debounce from 'lodash.debounce';
 
 import "./ShoppingList.scss"
+import {SHOPPINGLIST_BASE, SHOPPINGLIST_PAGEABLE_ENDPOINT} from "../../url_const";
+import ShoppingListItem from "../ShoppingListItem/ShoppingListItem";
 
 class ShoppingList extends React.Component {
 
@@ -30,7 +32,7 @@ class ShoppingList extends React.Component {
   fetchMoreData = () => {
     console.log("fetching data")
     // generate the URL for the next page of data
-    const url = `http://localhost:3001/api/todo/pageable/${this.state.pageNumber}`;
+    const url = SHOPPINGLIST_PAGEABLE_ENDPOINT + this.state.pageNumber;
 
     // make a GET request to the URL to retrieve the data for the next page
     fetch(url)
@@ -52,7 +54,8 @@ class ShoppingList extends React.Component {
     let response = ""
 
     try {
-      response = await axios.post('http://localhost:3001/api/todo', {title, targetDate})
+      console.log("request to add item " + SHOPPINGLIST_BASE);
+      response = await axios.post("http://localhost:4000/api/shoppinglist", {title, targetDate})
 
       this.setState({
         items: [response.data, ...this.state.items]
@@ -79,7 +82,7 @@ class ShoppingList extends React.Component {
 
   deleteItem = async (id) => {
     try {
-      await axios.delete(`http://localhost:3001/api/todo/${id}`);
+      await axios.delete(SHOPPINGLIST_BASE + id);
 
       let i = 0;
       this.state.items.forEach((item) => {
@@ -100,25 +103,33 @@ class ShoppingList extends React.Component {
     }
   }
 
-  markCompleted = async (id) => {
-    console.log("marked completed ", id)
+  markCompleted = async (item) => {
+    const id = item.id;
+    const complete = !item.completed;
+    console.log("marked completed ", item)
     try {
-      await axios.put(`http://localhost:3001/api/todo/${id}/markcomplete`, {});
+      let response = await axios.patch(SHOPPINGLIST_BASE + id, {"complete": complete});
+      console.log("response ", response);
 
-      let i = 0;
-      this.state.items.forEach((item) => {
-        console.log(item)
-        if (item.id === id) {
-          let items = [...this.state.items];
-          let clonedItem = {...items[i]};
-          clonedItem.completed = !clonedItem.completed;
+      let items = [...this.state.items];
+      // Update the item with the specified ID
+      const index = this.state.items.findIndex(item => item.id === id);
+      console.log("index ", index)
+      if (index !== -1) {
+        items[index] = response.data;
+      }
 
-          items[i] = clonedItem;
-
-          this.setState({items: items});
+      items.sort((a, b) => {
+        if (a.completed === b.completed) {
+          return b.updatedAtTime - a.updatedAtTime;
+        } else if (a.completed) {
+          return 1;
+        } else {
+          return -1;
         }
-        i++;
       });
+
+      this.setState({items: items});
 
     } catch (error) {
       if (error.response) {
@@ -126,7 +137,6 @@ class ShoppingList extends React.Component {
       } else {
         console.log('Error: something happened');
       }
-      return;
     }
   }
 
@@ -134,23 +144,17 @@ class ShoppingList extends React.Component {
     console.log(id, title)
 
     try {
-      await axios.put(`http://localhost:3001/api/todo/${id}`, {"title": title});
+      let response = await axios.patch(SHOPPINGLIST_BASE + id, {"title": title});
 
-      let i = 0;
-      this.state.items.forEach((item) => {
-        console.log(item)
-        if (item.id === id) {
-          let items = [...this.state.items];
-          let clonedItem = {...items[i]};
-          clonedItem.title = title;
+      let items = [...this.state.items];
+      // Update the item with the specified ID
+      const index = this.state.items.findIndex(item => item.id === id);
+      console.log("index ", index)
+      if (index !== -1) {
+        items[index] = response.data;
+      }
 
-          items[i] = clonedItem;
-
-          this.setState({items: items});
-        }
-        i++;
-      });
-
+      this.setState({items: items});
     } catch (error) {
       console.log("Error in modifying item name", error)
     }
@@ -182,13 +186,13 @@ class ShoppingList extends React.Component {
             <div className={'item-container list-item item-container-'+item.id} key={item.id}>
               {item.completed ? (
                 <>
-                  <FontAwesomeIcon className='complete-icon icon' icon={faCheckSquare} onClick={() => this.markCompleted(item.id)}/>
+                  <FontAwesomeIcon className='complete-icon icon' icon={faCheckSquare} onClick={() => this.markCompleted(item)}/>
                   <span className='default-text item-name completed'>{item.title}</span>
                 </>
               ) : (
                 <>
-                  <FontAwesomeIcon className='complete-icon icon' icon={faSquare} onClick={() => this.markCompleted(item.id)}/>
-                  <span className='default-text item-name' contentEditable="true" onInput={e => this.debouncedEditShoppingListItem(item.id, e.currentTarget.textContent)}>{item.title}</span>
+                  <FontAwesomeIcon className='complete-icon icon' icon={faSquare} onClick={() => this.markCompleted(item)}/>
+                  <ShoppingListItem item={item} handleTitleChange={this.debouncedEditShoppingListItem}></ShoppingListItem>
                 </>
               )}
               <div className="delete-icon" onClick={() => this.deleteItem(item.id)}>

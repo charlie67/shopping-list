@@ -6,8 +6,10 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 import to.charlie.foodPlanner.domain.model.entity.ShoppingListItemEntity;
 
+import java.util.UUID;
+
 @Repository
 public interface TodoPagingRepository
-    extends PagingAndSortingRepository<ShoppingListItemEntity, Long> {
+    extends PagingAndSortingRepository<ShoppingListItemEntity, UUID> {
   Page<ShoppingListItemEntity> findAllByCompleted(boolean completed, Pageable pageable);
 }

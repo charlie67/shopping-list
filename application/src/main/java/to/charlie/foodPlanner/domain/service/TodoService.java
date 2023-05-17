@@ -2,6 +2,8 @@ package to.charlie.foodPlanner.domain.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,7 +34,7 @@ public class TodoService {
     return todoRepository.save(shoppingListItem);
   }
 
-  public ShoppingListItemEntity readById(long id, String username) {
+  public ShoppingListItemEntity readById(UUID id, String username) {
     Optional<ShoppingListItemEntity> shoppingListItem = todoRepository.findById(id);
     if (shoppingListItem.isEmpty()) {
       throw new ResourceNotFoundException("Todo not found");
@@ -51,7 +53,7 @@ public class TodoService {
         PageRequest.of(
             _pageNumber,
             pageSize,
-            Sort.by("completed").ascending().and(Sort.by("createdAtTime").descending()));
+            Sort.by("completed").ascending().and(Sort.by("updatedAtTime").descending()));
     return todoPagingRepository.findAll(pageable);
   }
 
@@ -69,7 +71,7 @@ public class TodoService {
     return todoPagingRepository.findAllByCompleted(_isCompleted, pageable);
   }
 
-  public void deleteById(long id) {
+  public void deleteById(UUID id) {
     Optional<ShoppingListItemEntity> shoppingListItem = todoRepository.findById(id);
     if (shoppingListItem.isEmpty()) {
       throw new ResourceNotFoundException("Todo not found");
@@ -77,7 +79,7 @@ public class TodoService {
     todoRepository.deleteById(id);
   }
 
-  public ShoppingListItemEntity updateById(long id, TodoUpdateDto todoUpdateDto) {
+  public ShoppingListItemEntity updateById(UUID id, TodoUpdateDto todoUpdateDto) {
     Optional<ShoppingListItemEntity> optionalShoppingListItem = todoRepository.findById(id);
     if (optionalShoppingListItem.isEmpty()) {
       throw new ResourceNotFoundException("Todo not found");
@@ -85,11 +87,18 @@ public class TodoService {
 
     ShoppingListItemEntity shoppingListItem = optionalShoppingListItem.get();
 
-    shoppingListItem.setTitle(todoUpdateDto.getTitle());
+    if (todoUpdateDto.getTitle() != null && todoUpdateDto.getTitle().length() > 0) {
+      shoppingListItem.setTitle(todoUpdateDto.getTitle());
+    } else if (todoUpdateDto.getComplete() != null) {
+      shoppingListItem.setCompleted(todoUpdateDto.getComplete());
+    } else {
+      throw new BadRequestException("Invalid request");
+    }
+
     return todoRepository.save(shoppingListItem);
   }
 
-  public ShoppingListItemEntity markCompleteById(long id) {
+  public ShoppingListItemEntity markCompleteById(UUID id) {
     Optional<ShoppingListItemEntity> shoppingListItemOptional = todoRepository.findById(id);
     if (shoppingListItemOptional.isEmpty()) {
       throw new ResourceNotFoundException("Todo not found");

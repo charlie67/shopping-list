@@ -9,6 +9,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class TodoUpdateDto {
-  @NotEmpty(message = "Title is required")
   private String title;
+  private Boolean complete;
 }

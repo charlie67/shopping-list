@@ -26,11 +26,12 @@ CREATE TABLE recipe_ingredient
 
 CREATE TABLE shopping_list_item
 (
-    id              BIGINT  NOT NULL,
+    id              UUID  NOT NULL,
     title           VARCHAR(255),
     completed       BOOLEAN NOT NULL,
     quantity        INTEGER NOT NULL,
     created_at_time TIMESTAMP WITHOUT TIME ZONE,
+    updated_at_time TIMESTAMP WITHOUT TIME ZONE,
     CONSTRAINT pk_shopping_list_item PRIMARY KEY (id)
 );
 
