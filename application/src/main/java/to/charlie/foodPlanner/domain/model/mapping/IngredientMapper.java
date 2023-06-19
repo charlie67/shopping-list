@@ -9,24 +9,25 @@ import to.charlie.foodPlanner.domain.model.entity.RecipeIngredientEntity;
 @Component
 @RequiredArgsConstructor
 public class IngredientMapper {
-	public IngredientEntity dtoToEntity(final IngredientDto ingredientDto) {
-		return IngredientEntity.builder()
-						.name(ingredientDto.getIngredientName())
-						.build();
-	}
 
-	public IngredientDto entityToDto(final IngredientEntity ingredientEntity) {
-		return IngredientDto.builder()
-						.ingredientName(ingredientEntity.getName())
-						.build();
-	}
+  public IngredientEntity dtoToEntity(final IngredientDto ingredientDto) {
+    return IngredientEntity.builder()
+        .name(ingredientDto.getIngredientName())
+        .build();
+  }
 
-	public IngredientDto entityToDto(final RecipeIngredientEntity recipeIngredientEntity) {
-		return IngredientDto.builder()
-						.ingredientName(recipeIngredientEntity.getIngredient().getName())
-						.quantity(recipeIngredientEntity.getQuantity())
-						.unit(recipeIngredientEntity.getUnit())
-						.id(recipeIngredientEntity.getId())
-						.build();
-	}
+  public IngredientDto entityToDto(final IngredientEntity ingredientEntity) {
+    return IngredientDto.builder()
+        .ingredientName(ingredientEntity.getName())
+        .build();
+  }
+
+  public IngredientDto entityToDto(final RecipeIngredientEntity recipeIngredientEntity) {
+    return IngredientDto.builder()
+        .ingredientName(recipeIngredientEntity.getIngredient().getName())
+        .quantity(recipeIngredientEntity.getQuantity())
+        .unit(recipeIngredientEntity.getUnit())
+        .id(recipeIngredientEntity.getId())
+        .build();
+  }
 }

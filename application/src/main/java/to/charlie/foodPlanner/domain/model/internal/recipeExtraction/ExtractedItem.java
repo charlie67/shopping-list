@@ -4,7 +4,7 @@ public interface ExtractedItem {
 
   String getOriginalText();
 
-  void setPossibleDuplicate(boolean possibleDuplicate);
-
   boolean isPossibleDuplicate();
+
+  void setPossibleDuplicate(boolean possibleDuplicate);
 }

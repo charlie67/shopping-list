@@ -1,11 +1,13 @@
 package to.charlie.foodPlanner.domain.model.dto;
 
 public class CountDto {
+
   private long count;
 
-  protected CountDto() {}
+  protected CountDto() {
+  }
 
-  public CountDto(long count) {
+  public CountDto(final long count) {
     super();
     this.count = count;
   }
@@ -14,7 +16,7 @@ public class CountDto {
     return count;
   }
 
-  public void setCount(long count) {
+  public void setCount(final long count) {
     this.count = count;
   }
 }

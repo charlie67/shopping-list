@@ -1,6 +1,5 @@
-package to.charlie.foodPlanner.domain.model.dto;
+package to.charlie.foodPlanner.domain.model.dto.shoppingList;
 
-import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +7,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class TodoUpdateDto {
+public class ShoppingListItemUpdateDto {
+
   private String title;
   private Boolean complete;
 }

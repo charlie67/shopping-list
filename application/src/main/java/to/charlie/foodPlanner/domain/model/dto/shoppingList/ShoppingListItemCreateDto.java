@@ -1,4 +1,4 @@
-package to.charlie.foodPlanner.domain.model.dto;
+package to.charlie.foodPlanner.domain.model.dto.shoppingList;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,8 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TodoCreateDto {
+public class ShoppingListItemCreateDto {
+
   @NotEmpty(message = "Title is required")
   private String title;
 }

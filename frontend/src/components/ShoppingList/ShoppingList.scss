@@ -41,7 +41,8 @@
   min-width: 20px;
   height: calc(100% - 20%);
 
-  color: var(--text-colour)
+  color: var(--text-colour);
+  cursor: pointer;
 }
 
 .item-name {

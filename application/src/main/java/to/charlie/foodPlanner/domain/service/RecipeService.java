@@ -1,5 +1,9 @@
 package to.charlie.foodPlanner.domain.service;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
@@ -20,54 +24,50 @@ import to.charlie.foodPlanner.domain.model.mapping.ExtractedRecipeStepsMapper;
 import to.charlie.foodPlanner.domain.model.mapping.RecipeIngredientMapper;
 import to.charlie.foodPlanner.domain.model.mapping.RecipeMapper;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class RecipeService {
 
-	private final RecipeDao recipeDao;
-	private final RecipeMapper recipeMapper;
-	private final RecipeIngredientDao recipeIngredientDao;
+  private final RecipeDao recipeDao;
+  private final RecipeMapper recipeMapper;
+  private final RecipeIngredientDao recipeIngredientDao;
 
-	private final RecipeIngredientMapper recipeIngredientMapper;
+  private final RecipeIngredientMapper recipeIngredientMapper;
 
-	public ExtractedReceipeDto extractRecipeFromUrl(final String url) throws IOException {
-		final Document document;
+  public ExtractedReceipeDto extractRecipeFromUrl(final String url) throws IOException {
+    final Document document;
 
-		try {
-			document = Jsoup.connect(url).get();
-		} catch (final IOException e) {
-			log.info("Error getting page for recipe extraction", e);
-			throw e;
-		}
+    try {
+      document = Jsoup.connect(url).get();
+    } catch (final IOException e) {
+      log.info("Error getting page for recipe extraction", e);
+      throw e;
+    }
 
-		final String title = document.title();
-		final ExtractorHolder extractorHolder = ExtractorFactory.getExtractor(url);
+    final String title = document.title();
+    final ExtractorHolder extractorHolder = ExtractorFactory.getExtractor(url);
 
-		final List<ExtractedIngredient> ingredients = extractorHolder.extractIngredients(document);
-		final List<ExtractedRecipeStep> recipeSteps = extractorHolder.extractRecipeSteps(document);
+    final List<ExtractedIngredient> ingredients = extractorHolder.extractIngredients(document);
+    final List<ExtractedRecipeStep> recipeSteps = extractorHolder.extractRecipeSteps(document);
 
-		return ExtractedReceipeDto.builder()
-						.recipeName(title)
-						.url(url)
-						.steps(ExtractedRecipeStepsMapper.map(recipeSteps))
-						.ingredients(ExtractedIngredientMapper.map(ingredients))
-						.build();
-	}
+    return ExtractedReceipeDto.builder()
+        .recipeName(title)
+        .url(url)
+        .steps(ExtractedRecipeStepsMapper.map(recipeSteps))
+        .ingredients(ExtractedIngredientMapper.map(ingredients))
+        .build();
+  }
 
-	public RecipeDto saveNewRecipe(final RecipeDto recipe) {
-		final Set<RecipeIngredientEntity> recipeIngredientEntities = recipe.getIngredients().stream().map(recipeIngredientMapper::dtoToEntity).collect(Collectors.toSet());
+  public RecipeDto saveNewRecipe(final RecipeDto recipe) {
+    final Set<RecipeIngredientEntity> recipeIngredientEntities = recipe.getIngredients().stream()
+        .map(recipeIngredientMapper::dtoToEntity).collect(Collectors.toSet());
 
-		final RecipeEntity recipeEntity = recipeMapper.dtoToEntity(recipe);
-		recipeEntity.setIngredients(recipeIngredientEntities);
-		recipeIngredientEntities.forEach(ingredient -> ingredient.setRecipe(recipeEntity));
+    final RecipeEntity recipeEntity = recipeMapper.dtoToEntity(recipe);
+    recipeEntity.setIngredients(recipeIngredientEntities);
+    recipeIngredientEntities.forEach(ingredient -> ingredient.setRecipe(recipeEntity));
 
-		final RecipeEntity savedRecipeEntity = recipeDao.save(recipeEntity);
-		return recipeMapper.entityToDto(savedRecipeEntity);
-	}
+    final RecipeEntity savedRecipeEntity = recipeDao.save(recipeEntity);
+    return recipeMapper.entityToDto(savedRecipeEntity);
+  }
 }

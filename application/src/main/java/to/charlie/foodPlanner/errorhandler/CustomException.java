@@ -5,13 +5,14 @@ import java.time.LocalDateTime;
 import org.springframework.http.HttpStatus;
 
 public class CustomException {
+
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
   private LocalDateTime timestamp;
 
   private HttpStatus status;
   private String message;
 
-  public CustomException(LocalDateTime timestamp, HttpStatus status, String message) {
+  public CustomException(final LocalDateTime timestamp, final HttpStatus status, final String message) {
     this.timestamp = timestamp;
     this.status = status;
     this.message = message;
@@ -21,23 +22,23 @@ public class CustomException {
     return timestamp;
   }
 
+  public void setTimestamp(final LocalDateTime timestamp) {
+    this.timestamp = timestamp;
+  }
+
   public HttpStatus getStatus() {
     return status;
+  }
+
+  public void setStatus(final HttpStatus status) {
+    this.status = status;
   }
 
   public String getMessage() {
     return message;
   }
 
-  public void setTimestamp(LocalDateTime timestamp) {
-    this.timestamp = timestamp;
-  }
-
-  public void setStatus(HttpStatus status) {
-    this.status = status;
-  }
-
-  public void setMessage(String message) {
+  public void setMessage(final String message) {
     this.message = message;
   }
 

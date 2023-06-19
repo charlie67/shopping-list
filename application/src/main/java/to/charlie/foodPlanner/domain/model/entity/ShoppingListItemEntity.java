@@ -5,12 +5,16 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
-import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Table(name = "shopping_list_item")
 @Entity
@@ -22,23 +26,23 @@ import java.util.UUID;
 @NoArgsConstructor
 public class ShoppingListItemEntity {
 
-	@Id
-	@GeneratedValue
-	private UUID id;
+  @Id
+  @GeneratedValue
+  private UUID id;
 
-	@NotEmpty(message = "Title is required")
-	private String title;
+  @NotEmpty(message = "Title is required")
+  private String title;
 
-	@Builder.Default
-	private boolean completed = false;
+  @Builder.Default
+  private boolean completed = false;
 
-	@Builder.Default
-	private int quantity = 1;
+  @Builder.Default
+  private int quantity = 1;
 
-	@Builder.Default
-	@CreationTimestamp
-	private LocalDateTime createdAtTime = LocalDateTime.now();
+  @Builder.Default
+  @CreationTimestamp
+  private LocalDateTime createdAtTime = LocalDateTime.now();
 
-	@UpdateTimestamp
-	private LocalDateTime updatedAtTime;
+  @UpdateTimestamp
+  private LocalDateTime updatedAtTime;
 }

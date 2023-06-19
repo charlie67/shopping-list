@@ -9,9 +9,9 @@ import to.charlie.foodPlanner.domain.model.entity.RecipeEntity;
 @RequiredArgsConstructor
 public class RecipeDao {
 
-	private final RecipeRepository recipeRepository;
+  private final RecipeRepository recipeRepository;
 
-	public RecipeEntity save(final RecipeEntity recipeEntity) {
-		return recipeRepository.save(recipeEntity);
-	}
+  public RecipeEntity save(final RecipeEntity recipeEntity) {
+    return recipeRepository.save(recipeEntity);
+  }
 }

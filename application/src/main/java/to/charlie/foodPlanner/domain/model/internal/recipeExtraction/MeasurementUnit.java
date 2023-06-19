@@ -12,34 +12,34 @@ public enum MeasurementUnit {
 
   UNKNOWN(1, false);
 
-  private final boolean canConvert;
-  private String[] otherNames;
-  private final double conversionAmount;
-
-  private static Map<String, MeasurementUnit> creationMap = new HashMap<>();
-
-  MeasurementUnit(double conversionAmount, boolean canConvert, String... otherNames) {
-    this.conversionAmount = conversionAmount;
-    this.canConvert = canConvert;
-    this.otherNames = otherNames;
-  }
+  private static final Map<String, MeasurementUnit> creationMap = new HashMap<>();
 
   static {
     createNameMap();
   }
 
+  private final boolean canConvert;
+  private final double conversionAmount;
+  private final String[] otherNames;
+
+  MeasurementUnit(final double conversionAmount, final boolean canConvert, final String... otherNames) {
+    this.conversionAmount = conversionAmount;
+    this.canConvert = canConvert;
+    this.otherNames = otherNames;
+  }
+
   public static void createNameMap() {
-    for (MeasurementUnit value : values()) {
+    for (final MeasurementUnit value : values()) {
       creationMap.put(value.name(), value);
 
-      for (String otherName : value.otherNames) {
+      for (final String otherName : value.otherNames) {
         creationMap.put(otherName, value);
       }
     }
   }
 
-  public static MeasurementUnit convertInputToEnum(String input) {
-    String inputUpperTrimmed = input.toUpperCase().trim();
+  public static MeasurementUnit convertInputToEnum(final String input) {
+    final String inputUpperTrimmed = input.toUpperCase().trim();
 
     if (creationMap.containsKey(inputUpperTrimmed)) {
       return creationMap.get(inputUpperTrimmed);

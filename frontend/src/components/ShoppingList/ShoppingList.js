@@ -4,9 +4,10 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faCheckSquare, faPlus, faSquare, faTrash} from "@fortawesome/free-solid-svg-icons";
 import axios from 'axios';
 import debounce from 'lodash.debounce';
+import $ from "jquery";
 
 import "./ShoppingList.scss"
-import {SHOPPINGLIST_BASE, SHOPPINGLIST_PAGEABLE_ENDPOINT} from "../../url_const";
+import {SHOPPING_LIST_ADD_ITEM_ENDPOINT, SHOPPINGLIST_BASE, SHOPPINGLIST_PAGEABLE_ENDPOINT} from "../../url_const";
 import ShoppingListItem from "../ShoppingListItem/ShoppingListItem";
 
 class ShoppingList extends React.Component {
@@ -30,7 +31,6 @@ class ShoppingList extends React.Component {
 
   // function to fetch the next page of data
   fetchMoreData = () => {
-    console.log("fetching data")
     // generate the URL for the next page of data
     const url = SHOPPINGLIST_PAGEABLE_ENDPOINT + this.state.pageNumber;
 
@@ -38,7 +38,10 @@ class ShoppingList extends React.Component {
     fetch(url)
       .then(response => response.json())
       .then(data => {
-        console.log(data)
+        data.content.forEach(item => {
+          this.mapIncomingShoppingListItem(item);
+        });
+
         // update the state with the new data
         this.setState({
           items: [...this.state.items, ...data.content],
@@ -48,14 +51,19 @@ class ShoppingList extends React.Component {
       });
   }
 
+  mapIncomingShoppingListItem(item) {
+    item.createdAtTime = new Date(item.createdAtTime);
+    item.updatedAtTime = new Date(item.updatedAtTime);
+    return item;
+  }
+
   handleAddButtonClick = async (e) => {
     const targetDate = "123";
     const title = this.state.input;
     let response = ""
 
     try {
-      console.log("request to add item " + SHOPPINGLIST_BASE);
-      response = await axios.post("http://localhost:4000/api/shoppinglist", {title, targetDate})
+      response = await axios.post(SHOPPING_LIST_ADD_ITEM_ENDPOINT, {title, targetDate})
 
       this.setState({
         items: [response.data, ...this.state.items]
@@ -103,34 +111,49 @@ class ShoppingList extends React.Component {
     }
   }
 
+  compareItems = function(a, b) {
+    if (a.completed !== b.completed) {
+      // If one item is completed and the other is not, prioritize uncompleted items
+      return a.completed ? 1 : -1;
+    }
+
+    // If both items are completed or both are uncompleted, compare based on creation or update time
+    if (a.completed) {
+      // Sort completed items by update time (oldest to newest)
+      return a.updatedAtTime - b.updatedAtTime;
+    } else {
+      // Sort uncompleted items by creation time (newest to oldest)
+      return b.createdAtTime - a.createdAtTime;
+    }
+  }
+
   markCompleted = async (item) => {
     const id = item.id;
     const complete = !item.completed;
-    console.log("marked completed ", item)
     try {
       let response = await axios.patch(SHOPPINGLIST_BASE + id, {"complete": complete});
-      console.log("response ", response);
 
       let items = [...this.state.items];
       // Update the item with the specified ID
       const index = this.state.items.findIndex(item => item.id === id);
-      console.log("index ", index)
       if (index !== -1) {
-        items[index] = response.data;
+        items[index] = this.mapIncomingShoppingListItem(response.data);
       }
 
-      items.sort((a, b) => {
-        if (a.completed === b.completed) {
-          return b.updatedAtTime - a.updatedAtTime;
-        } else if (a.completed) {
-          return 1;
-        } else {
-          return -1;
+      for (let i = 0; i < items.length; i++) {
+        for (let j = i + 1; j < items.length; j++) {
+          if (this.compareItems(items[j], items[i]) < 0) {
+            // Swap items if the comparison function returns a negative value
+            [items[i], items[j]] = [items[j], items[i]];
+          }
         }
-      });
+      }
 
       this.setState({items: items});
 
+      let bgColour = $(".item-container-"+id).css("background-color")
+      console.log("bgColour ", bgColour)
+      $(".item-container-"+id).delay(100).css("background-color", "white").delay(1000).css("background-color", bgColour);
     } catch (error) {
       if (error.response) {
         console.log(error.response.data.message);

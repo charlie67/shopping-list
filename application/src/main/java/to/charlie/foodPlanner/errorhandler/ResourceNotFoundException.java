@@ -1,9 +1,10 @@
 package to.charlie.foodPlanner.errorhandler;
 
 public class ResourceNotFoundException extends RuntimeException {
+
   private static final long serialVersionUID = 1L;
 
-  public ResourceNotFoundException(String message) {
+  public ResourceNotFoundException(final String message) {
     super(message);
   }
 }
