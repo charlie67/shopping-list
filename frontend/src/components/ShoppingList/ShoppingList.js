@@ -1,236 +1,139 @@
-import React from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faCheckSquare, faPlus, faSquare, faTrash} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import axios from 'axios';
-import debounce from 'lodash.debounce';
-import $ from "jquery";
 
-import "./ShoppingList.scss"
-import {SHOPPING_LIST_ADD_ITEM_ENDPOINT, SHOPPINGLIST_BASE, SHOPPINGLIST_PAGEABLE_ENDPOINT} from "../../url_const";
+import "./ShoppingList.scss";
+import { SHOPPING_LIST_ADD_ITEM_ENDPOINT, SHOPPINGLIST_BASE } from "../../url_const";
 import ShoppingListItem from "../ShoppingListItem/ShoppingListItem";
+import {WebSocketContext} from "../WebSocketProvider/WebSocketProvider";
+import {mapIncomingShoppingListItem} from "./util";
+import {fetchShoppingList} from "../../actionTypes/actions";
+import {connect} from "react-redux";
+import { useDispatch } from 'react-redux';
 
-class ShoppingList extends React.Component {
+const ShoppingList = ({ shoppingList, hasMore }) => {
+  const [page, setPage] = useState(0);
+  const [input, setInput] = useState("");
+  const dispatch = useDispatch();
 
-  state = {}
+  const { lastJsonMessage } = useContext(WebSocketContext);
 
-  constructor(props) {
-    super(props);
+  useEffect(() => {
+    console.log("here")
+    dispatch(fetchShoppingList(0));
+    console.log("shoppingList", shoppingList);
+  }, []);
 
-    this.state = {
-      items: [],
-      hasMore: true,
-      pageNumber: 0,
-      input: ""
-    }
-  }
+  const loadMoreShoppingListItems = () => {
+    console.log("loadMoreShoppingListItems");
+    const nextPage = page + 1;
+    fetchShoppingList(nextPage); // Fetch shopping list items for the next page
+    setPage(nextPage); // Update the page state variable
+  };
 
-  async componentDidMount() {
-    this.fetchMoreData()
-  }
-
-  // function to fetch the next page of data
-  fetchMoreData = () => {
-    // generate the URL for the next page of data
-    const url = SHOPPINGLIST_PAGEABLE_ENDPOINT + this.state.pageNumber;
-
-    // make a GET request to the URL to retrieve the data for the next page
-    fetch(url)
-      .then(response => response.json())
-      .then(data => {
-        data.content.forEach(item => {
-          this.mapIncomingShoppingListItem(item);
-        });
-
-        // update the state with the new data
-        this.setState({
-          items: [...this.state.items, ...data.content],
-          hasMore: !data.last,
-          pageNumber: this.state.pageNumber + 1,
-        });
-      });
-  }
-
-  mapIncomingShoppingListItem(item) {
-    item.createdAtTime = new Date(item.createdAtTime);
-    item.updatedAtTime = new Date(item.updatedAtTime);
-    return item;
-  }
-
-  handleAddButtonClick = async (e) => {
+  const handleAddButtonClick = async () => {
     const targetDate = "123";
-    const title = this.state.input;
-    let response = ""
+    const title = input;
 
-    try {
-      response = await axios.post(SHOPPING_LIST_ADD_ITEM_ENDPOINT, {title, targetDate})
-
-      this.setState({
-        items: [response.data, ...this.state.items]
-      });
-
-    } catch(error){
-      if (error.response) {
-       console.log(error.response.data.message);
-      } else {
-        console.log('Error: something happened');
-      }
-      return;
-    }
-
-    this.setState({input: ""})
+    axios.post(SHOPPING_LIST_ADD_ITEM_ENDPOINT, {title, targetDate}).then(function (response) {
+      setInput("");
+    }).catch(function (error) {
+      console.error("error adding item", error);
+    });
   }
 
-  addItemKeyPress = async (e) => {
+  const addItemKeyPress = async (e) => {
     if (e.key === 'Enter') {
-      await this.handleAddButtonClick();
+      await handleAddButtonClick();
     }
   }
 
-
-  deleteItem = async (id) => {
-    try {
-      await axios.delete(SHOPPINGLIST_BASE + id);
-
-      let i = 0;
-      this.state.items.forEach((item) => {
-        console.log(item)
-        if (item.id === id) {
-          let items = [...this.state.items];
-          items.splice(i, 1);
-          this.setState({items: items})
-        }
-        i++;
-      })
-    } catch (error) {
-      if (error.response) {
-        console.log(error.response.data.message);
-      } else {
-        console.log('Error: something happened');
-      }
-    }
+  const deleteItem = async (id) => {
+      await axios.delete(SHOPPINGLIST_BASE + id).catch(function (error) {
+        console.error("error deleting item", error);
+      });
   }
 
-  compareItems = function(a, b) {
+  const compareItems = (a, b) => {
     if (a.completed !== b.completed) {
-      // If one item is completed and the other is not, prioritize uncompleted items
       return a.completed ? 1 : -1;
     }
 
-    // If both items are completed or both are uncompleted, compare based on creation or update time
     if (a.completed) {
-      // Sort completed items by update time (oldest to newest)
-      return a.updatedAtTime - b.updatedAtTime;
+      return b.updatedAtTime - a.updatedAtTime;
     } else {
-      // Sort uncompleted items by creation time (newest to oldest)
       return b.createdAtTime - a.createdAtTime;
     }
   }
 
-  markCompleted = async (item) => {
-    const id = item.id;
-    const complete = !item.completed;
-    try {
-      let response = await axios.patch(SHOPPINGLIST_BASE + id, {"complete": complete});
+  // const handleItemCompleteChange = (item) => {
+  //   const id = item.id;
+  //
+  //   // let updatedItems = [...items];
+  //   const index = updatedItems.findIndex(item => item.id === id);
+  //   if (index !== -1) {
+  //     updatedItems[index] = item;
+  //   }
+  //
+  //   for (let i = 0; i < updatedItems.length; i++) {
+  //     for (let j = i + 1; j < updatedItems.length; j++) {
+  //       if (compareItems(updatedItems[j], updatedItems[i]) < 0) {
+  //         [updatedItems[i], updatedItems[j]] = [updatedItems[j], updatedItems[i]];
+  //       }
+  //     }
+  //   }
+  //
+  //   // setItems(updatedItems);
+  // }
 
-      let items = [...this.state.items];
-      // Update the item with the specified ID
-      const index = this.state.items.findIndex(item => item.id === id);
-      if (index !== -1) {
-        items[index] = this.mapIncomingShoppingListItem(response.data);
-      }
-
-      for (let i = 0; i < items.length; i++) {
-        for (let j = i + 1; j < items.length; j++) {
-          if (this.compareItems(items[j], items[i]) < 0) {
-            // Swap items if the comparison function returns a negative value
-            [items[i], items[j]] = [items[j], items[i]];
-          }
-        }
-      }
-
-      this.setState({items: items});
-
-      let bgColour = $(".item-container-"+id).css("background-color")
-      console.log("bgColour ", bgColour)
-      $(".item-container-"+id).delay(100).css("background-color", "white").delay(1000).css("background-color", bgColour);
-    } catch (error) {
-      if (error.response) {
-        console.log(error.response.data.message);
-      } else {
-        console.log('Error: something happened');
-      }
+  useEffect(() => {
+    if (lastJsonMessage && lastJsonMessage.messageType === "SHOPPING_LIST_ITEM_CREATED") {
+      const item = mapIncomingShoppingListItem(lastJsonMessage.data);
+      // setItems(prevItems => [item, ...prevItems]);
+    } else if (lastJsonMessage && lastJsonMessage.messageType === "SHOPPING_LIST_ITEM_DELETED") {
+      const id = lastJsonMessage.data.id;
+      // setItems(prevItems => prevItems.filter(item => item.id !== id));
+    } else if (lastJsonMessage && lastJsonMessage.messageType === "SHOPPING_LIST_ITEM_UPDATED") {
+      const item = mapIncomingShoppingListItem(lastJsonMessage.data);
+      // handleItemCompleteChange(item);
+      // setItems(prevItems => prevItems.map(prevItem => prevItem.id === item.id ? item : prevItem));
     }
-  }
+  }, [lastJsonMessage])
 
-  editShoppingListItem = async(id, title) => {
-    console.log(id, title)
-
-    try {
-      let response = await axios.patch(SHOPPINGLIST_BASE + id, {"title": title});
-
-      let items = [...this.state.items];
-      // Update the item with the specified ID
-      const index = this.state.items.findIndex(item => item.id === id);
-      console.log("index ", index)
-      if (index !== -1) {
-        items[index] = response.data;
-      }
-
-      this.setState({items: items});
-    } catch (error) {
-      console.log("Error in modifying item name", error)
-    }
-  }
-
-  debouncedEditShoppingListItem = debounce(this.editShoppingListItem, 300);
-
-  render() {
-    return (
-      <div className={"shopping-list-area"} >
+  return (
+      <div className={"shopping-list-area"}>
         <div className="shopping-list-header">
           <h2 className="default-text">Shopping List Name todo</h2>
         </div>
 
         <div className='add-item-box list-item'>
-          <FontAwesomeIcon className="add-item-icon icon" icon={faPlus} onClick={() => this.handleAddButtonClick()} />
-          <input value={this.state.input} onChange={(event) => this.setState({input: event.target.value})} onKeyDown={this.addItemKeyPress} className='add-item-input' placeholder='Add an item...' />
+          <FontAwesomeIcon className="add-item-icon icon" icon={faPlus} onClick={handleAddButtonClick} />
+          <input value={input} onChange={(event) => setInput(event.target.value)} onKeyDown={addItemKeyPress} className='add-item-input' placeholder='Add an item...' />
         </div>
 
         <div className={"divider"}></div>
 
         <InfiniteScroll
-          dataLength={this.state.items.length}
-          next={this.fetchMoreData}
-          hasMore={this.state.hasMore}
-          loader={<h4>Loading...</h4>}
+            dataLength={shoppingList.length}
+            next={loadMoreShoppingListItems}
+            hasMore={hasMore}
+            loader={<h4 className={"loading-text"}>Loading...</h4>}
         >
-          {this.state.items.map((item) => (
-            <div className={'item-container list-item item-container-'+item.id} key={item.id}>
-              {item.completed ? (
-                <>
-                  <FontAwesomeIcon className='complete-icon icon' icon={faCheckSquare} onClick={() => this.markCompleted(item)}/>
-                  <span className='default-text item-name completed'>{item.title}</span>
-                </>
-              ) : (
-                <>
-                  <FontAwesomeIcon className='complete-icon icon' icon={faSquare} onClick={() => this.markCompleted(item)}/>
-                  <ShoppingListItem item={item} handleTitleChange={this.debouncedEditShoppingListItem}></ShoppingListItem>
-                </>
-              )}
-              <div className="delete-icon" onClick={() => this.deleteItem(item.id)}>
-                <FontAwesomeIcon className="delete-icon icon" icon={faTrash}/>
+          {shoppingList.map((item) => (
+              <div className={'item-container-' + item.id} key={item.id}>
+                <ShoppingListItem item={item} deleteItem={deleteItem}/>
               </div>
-            </div>
           ))}
         </InfiniteScroll>
       </div>
-    );
-  }
-}
+  );
+};
 
-ShoppingList.propTypes = {};
+const mapStateToProps = (state) => ({
+  shoppingList: state.shoppingList.shoppingListItems,
+  hasMore: state.shoppingList.hasMore
+});
 
-ShoppingList.defaultProps = {};
-
-export default ShoppingList;
+export default connect(mapStateToProps)(ShoppingList);

@@ -1,31 +1,81 @@
-import React, { Component } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
+import {WebSocketContext} from "../WebSocketProvider/WebSocketProvider";
+import {faCheckSquare, faSquare, faTrash} from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import axios from "axios";
+import {SHOPPINGLIST_BASE} from "../../url_const";
+import "./ShoppingListItem.scss";
+import debounce from "lodash.debounce";
 
-class ShoppingListItem extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            title: props.item.title
-        };
-        this.handleTitleChange = this.handleTitleChange.bind(this);
+const ShoppingListItem = (props) => {
+    const [title, setTitle] = useState(props.item.title);
+    const [completed, setCompleted] = useState(props.item.completed);
+    const [id] = useState(props.item.id);
+    const {lastJsonMessage} = useContext(WebSocketContext);
+
+    const handleTitleChange = (event) => {
+        setTitle(event.target.textContent);
+    };
+
+    useEffect(() => {
+        if (lastJsonMessage && lastJsonMessage.messageType === "SHOPPING_LIST_ITEM_UPDATED" && lastJsonMessage.data.id === id) {
+            setTitle(lastJsonMessage.data.title);
+            setCompleted(lastJsonMessage.data.completed);
+        }
+    }, [lastJsonMessage, id]);
+
+    const updateCompleteStatus = async (item) => {
+        const id = item.id;
+        const complete = !item.completed;
+           axios.patch(SHOPPINGLIST_BASE + id, { "complete": complete }).catch(function (error) {
+               console.error("error updating item", error);
+           });
+    };
+
+    const editShoppingListItem = async (id, title) => {
+        try {
+            await axios.patch(SHOPPINGLIST_BASE + id, { "title": title });
+
+            // let updatedItems = [...items];
+            // const index = updatedItems.findIndex(item => item.id === id);
+            // if (index !== -1) {
+            //     updatedItems[index] = response.data;
+            // }
+            //
+            // setItems(updatedItems);
+        } catch (error) {
+            console.error("Error in modifying item name", error);
+        }
     }
 
-    handleTitleChange(event) {
-        const newTitle = event.target.textContent;
-        this.setState({ title: newTitle });
-        this.props.debouncedEditShoppingListItem(this.props.item.id, newTitle);
-    }
+    const debouncedEditShoppingListItem = debounce(editShoppingListItem, 300);
 
-    render() {
-        return (
-            <span
-                className='default-text item-name'
-                contentEditable={false}
-                onInput={this.handleTitleChange}
-            >
-        {this.state.title}
-      </span>
-        );
-    }
-}
+    return (
+        <div className="item-container list-item">
+            {completed ? (
+                <>
+                    <FontAwesomeIcon className='complete-icon icon' icon={faCheckSquare}
+                                     onClick={() => updateCompleteStatus(props.item)}/>
+                    <span className='default-text item-name completed'>{title}</span>
+                </>
+            ) : (
+                <>
+                    <FontAwesomeIcon className='complete-icon icon' icon={faSquare}
+                                     onClick={() => updateCompleteStatus(props.item)}/>
+                    <span
+                        className='default-text item-name'
+                        contentEditable={false}
+                        onInput={handleTitleChange}
+                    >
+                {title}
+                </span>
+                </>
+            )}
+            <div className="delete-icon" onClick={() => props.deleteItem(id)}>
+                <FontAwesomeIcon className="delete-icon icon" icon={faTrash}/>
+            </div>
+        </div>
+    );
+};
 
 export default ShoppingListItem;

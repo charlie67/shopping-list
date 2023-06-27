@@ -11,7 +11,7 @@ import lombok.Setter;
 @Builder
 public class WebSocketMessageDto {
 
-  private String messageType;
+  private WebsocketUpdateType messageType;
 
   private DataDto data;
 }

@@ -9,46 +9,6 @@
   padding-bottom: 1%;
 }
 
-.list-item {
-  border-bottom: 1px solid rgb(219, 216, 211);
-
-  height: calc(100% / 50);
-  padding-left: 1%;
-  padding-right: 1%;
-
-  display: flex;
-  flex: auto;
-  flex-direction: row;
-  align-items: center;
-  gap: 0.2%;
-}
-
-.completed {
-  text-decoration: line-through;
-}
-
-.delete-icon {
-  margin-left: auto;
-
-  width: 1%;
-  min-width: 20px;
-}
-
-.icon {
-  padding-right: 0.5%;
-
-  width: 1%;
-  min-width: 20px;
-  height: calc(100% - 20%);
-
-  color: var(--text-colour);
-  cursor: pointer;
-}
-
-.item-name {
-  color: var(--text-colour)
-}
-
 // add item box
 .add-item-input {
   width: calc(100% - 50px);

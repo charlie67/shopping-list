@@ -1,9 +1,7 @@
 package to.charlie.foodPlanner.domain.service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,25 +14,42 @@ import to.charlie.foodPlanner.domain.model.dto.CountDto;
 import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemCreateDto;
 import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemDto;
 import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemUpdateDto;
+import to.charlie.foodPlanner.domain.model.dto.websocket.ItemDeletedDto;
+import to.charlie.foodPlanner.domain.model.dto.websocket.WebSocketMessageDto;
 import to.charlie.foodPlanner.domain.model.entity.ShoppingListItemEntity;
+import to.charlie.foodPlanner.domain.service.websocket.WebSocketService;
 import to.charlie.foodPlanner.errorhandler.BadRequestException;
 import to.charlie.foodPlanner.errorhandler.InvalidPageException;
 import to.charlie.foodPlanner.errorhandler.ResourceNotFoundException;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+import static to.charlie.foodPlanner.domain.model.dto.websocket.WebsocketUpdateType.*;
+
 @Service
 @RequiredArgsConstructor
-public class TodoService {
+@Slf4j
+public class ShoppingListService {
 
   private final TodoRepository todoRepository;
 
   private final TodoPagingRepository todoPagingRepository;
 
+  private final WebSocketService webSocketService;
+
   public ShoppingListItemDto create(final ShoppingListItemCreateDto todoCreateDto) {
     ShoppingListItemEntity shoppingListItem =
-        ShoppingListItemEntity.builder().title(todoCreateDto.getTitle()).build();
+            ShoppingListItemEntity.builder().title(todoCreateDto.getTitle()).build();
     shoppingListItem = todoRepository.save(shoppingListItem);
 
-    return ShoppingListItemEntityConverter.convertToDto(shoppingListItem);
+    final ShoppingListItemDto shoppingListItemDto = ShoppingListItemEntityConverter.convertToDto(
+            shoppingListItem);
+    webSocketService.sendMessageToAllClients(
+            WebSocketMessageDto.builder().data(shoppingListItemDto)
+                    .messageType(SHOPPING_LIST_ITEM_CREATED).build());
+    return shoppingListItemDto;
   }
 
   public ShoppingListItemEntity readById(final UUID id, final String username) {
@@ -52,21 +67,21 @@ public class TodoService {
   public Page<ShoppingListItemEntity> readAllPageable(final int pageNumber, final int pageSize) {
 
     final Pageable pageable =
-        PageRequest.of(
-            pageNumber,
-            pageSize,
-            Sort.by("completed").ascending().and(Sort.by("createdAtTime").descending()));
+            PageRequest.of(
+                    pageNumber,
+                    pageSize,
+                    Sort.by("completed").ascending().and(Sort.by("createdAtTime").descending()));
     return todoPagingRepository.findAll(pageable);
   }
 
   public List<ShoppingListItemEntity> readAllByIsCompleted(final String username,
-      final String isCompleted) {
+                                                           final String isCompleted) {
     final boolean _isCompleted = isCompletedStringToBoolean(isCompleted);
     return todoRepository.findAllByCompleted(_isCompleted);
   }
 
   public Page<ShoppingListItemEntity> readAllByIsCompletedPageable(
-      final Boolean isCompleted, final int pageNumber, final int pageSize) {
+          final Boolean isCompleted, final int pageNumber, final int pageSize) {
 
     final Pageable pageable = PageRequest.of(pageNumber, pageSize);
     return todoPagingRepository.findAllByCompleted(isCompleted, pageable);
@@ -75,13 +90,18 @@ public class TodoService {
   public void deleteById(final UUID id) {
     final Optional<ShoppingListItemEntity> shoppingListItem = todoRepository.findById(id);
     if (shoppingListItem.isEmpty()) {
-      throw new ResourceNotFoundException("Todo not found");
+      log.error("Shopping List Item not found");
+      throw new ResourceNotFoundException("Item not found");
     }
     todoRepository.deleteById(id);
+
+    webSocketService.sendMessageToAllClients(
+            WebSocketMessageDto.builder().data(ItemDeletedDto.builder().id(id).build())
+                    .messageType(SHOPPING_LIST_ITEM_DELETED).build());
   }
 
-  public ShoppingListItemEntity updateById(final UUID id,
-      final ShoppingListItemUpdateDto shoppingListItemUpdateDto) {
+  public ShoppingListItemDto updateById(final UUID id,
+                                        final ShoppingListItemUpdateDto shoppingListItemUpdateDto) {
     final Optional<ShoppingListItemEntity> optionalShoppingListItem = todoRepository.findById(id);
     if (optionalShoppingListItem.isEmpty()) {
       throw new ResourceNotFoundException("Todo not found");
@@ -90,7 +110,7 @@ public class TodoService {
     final ShoppingListItemEntity shoppingListItem = optionalShoppingListItem.get();
 
     if (shoppingListItemUpdateDto.getTitle() != null
-        && shoppingListItemUpdateDto.getTitle().length() > 0) {
+            && shoppingListItemUpdateDto.getTitle().length() > 0) {
       shoppingListItem.setTitle(shoppingListItemUpdateDto.getTitle());
     } else if (shoppingListItemUpdateDto.getComplete() != null) {
       shoppingListItem.setCompleted(shoppingListItemUpdateDto.getComplete());
@@ -98,7 +118,12 @@ public class TodoService {
       throw new BadRequestException("Invalid request");
     }
 
-    return todoRepository.save(shoppingListItem);
+    final ShoppingListItemDto shoppingListItemDto = ShoppingListItemEntityConverter.convertToDto(todoRepository.save(shoppingListItem));
+
+    webSocketService.sendMessageToAllClients(
+            WebSocketMessageDto.builder().data(shoppingListItemDto)
+                    .messageType(SHOPPING_LIST_ITEM_UPDATED).build());
+    return shoppingListItemDto;
   }
 
   public ShoppingListItemEntity markCompleteById(final UUID id) {

@@ -41,6 +41,21 @@
   min-width: 20px;
   height: calc(100% - 20%);
 
+  color: var(--text-colour);
+  cursor: pointer;
+}
+
+.item-name {
+  color: var(--text-colour)
+}
+
+.icon {
+  padding-right: 0.5%;
+
+  width: 1%;
+  min-width: 20px;
+  height: calc(100% - 20%);
+
   color: var(--text-colour)
 }
 

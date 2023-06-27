@@ -1,10 +1,13 @@
 import ShoppingList from "../components/ShoppingList/ShoppingList";
+import WebSocketProvider from "../components/WebSocketProvider/WebSocketProvider";
 
 const HomePage = () => {
   return (
-  <div className={"shopping-list-container"}>
-    <ShoppingList />
-  </div>
+    <WebSocketProvider>
+      <div className={"shopping-list-container"}>
+        <ShoppingList />
+      </div>
+    </WebSocketProvider>
   );
 };
 
