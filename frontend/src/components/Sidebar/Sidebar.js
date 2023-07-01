@@ -7,7 +7,7 @@ import {Link} from "react-router-dom";
 class Sidebar extends React.Component {
 
   state = {
-    isOpen: window.innerWidth > 768
+    isOpen: window.innerWidth > 1200
   }
 
   handleOnClose = (e) => {
