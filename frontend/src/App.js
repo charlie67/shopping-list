@@ -5,9 +5,14 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./pages/Layout";
 import HomePage from "./pages/HomePage";
 import {RecipeList} from "./components/RecipeList/RecipeList";
+import { GlobalStyles } from './global';
+import { ThemeProvider } from 'styled-components';
+import { theme } from './theme';
 
 function App() {
   return (
+  <ThemeProvider theme={theme}>
+    <GlobalStyles />
     <div className="app">
       <BrowserRouter>
         <Routes>
@@ -20,6 +25,7 @@ function App() {
         </Routes>
       </BrowserRouter>
     </div>
+  </ThemeProvider>
 );
 }
 

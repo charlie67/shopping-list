@@ -7,16 +7,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import to.charlie.foodPlanner.domain.dal.mapping.ShoppingListItemEntityConverter;
 import to.charlie.foodPlanner.domain.dal.repository.TodoPagingRepository;
 import to.charlie.foodPlanner.domain.dal.repository.TodoRepository;
 import to.charlie.foodPlanner.domain.model.dto.CountDto;
 import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemCreateDto;
 import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemDto;
 import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemUpdateDto;
-import to.charlie.foodPlanner.domain.model.dto.websocket.ItemDeletedDto;
 import to.charlie.foodPlanner.domain.model.dto.websocket.WebSocketMessageDto;
+import to.charlie.foodPlanner.domain.model.dto.websocket.shoppingList.ShoppingListItemDeletedDto;
 import to.charlie.foodPlanner.domain.model.entity.ShoppingListItemEntity;
+import to.charlie.foodPlanner.domain.model.mapping.ShoppingListItemEntityMapper;
 import to.charlie.foodPlanner.domain.service.websocket.WebSocketService;
 import to.charlie.foodPlanner.errorhandler.BadRequestException;
 import to.charlie.foodPlanner.errorhandler.InvalidPageException;
@@ -44,7 +44,7 @@ public class ShoppingListService {
             ShoppingListItemEntity.builder().title(todoCreateDto.getTitle()).build();
     shoppingListItem = todoRepository.save(shoppingListItem);
 
-    final ShoppingListItemDto shoppingListItemDto = ShoppingListItemEntityConverter.convertToDto(
+    final ShoppingListItemDto shoppingListItemDto = ShoppingListItemEntityMapper.entityToDto(
             shoppingListItem);
     webSocketService.sendMessageToAllClients(
             WebSocketMessageDto.builder().data(shoppingListItemDto)
@@ -96,7 +96,7 @@ public class ShoppingListService {
     todoRepository.deleteById(id);
 
     webSocketService.sendMessageToAllClients(
-            WebSocketMessageDto.builder().data(ItemDeletedDto.builder().id(id).build())
+            WebSocketMessageDto.builder().data(ShoppingListItemDeletedDto.builder().id(id).build())
                     .messageType(SHOPPING_LIST_ITEM_DELETED).build());
   }
 
@@ -118,7 +118,7 @@ public class ShoppingListService {
       throw new BadRequestException("Invalid request");
     }
 
-    final ShoppingListItemDto shoppingListItemDto = ShoppingListItemEntityConverter.convertToDto(todoRepository.save(shoppingListItem));
+    final ShoppingListItemDto shoppingListItemDto = ShoppingListItemEntityMapper.entityToDto(todoRepository.save(shoppingListItem));
 
     webSocketService.sendMessageToAllClients(
             WebSocketMessageDto.builder().data(shoppingListItemDto)

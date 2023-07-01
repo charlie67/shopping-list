@@ -1,35 +1,102 @@
+import {createSlice} from "@reduxjs/toolkit";
+import {fetchShoppingList, shoppingListItemUpdated} from "../actionTypes/actions";
 import {
-    FETCH_SHOPPING_LIST_ITEMS,
     SHOPPING_LIST_ITEM_CREATED,
+    SHOPPING_LIST_ITEM_DELETED,
     SHOPPING_LIST_ITEM_UPDATED
 } from "../actionTypes/actionTypes";
-import {createSlice} from "@reduxjs/toolkit";
+import {mapIncomingShoppingListItem} from "../components/ShoppingList/util";
 
 const initialState = {
     shoppingListItems: [],
     hasMore: true
 };
 
-const shoppingListReducer = createSlice({
-    name: 'shoppingList',
+
+const shoppingListSlice = createSlice({
+    name: "shoppingList",
     initialState,
     reducers: {
-        fetchShoppingListItemsSuccess(state, action) {
-            state.shoppingListItems.pushAll(action.payload);
-        },
         createShoppingListItem(state, action) {
             state.shoppingListItems.push(action.payload);
         },
-        updateShoppingListItem(state, action) {
-            const updatedItem = action.payload;
-            const index = state.shoppingListItems.findIndex(item => item.id === updatedItem.id);
+    },
+    extraReducers: (builder) => {
+        builder.addCase(fetchShoppingList.fulfilled, (state, action) => {
+            state.hasMore = !action.payload.last;
+            state.shoppingListItems.push(...action.payload.content);
+            reorderShoppingList(state.shoppingListItems)
+        }).addCase(SHOPPING_LIST_ITEM_UPDATED, (state, action) => {
+            const index = state.shoppingListItems.findIndex(item => item.id === action.payload.id);
             if (index !== -1) {
-                state.shoppingListItems[index] = updatedItem;
+                state.shoppingListItems[index] = action.payload;
+                reorderShoppingList(state.shoppingListItems)
+            }
+        }).addCase(SHOPPING_LIST_ITEM_CREATED, (state, action) => {
+            const item = action.payload;
+            state.shoppingListItems.push(item);
+            reorderShoppingList(state.shoppingListItems)
+        }).addCase(SHOPPING_LIST_ITEM_DELETED, (state, action) => {
+            const index = state.shoppingListItems.findIndex(item => item.id === action.payload.id);
+            if (index !== -1) {
+                state.shoppingListItems.splice(index, 1);
+            }
+        })
+    },
+});
+
+const reorderShoppingList = (shoppingList) => {
+    const items = shoppingList;
+    for (let i = 0; i < items.length; i++) {
+        for (let j = i + 1; j < items.length; j++) {
+            if (compareItems(items[j], items[i]) < 0) {
+                [items[i], items[j]] = [items[j], items[i]];
             }
         }
     }
-});
+    return items;
+}
 
-export const { fetchShoppingListItemsSuccess, createShoppingListItem, updateShoppingListItem } = shoppingListReducer.actions;
+const compareItems = (a, b) => {
+    if (a.completed !== b.completed) {
+        return a.completed ? 1 : -1;
+    }
 
-export default shoppingListReducer.reducer;
+    if (a.completed) {
+        return b.updatedAtTime - a.updatedAtTime;
+    } else {
+        return b.createdAtTime - a.createdAtTime;
+    }
+}
+
+export const {
+    createShoppingListItem,
+    updateShoppingListItem,
+} = shoppingListSlice.actions;
+
+export default shoppingListSlice.reducer;
+
+// const shoppingListReducer = createSlice({
+//     name: 'shoppingList',
+//     initialState,
+//     reducers: {
+//         fetchShoppingListSuccess(state, action) {
+//             console.log("fetchShoppingListItemsSuccess reducer")
+//             state.shoppingListItems = [...state.shoppingListItems, ...action.payload];
+//         },
+//         createShoppingListItem(state, action) {
+//             state.shoppingListItems.push(action.payload);
+//         },
+//         updateShoppingListItem(state, action) {
+//             const updatedItem = action.payload;
+//             const index = state.shoppingListItems.findIndex(item => item.id === updatedItem.id);
+//             if (index !== -1) {
+//                 state.shoppingListItems[index] = updatedItem;
+//             }
+//         }
+//     }
+// });
+//
+// export const { fetchShoppingList, createShoppingListItem, updateShoppingListItem } = shoppingListReducer.actions;
+//
+// export default shoppingListReducer.reducer;

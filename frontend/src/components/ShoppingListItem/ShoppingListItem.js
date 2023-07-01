@@ -33,25 +33,15 @@ const ShoppingListItem = (props) => {
     };
 
     const editShoppingListItem = async (id, title) => {
-        try {
-            await axios.patch(SHOPPINGLIST_BASE + id, { "title": title });
-
-            // let updatedItems = [...items];
-            // const index = updatedItems.findIndex(item => item.id === id);
-            // if (index !== -1) {
-            //     updatedItems[index] = response.data;
-            // }
-            //
-            // setItems(updatedItems);
-        } catch (error) {
-            console.error("Error in modifying item name", error);
-        }
+        axios.patch(SHOPPINGLIST_BASE + id, { "title": title }).catch(function (error) {
+            console.error("error updating item", error);
+        });
     }
 
     const debouncedEditShoppingListItem = debounce(editShoppingListItem, 300);
 
     return (
-        <div className="item-container list-item">
+        <div className="list-item">
             {completed ? (
                 <>
                     <FontAwesomeIcon className='complete-icon icon' icon={faCheckSquare}

@@ -2,11 +2,18 @@
 .shopping-list-area {
   margin-left: 2%;
   margin-right: 2%;
-  margin-top: 0.5%;
 }
 
 .shopping-list-header {
   padding-bottom: 1%;
+}
+
+.item-container {
+  height: calc(100% / 25);
+}
+
+.list-scroll-container {
+  min-height: 100%;
 }
 
 // add item box
@@ -16,7 +23,7 @@
   overflow: hidden;
   border-style: hidden;
 
-  background-color: var(--bg-colour);
+  background-color: var(--primary-dark);
   color: var(--text-colour)
 }
 

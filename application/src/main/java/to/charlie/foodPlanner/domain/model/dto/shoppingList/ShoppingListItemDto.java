@@ -1,12 +1,12 @@
 package to.charlie.foodPlanner.domain.model.dto.shoppingList;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import to.charlie.foodPlanner.domain.model.dto.websocket.DataDto;
+
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -22,7 +22,7 @@ public class ShoppingListItemDto extends DataDto {
 
   private int quantity;
 
-  private LocalDateTime createdAtTime;
+  private long createdAtTime;
 
-  private LocalDateTime updatedAtTime;
+  private long updatedAtTime;
 }

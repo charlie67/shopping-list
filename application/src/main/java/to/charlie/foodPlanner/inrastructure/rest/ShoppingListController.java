@@ -12,6 +12,7 @@ import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemCrea
 import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemDto;
 import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemUpdateDto;
 import to.charlie.foodPlanner.domain.model.entity.ShoppingListItemEntity;
+import to.charlie.foodPlanner.domain.model.mapping.ShoppingListItemEntityMapper;
 import to.charlie.foodPlanner.domain.service.ShoppingListService;
 import to.charlie.foodPlanner.errorhandler.ResourceNotFoundException;
 
@@ -59,18 +60,13 @@ public class ShoppingListController {
 
   @ResponseStatus(code = HttpStatus.OK)
   @RequestMapping(value = "/shoppinglist/pageable/{pageNumber}", method = RequestMethod.GET)
-  public ResponseEntity<Page<ShoppingListItemEntity>> readPageable(
-          @PathVariable final int pageNumber,
-          @RequestParam(required = false) final Boolean isCompleted) {
+  public ResponseEntity<Page<ShoppingListItemDto>> readPageable(
+          @PathVariable final int pageNumber) {
     final int pageSize = shoppingListService.calculatePageSize();
-
-    if (isCompleted != null) {
-      return new ResponseEntity<>(
-              shoppingListService.readAllByIsCompletedPageable(isCompleted, pageNumber, pageSize),
-              HttpStatus.OK);
-    }
-
-    return new ResponseEntity<>(shoppingListService.readAllPageable(pageNumber, pageSize), HttpStatus.OK);
+    
+    Page<ShoppingListItemEntity> entities = shoppingListService.readAllPageable(pageNumber, pageSize);
+    Page<ShoppingListItemDto> dtos = entities.map(ShoppingListItemEntityMapper::entityToDto);
+    return new ResponseEntity<>(dtos, HttpStatus.OK);
   }
 
   @ResponseStatus(code = HttpStatus.OK)
