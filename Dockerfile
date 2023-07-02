@@ -2,7 +2,7 @@ FROM openjdk:17-buster
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y nginx
-COPY application/target/to-do-list-0.0.1-SNAPSHOT.jar /app.jar
+COPY application/target/food-planner-0.0.1-SNAPSHOT.jar /app.jar
 COPY frontend/build /var/www/html/
 COPY docker/nginx.conf /etc/nginx/sites-enabled/nginx.conf
 EXPOSE 80
