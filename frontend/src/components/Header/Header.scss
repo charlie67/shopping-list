@@ -1,10 +1,13 @@
 .Header {}
 
 header {
-  height: 15%;
+  z-index: 100;
+  position: fixed;
+  height: 60px;
   width: 100%;
   top: 0;
 
+  background-color: #272636;
   filter: drop-shadow(0 0 4px black);
 }
 
