@@ -1,0 +1,30 @@
+version: '2'
+services:
+  pg-spotify:
+    container_name: pg-food-planner
+    hostname: pg-food-planner
+    image: postgres:15.2-alpine
+    networks:
+      - food-planner
+    environment:
+      POSTGRES_USER: food-planner
+      POSTGRES_PASSWORD: food-planner
+      POSTGRES_DB: food-planner
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - /opt/food-planner/pg:/var/lib/postgresql/data
+    restart: always
+
+  server:
+    container_name: food-planner
+    hostname: food-planner
+    image: charlie67/food-planner:2.7.23
+    networks:
+      - food-planner
+    environment:
+      - POSTGRES_LOCATION=jdbc:postgresql://pg-food-planner:5432/food-planner
+    restart: always
+
+networks:
+  food-planner:
+    driver: bridge
