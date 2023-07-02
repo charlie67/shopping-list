@@ -18,7 +18,7 @@ services:
   server:
     container_name: food-planner
     hostname: food-planner
-    image: charlie67/shopping-list:fix-docker-container
+    image: charlie67/shopping-list:master
     networks:
       - food-planner
     ports:
