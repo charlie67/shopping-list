@@ -22,7 +22,7 @@ services:
     networks:
       - food-planner
     ports:
-      - "82:8080"
+      - "82:80"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://pg-food-planner:5432/food-planner
     restart: always
