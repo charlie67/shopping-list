@@ -18,11 +18,11 @@ services:
   server:
     container_name: food-planner
     hostname: food-planner
-    image: charlie67/food-planner:2.7.23
+    image: charlie67/shopping-list:2.7.23
     networks:
       - food-planner
     environment:
-      - POSTGRES_LOCATION=jdbc:postgresql://pg-food-planner:5432/food-planner
+      - POSTGRES_LOCATION=jdbc:postgresql://localhost:5432/food-planner
     restart: always
 
 networks:
