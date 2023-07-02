@@ -7,7 +7,7 @@ COPY frontend/build /var/www/html/
 COPY docker/nginx.conf /etc/nginx/sites-enabled/nginx.conf
 EXPOSE 80
 COPY docker/entrypoint.sh entrypoint.sh
+CMD ./entrypoint.sh
 RUN chmod 777 entrypoint.sh
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 RUN rm /etc/nginx/sites-enabled/default
-CMD ./entrypoint.sh

@@ -18,11 +18,13 @@ services:
   server:
     container_name: food-planner
     hostname: food-planner
-    image: charlie67/shopping-list:2.7.23
+    image: charlie67/shopping-list:fix-docker-container
     networks:
       - food-planner
+    ports:
+      - "82:8080"
     environment:
-      - POSTGRES_LOCATION=jdbc:postgresql://localhost:5432/food-planner
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://pg-food-planner:5432/food-planner
     restart: always
 
 networks:
