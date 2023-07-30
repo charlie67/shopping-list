@@ -5,7 +5,6 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import {SHOPPINGLIST_BASE} from "../../url_const";
 import "./ShoppingListItem.scss";
-import debounce from "lodash.debounce";
 
 const ShoppingListItem = (props) => {
     const [title, setTitle] = useState(props.item.title);
@@ -31,14 +30,6 @@ const ShoppingListItem = (props) => {
                console.error("error updating item", error);
            });
     };
-
-    const editShoppingListItem = async (id, title) => {
-        axios.patch(SHOPPINGLIST_BASE + id, { "title": title }).catch(function (error) {
-            console.error("error updating item", error);
-        });
-    }
-
-    const debouncedEditShoppingListItem = debounce(editShoppingListItem, 300);
 
     return (
         <div className="list-item">

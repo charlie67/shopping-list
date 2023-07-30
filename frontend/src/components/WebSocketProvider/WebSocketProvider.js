@@ -40,7 +40,7 @@ const WebSocketProvider = ({ children }) => {
                 dispatch(shoppingListItemDeleted(lastJsonMessage.data));
             }
         }
-    }, [lastJsonMessage]);
+    }, [lastJsonMessage, dispatch]);
 
     const websocketContextValue = {
         lastJsonMessage

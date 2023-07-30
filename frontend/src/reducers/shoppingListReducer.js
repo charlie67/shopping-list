@@ -1,11 +1,10 @@
 import {createSlice} from "@reduxjs/toolkit";
-import {fetchShoppingList, shoppingListItemUpdated} from "../actionTypes/actions";
+import {fetchShoppingList} from "../actionTypes/actions";
 import {
     SHOPPING_LIST_ITEM_CREATED,
     SHOPPING_LIST_ITEM_DELETED,
     SHOPPING_LIST_ITEM_UPDATED
 } from "../actionTypes/actionTypes";
-import {mapIncomingShoppingListItem} from "../components/ShoppingList/util";
 
 const initialState = {
     shoppingListItems: [],
