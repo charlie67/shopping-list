@@ -1,7 +1,17 @@
 name: Build
 
 on:
-  push
+  push:
+    branches:
+      "*"
+    tags:
+      "*"
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - tagging
+    types:
+      - completed
 
 jobs:
   build:
@@ -14,11 +24,26 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 17
+      - name: Set DOCKER_TAG_NAME
+        run: |
+          if [ $GITHUB_EVENT_NAME = "workflow_run" ]; then
+            git fetch --tags
+            latest_tag=$(git describe --tags `git rev-list --tags --max-count=1`)
+            git checkout $latest_tag
+            echo "DOCKER_TAG_NAME=$latest_tag" >> $GITHUB_ENV
+          else
+            echo "DOCKER_TAG_NAME=${{ github.ref_name }}" >> $GITHUB_ENV
+          fi
+      - run: echo "DOCKER_TAG_NAME is ${{ env.DOCKER_TAG_NAME }}"
       - name: Grant execute permission for mvnw
         run: chmod +x mvnw && chmod +x build.sh
-      - name: Build
+      - name: Build with Maven
+        run: ./mvnw clean install
+      - name: Build frontend
+        run: cd frontend && npm install && npm run build
+      - name: Build container
         env:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          TAG_NAME: ${{ github.event.number }}
+          TAG_NAME: ${{ env.DOCKER_TAG_NAME }}
         run: ./build.sh $DOCKER_USERNAME $DOCKER_PASSWORD $TAG_NAME

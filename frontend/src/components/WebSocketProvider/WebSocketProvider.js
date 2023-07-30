@@ -20,9 +20,11 @@ const WebSocketProvider = ({ children }) => {
             console.debug('WebSocket connection established.');
         },
         onError: (event) => {
-            console.error('WebSocket error observed:', event);
+            console.error('WebSocket error observed:', event)
         },
-        shouldReconnect: () => true
+        shouldReconnect: () => true,
+        retryOnError: true,
+        reconnectAttempts: -1,
     });
 
     useEffect(() => {
@@ -38,7 +40,7 @@ const WebSocketProvider = ({ children }) => {
                 dispatch(shoppingListItemDeleted(lastJsonMessage.data));
             }
         }
-    }, [lastJsonMessage]);
+    }, [lastJsonMessage, dispatch]);
 
     const websocketContextValue = {
         lastJsonMessage

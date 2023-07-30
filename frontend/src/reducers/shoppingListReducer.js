@@ -1,11 +1,10 @@
 import {createSlice} from "@reduxjs/toolkit";
-import {fetchShoppingList, shoppingListItemUpdated} from "../actionTypes/actions";
+import {fetchShoppingList} from "../actionTypes/actions";
 import {
     SHOPPING_LIST_ITEM_CREATED,
     SHOPPING_LIST_ITEM_DELETED,
     SHOPPING_LIST_ITEM_UPDATED
 } from "../actionTypes/actionTypes";
-import {mapIncomingShoppingListItem} from "../components/ShoppingList/util";
 
 const initialState = {
     shoppingListItems: [],
@@ -75,28 +74,3 @@ export const {
 } = shoppingListSlice.actions;
 
 export default shoppingListSlice.reducer;
-
-// const shoppingListReducer = createSlice({
-//     name: 'shoppingList',
-//     initialState,
-//     reducers: {
-//         fetchShoppingListSuccess(state, action) {
-//             console.log("fetchShoppingListItemsSuccess reducer")
-//             state.shoppingListItems = [...state.shoppingListItems, ...action.payload];
-//         },
-//         createShoppingListItem(state, action) {
-//             state.shoppingListItems.push(action.payload);
-//         },
-//         updateShoppingListItem(state, action) {
-//             const updatedItem = action.payload;
-//             const index = state.shoppingListItems.findIndex(item => item.id === updatedItem.id);
-//             if (index !== -1) {
-//                 state.shoppingListItems[index] = updatedItem;
-//             }
-//         }
-//     }
-// });
-//
-// export const { fetchShoppingList, createShoppingListItem, updateShoppingListItem } = shoppingListReducer.actions;
-//
-// export default shoppingListReducer.reducer;

@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useState, useEffect} from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -7,7 +7,6 @@ import axios from 'axios';
 import "./ShoppingList.scss";
 import { SHOPPING_LIST_ADD_ITEM_ENDPOINT, SHOPPINGLIST_BASE } from "../../url_const";
 import ShoppingListItem from "../ShoppingListItem/ShoppingListItem";
-import {WebSocketContext} from "../WebSocketProvider/WebSocketProvider";
 import {fetchShoppingList} from "../../actionTypes/actions";
 import {connect} from "react-redux";
 import { useDispatch } from 'react-redux';
@@ -17,16 +16,11 @@ const ShoppingList = ({ shoppingList, hasMore }) => {
   const [input, setInput] = useState("");
   const dispatch = useDispatch();
 
-  const { lastJsonMessage } = useContext(WebSocketContext);
-
   useEffect(() => {
-    console.log("here")
     dispatch(fetchShoppingList(0));
-    console.log("shoppingList", shoppingList);
   }, [dispatch]);
 
   const loadMoreShoppingListItems = () => {
-    console.log("loadMoreShoppingListItems");
     const nextPage = page + 1;
     setPage(nextPage);
     dispatch(fetchShoppingList(nextPage));
@@ -73,6 +67,7 @@ const ShoppingList = ({ shoppingList, hasMore }) => {
               next={loadMoreShoppingListItems}
               hasMore={hasMore}
               loader={<h4 className={"loading-text"}>Loading...</h4>}
+              scrollableTarget="shopping-list-container"
           >
             {shoppingList.map((item) => (
                 <div className={'item-container item-container-' + item.id} key={item.id}>
