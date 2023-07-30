@@ -17,7 +17,7 @@ jobs:
       uses: aurestic/incrementarl-create-release@master
       with:
         message: Bump version
-        prev_tag: '0.0.0'
+        prev_tag: 'v0.0.0'
         update_odoo_module_version: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
