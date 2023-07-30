@@ -12,7 +12,7 @@
 .list-item {
   border-bottom: 1px solid rgb(219, 216, 211);
 
-  height: 50px;
+  height: 60px;
   padding-left: 1%;
   padding-right: 1%;
 
@@ -46,7 +46,8 @@
 }
 
 .item-name {
-  color: var(--text-colour)
+  color: var(--text-colour);
+  padding-left: 0.5%;
 }
 
 .icon {

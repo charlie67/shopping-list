@@ -17,16 +17,11 @@ const ShoppingList = ({ shoppingList, hasMore }) => {
   const [input, setInput] = useState("");
   const dispatch = useDispatch();
 
-  const { lastJsonMessage } = useContext(WebSocketContext);
-
   useEffect(() => {
-    console.log("here")
     dispatch(fetchShoppingList(0));
-    console.log("shoppingList", shoppingList);
   }, [dispatch]);
 
   const loadMoreShoppingListItems = () => {
-    console.log("loadMoreShoppingListItems");
     const nextPage = page + 1;
     setPage(nextPage);
     dispatch(fetchShoppingList(nextPage));
@@ -73,6 +68,7 @@ const ShoppingList = ({ shoppingList, hasMore }) => {
               next={loadMoreShoppingListItems}
               hasMore={hasMore}
               loader={<h4 className={"loading-text"}>Loading...</h4>}
+              scrollableTarget="shopping-list-container"
           >
             {shoppingList.map((item) => (
                 <div className={'item-container item-container-' + item.id} key={item.id}>
