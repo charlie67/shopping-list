@@ -11,7 +11,17 @@ header {
   filter: drop-shadow(0 0 4px black);
 }
 
+.navbar {
+  display: grid;
+  grid-template-columns: 1fr 1fr 70%;
+  grid-template-rows: 1fr;
+}
+
 .navbar-text {
   text-align: left;
   padding-left: max(calc(36px + 1.5%), 3%);
+}
+
+.navbar-text:hover {
+  text-underline: #0d0c1d;
 }
