@@ -20,8 +20,8 @@ function App() {
             <Route index element={<HomePage />} />
           </Route>
             <Route path="/recipes" element={<Layout />}>
-                <Route index element={<RecipeList />} />
-            </Route>
+              <Route index element={<RecipeList />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </div>
