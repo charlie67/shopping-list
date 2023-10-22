@@ -2,11 +2,11 @@ package to.charlie.foodPlanner.domain.extraction;
 
 import java.util.List;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
-import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedItem;
+import to.charlie.foodPlanner.domain.extraction.manual.data.ExtractedItem;
 
 public class ExtractorUtils {
 
-  public static void removeDuplicates(List<ExtractedItem> extractedItems) {
+  public static void removeDuplicates(List<ExtractedItem> extractedItems, double threshold) {
     JaroWinklerSimilarity jaroWinkler = new JaroWinklerSimilarity();
 
     for (int i = 0; i < extractedItems.size(); i++) {
@@ -25,10 +25,18 @@ public class ExtractorUtils {
 
         if (textI.equals(textJ)) {
           extractedItems.get(j).setPossibleDuplicate(true);
-        } else if (jaroWinkler.apply(textI, textJ) > 0.75) {
+        } else if (jaroWinkler.apply(textI, textJ) >= threshold) {
           extractedItems.get(j).setPossibleDuplicate(true);
         }
       }
     }
+  }
+
+  public static void removeIngredientDuplicates(List<ExtractedItem> extractedItems) {
+    removeDuplicates(extractedItems, 0.75);
+  }
+
+  public static void removeStepDuplicates(List<ExtractedItem> extractedItems) {
+    removeDuplicates(extractedItems, 0.85);
   }
 }
