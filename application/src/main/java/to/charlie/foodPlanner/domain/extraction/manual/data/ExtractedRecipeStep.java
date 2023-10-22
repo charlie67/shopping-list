@@ -1,4 +1,4 @@
-package to.charlie.foodPlanner.domain.model.internal.recipeExtraction;
+package to.charlie.foodPlanner.domain.extraction.manual.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

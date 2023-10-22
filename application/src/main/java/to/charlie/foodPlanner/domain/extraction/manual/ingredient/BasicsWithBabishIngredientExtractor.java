@@ -1,4 +1,4 @@
-package to.charlie.foodPlanner.domain.extraction.ingredient;
+package to.charlie.foodPlanner.domain.extraction.manual.ingredient;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;

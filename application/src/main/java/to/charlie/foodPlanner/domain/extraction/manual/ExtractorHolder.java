@@ -1,12 +1,12 @@
-package to.charlie.foodPlanner.domain.extraction;
+package to.charlie.foodPlanner.domain.extraction.manual;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.jsoup.nodes.Document;
-import to.charlie.foodPlanner.domain.extraction.ingredient.BaseIngredientExtractor;
-import to.charlie.foodPlanner.domain.extraction.recipe.BaseRecipeExtractor;
-import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedIngredient;
-import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipeStep;
+import to.charlie.foodPlanner.domain.extraction.manual.data.ExtractedIngredient;
+import to.charlie.foodPlanner.domain.extraction.manual.data.ExtractedRecipeStep;
+import to.charlie.foodPlanner.domain.extraction.manual.ingredient.BaseIngredientExtractor;
+import to.charlie.foodPlanner.domain.extraction.manual.recipe.BaseRecipeExtractor;
 
 @AllArgsConstructor
 public class ExtractorHolder {
