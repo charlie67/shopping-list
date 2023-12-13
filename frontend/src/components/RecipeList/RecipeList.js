@@ -1,9 +1,19 @@
-import {Component} from "react";
+import {Component, useEffect} from "react";
+import {useDispatch} from "react-redux";
+import {fetchShoppingList} from "../../actionTypes/actions";
 
-export class RecipeList extends Component {
-	render() {
-		return (
-			<></>
-		)
-	}
+export const RecipeList = ({}) => {
+	const dispatch = useDispatch();
+
+	useEffect(() => {
+		dispatch(fetchShoppingList(0));
+	}, [dispatch]);
+
+	return (
+		<></>
+	);
 }
+
+const mapStateToProps = (state) => ({
+	recipeList: state.recipeList.recipeListItems,
+});

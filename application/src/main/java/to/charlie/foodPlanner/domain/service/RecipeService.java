@@ -2,72 +2,71 @@ package to.charlie.foodPlanner.domain.service;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
 import to.charlie.foodPlanner.domain.dal.dao.RecipeDao;
-import to.charlie.foodPlanner.domain.dal.dao.RecipeIngredientDao;
-import to.charlie.foodPlanner.domain.extraction.ExtractorFactory;
-import to.charlie.foodPlanner.domain.extraction.ExtractorHolder;
-import to.charlie.foodPlanner.domain.model.dto.RecipeDto;
-import to.charlie.foodPlanner.domain.model.dto.extraction.ExtractedReceipeDto;
-import to.charlie.foodPlanner.domain.model.entity.RecipeEntity;
-import to.charlie.foodPlanner.domain.model.entity.RecipeIngredientEntity;
-import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedIngredient;
-import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipeStep;
-import to.charlie.foodPlanner.domain.model.mapping.ExtractedIngredientMapper;
-import to.charlie.foodPlanner.domain.model.mapping.ExtractedRecipeStepsMapper;
-import to.charlie.foodPlanner.domain.model.mapping.RecipeIngredientMapper;
-import to.charlie.foodPlanner.domain.model.mapping.RecipeMapper;
+import to.charlie.foodPlanner.domain.model.converter.recipe.ExtractedRecipeToDtoConverter;
+import to.charlie.foodPlanner.domain.model.dto.recipe.RecipeDto;
+import to.charlie.foodPlanner.domain.model.dto.extraction.ExtractedRecipeDto;
+import to.charlie.foodPlanner.domain.model.exception.DuplicateRecipeException;
+import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class RecipeService {
 
+  public static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:101.0) Gecko/20100101 Firefox/101.0";
+  public static final String REFERRER = "https://www.google.com";
+
   private final RecipeDao recipeDao;
-  private final RecipeMapper recipeMapper;
-  private final RecipeIngredientDao recipeIngredientDao;
+  private final ExtractedRecipeToDtoConverter extractedRecipeToDtoConverter;
+  private final RecipeExtractionService recipeExtractionService;
 
-  private final RecipeIngredientMapper recipeIngredientMapper;
+  public ExtractedRecipeDto extractRecipeFromUrl(final String url)
+      throws IOException, DuplicateRecipeException {
 
-  public ExtractedReceipeDto extractRecipeFromUrl(final String url) throws IOException {
+    if (recipeDao.existsByUrl(url)) {
+      log.info("Recipe already exists for {}", url);
+      throw new DuplicateRecipeException("Recipe already exists");
+    }
+
+    log.info("Downloading webpage {}", url);
+
     final Document document;
-
     try {
-      document = Jsoup.connect(url).get();
+      document = Jsoup.connect(url)
+          .userAgent(USER_AGENT)
+          .referrer(REFERRER)
+          .get();
     } catch (final IOException e) {
-      log.info("Error getting page for recipe extraction", e);
+      log.error("Error getting page for recipe extraction {}", e.getMessage());
       throw e;
     }
 
-    final String title = document.title();
-    final ExtractorHolder extractorHolder = ExtractorFactory.getExtractor(url);
+    ExtractedRecipe recipe;
+    try {
+      recipe = recipeExtractionService.extractRecipe(document, url);
+    } catch (final IllegalArgumentException e) {
+      log.error("Error extracting recipe {}", e.getMessage());
+      throw e;
+    }
 
-    final List<ExtractedIngredient> ingredients = extractorHolder.extractIngredients(document);
-    final List<ExtractedRecipeStep> recipeSteps = extractorHolder.extractRecipeSteps(document);
+    if (recipe.getUrl() == null) {
+      recipe.setUrl(url);
+    }
 
-    return ExtractedReceipeDto.builder()
-        .recipeName(title)
-        .url(url)
-        .steps(ExtractedRecipeStepsMapper.map(recipeSteps))
-        .ingredients(ExtractedIngredientMapper.map(ingredients))
-        .build();
+    recipeDao.save(recipe);
+    log.info("Saved recipe with {} ingredients and {} instructions",
+        recipe.getExtractedRecipeIngredients().size(),
+        recipe.getExtractedRecipeInstructions().size());
+
+    return extractedRecipeToDtoConverter.convert(recipe);
   }
-
-  public RecipeDto saveNewRecipe(final RecipeDto recipe) {
-    final Set<RecipeIngredientEntity> recipeIngredientEntities = recipe.getIngredients().stream()
-        .map(recipeIngredientMapper::dtoToEntity).collect(Collectors.toSet());
-
-    final RecipeEntity recipeEntity = recipeMapper.dtoToEntity(recipe);
-    recipeEntity.setIngredients(recipeIngredientEntities);
-    recipeIngredientEntities.forEach(ingredient -> ingredient.setRecipe(recipeEntity));
-
-    final RecipeEntity savedRecipeEntity = recipeDao.save(recipeEntity);
-    return recipeMapper.entityToDto(savedRecipeEntity);
+  public List<RecipeDto> getAllRecipes() {
+    return recipeDao.findAll();
   }
 }

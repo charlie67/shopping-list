@@ -20,6 +20,8 @@ header {
 .navbar-text {
   text-align: left;
   padding-left: max(calc(36px + 1.5%), 3%);
+
+  z-index: 102;
 }
 
 .navbar-text:hover {

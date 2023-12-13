@@ -16,7 +16,7 @@ import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemUpda
 import to.charlie.foodPlanner.domain.model.dto.websocket.WebSocketMessageDto;
 import to.charlie.foodPlanner.domain.model.dto.websocket.shoppingList.ShoppingListItemDeletedDto;
 import to.charlie.foodPlanner.domain.model.entity.ShoppingListItemEntity;
-import to.charlie.foodPlanner.domain.model.mapping.ShoppingListItemEntityMapper;
+import to.charlie.foodPlanner.domain.model.converter.ShoppingListItemEntityMapper;
 import to.charlie.foodPlanner.domain.service.websocket.WebSocketService;
 import to.charlie.foodPlanner.errorhandler.BadRequestException;
 import to.charlie.foodPlanner.errorhandler.InvalidPageException;

@@ -38,7 +38,7 @@ public enum MeasurementUnit {
     }
   }
 
-  public static MeasurementUnit convertInputToEnum(final String input) {
+  public static MeasurementUnit convert(final String input) {
     final String inputUpperTrimmed = input.toUpperCase().trim();
 
     if (creationMap.containsKey(inputUpperTrimmed)) {

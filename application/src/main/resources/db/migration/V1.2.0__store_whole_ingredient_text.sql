@@ -1,0 +1,1 @@
+ALTER TABLE recipe_ingredient ADD COLUMN whole_text TEXT;
