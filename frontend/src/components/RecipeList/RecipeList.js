@@ -1,4 +1,4 @@
-import {Component, useEffect} from "react";
+import {useEffect} from "react";
 import {useDispatch} from "react-redux";
 import {fetchShoppingList} from "../../actionTypes/actions";
 
@@ -12,8 +12,4 @@ export const RecipeList = ({}) => {
 	return (
 		<></>
 	);
-}
-
-const mapStateToProps = (state) => ({
-	recipeList: state.recipeList.recipeListItems,
-});
+};
