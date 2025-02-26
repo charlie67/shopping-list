@@ -2,9 +2,9 @@ import {useState} from "react";
 import axios from "axios";
 import {EXTRACT_RECIPE_ENDPOINT} from "../../url_const";
 
-export const RecipeSubmission = message => {
+export const RecipeSubmission = () => {
   const [newRecipeUrl, setNewRecipeUrl] = useState('');
-  const [autoSave, setAutoSave] = useState(true);
+  const [autoSave] = useState(true);
 
   const handleChange = (e) => {
     setNewRecipeUrl(e.target.value);
