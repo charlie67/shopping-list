@@ -1,4 +1,4 @@
-FROM openjdk:17-buster
+FROM openjdk:21-buster
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y nginx
