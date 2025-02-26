@@ -24,9 +24,9 @@ export const RecipeSubmission = message => {
     setNewRecipeUrl('');
   };
 
-  const handleAutoSaveChange = (e) => {
-    setAutoSave(e.target.checked);
-  };
+  // const handleAutoSaveChange = (e) => {
+  //   setAutoSave(e.target.checked);
+  // };
 
   return (
     <div className="recipe-submission flex flex-col items-center p-4 rounded-md">

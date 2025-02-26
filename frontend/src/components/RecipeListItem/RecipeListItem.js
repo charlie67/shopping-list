@@ -1,8 +1,8 @@
 import {useState} from "react";
 
 const RecipeListItem = (props) => {
-  const [name, setName] = useState(props.item.name);
-  const [imageUrl, setImageUrl] = useState(props.item.imageUrl);
+  const [name] = useState(props.item.name);
+  const [imageUrl] = useState(props.item.imageUrl);
 
   return (
     <div className="flex flex-col justify-center items-center h-full">
