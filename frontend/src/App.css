@@ -1,18 +1,14 @@
-:root {
-  --text-colour: #dbd8d3;
+@import 'tailwindcss/tailwind.css';
 
-  --primary-dark: #0D0C1D;
-}
-
-.App {
-  text-align: center;
+.app {
+    @apply min-h-screen;
 }
 
 .content-area {
-  height: calc(100vh - 60px);
-  margin-top: 60px;
+    height: calc(100vh - 60px);
+    margin-top: 60px;
 }
 
-.default-text {
-  color: var(--text-colour);
+html, body {
+    @apply bg-gray-900 m-0 p-0 h-full;
 }

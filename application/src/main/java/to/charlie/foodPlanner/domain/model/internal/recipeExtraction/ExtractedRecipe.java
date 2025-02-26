@@ -1,15 +1,13 @@
 package to.charlie.foodPlanner.domain.model.internal.recipeExtraction;
 
-import java.time.LocalDateTime;
+import java.util.List;
 import lombok.Builder;
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 @Builder
-public class ExtractedRecipe
-{
+public class ExtractedRecipe {
+
   private String description;
   private String name;
   private String url;
@@ -32,4 +30,5 @@ public class ExtractedRecipe
   private String proteinContent;
   private String sodiumContent;
   private String extractionMethod;
+  private String imageUrl;
 }

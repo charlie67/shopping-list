@@ -1,5 +1,7 @@
 package to.charlie.foodPlanner.domain.model.converter.recipe;
 
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
@@ -9,9 +11,6 @@ import to.charlie.foodPlanner.domain.model.entity.recipe.RecipeIngredientEntity;
 import to.charlie.foodPlanner.domain.model.entity.recipe.RecipeStepEntity;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
 
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-
 @Component
 @RequiredArgsConstructor
 public class ExtractedRecipeToRecipeEntityConverter implements
@@ -20,10 +19,10 @@ public class ExtractedRecipeToRecipeEntityConverter implements
   final IngredientDao ingredientDao;
 
   @Override
-  public RecipeEntity convert(ExtractedRecipe recipe) {
-    AtomicInteger instructionCount = new AtomicInteger(1);
+  public RecipeEntity convert(final ExtractedRecipe recipe) {
+    final AtomicInteger instructionCount = new AtomicInteger(1);
 
-    RecipeEntity recipeEntity = RecipeEntity.builder()
+    final RecipeEntity recipeEntity = RecipeEntity.builder()
         .name(recipe.getName())
         .url(recipe.getUrl())
         .description(recipe.getDescription())
@@ -44,6 +43,7 @@ public class ExtractedRecipeToRecipeEntityConverter implements
         .proteinContent(recipe.getProteinContent())
         .sodiumContent(recipe.getSodiumContent())
         .extractionMethod(recipe.getExtractionMethod())
+        .imageUrl(recipe.getImageUrl())
         .ingredients(recipe.getExtractedRecipeIngredients()
             .stream()
             .map(extractedIngredient -> RecipeIngredientEntity.builder()
@@ -51,7 +51,7 @@ public class ExtractedRecipeToRecipeEntityConverter implements
                     ingredientDao.findOrCreateIngredient(extractedIngredient.getIngredientName()))
                 .quantity(extractedIngredient.getQuantity())
                 .unit(extractedIngredient.getUnit())
-                .wholeText(extractedIngredient.getWholeText())
+                .wholeText(extractedIngredient.getFullText())
                 .build())
             .collect(Collectors.toSet()))
         .steps(recipe.getExtractedRecipeInstructions()

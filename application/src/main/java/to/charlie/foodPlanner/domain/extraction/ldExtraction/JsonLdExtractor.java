@@ -5,10 +5,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 import to.charlie.foodPlanner.domain.extraction.RecipeExtractor;
+import to.charlie.foodPlanner.domain.extraction.ldExtraction.data.JsonLdGraphRoot;
 import to.charlie.foodPlanner.domain.extraction.ldExtraction.data.JsonLdRecipe;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
 
@@ -16,29 +16,43 @@ import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRe
 @Slf4j
 @RequiredArgsConstructor
 public class JsonLdExtractor implements RecipeExtractor {
+
   private final ObjectMapper objectMapper;
   private final JsonLdExtractorConverter converter;
 
-  public ExtractedRecipe extract(Document document) {
-    Elements elements = document.select("script[type=application/ld+json]");
+  public ExtractedRecipe extract(final Document document) {
+    final Elements elements = document.select("script[type=application/ld+json]");
 
     if (elements.size() > 1) {
       log.warn("Multiple JSON-LD found for {} parsing first", document.title());
     }
 
-    for (Element element : elements) {
-      String jsonLd = element.data();
-      final JsonLdRecipe recipe;
+    for (final var element : elements) {
+      final String jsonLd = element.data();
 
       try {
+        final JsonLdGraphRoot graphRoot = objectMapper.readValue(jsonLd, JsonLdGraphRoot.class);
+
+        // first try any graph tags
+        if (graphRoot.getGraph() != null) {
+          for (final JsonLdRecipe candidate : graphRoot.getGraph()) {
+            if ("Recipe".equals(candidate.getType())) {
+              return converter.convert(candidate);
+            }
+          }
+        }
+        final JsonLdRecipe recipe;
+
         recipe = objectMapper.readValue(jsonLd, JsonLdRecipe.class);
-      } catch (JsonProcessingException e) {
+
+        if ("Recipe".equals(recipe.getType())) {
+          return converter.convert(recipe);
+        }
+
+      } catch (final JsonProcessingException e) {
         continue;
       }
 
-      if (recipe.getType().equals("Recipe")) {
-        return converter.convert(recipe);
-      }
     }
     throw new IllegalArgumentException("No recipe JSON-LD found");
   }

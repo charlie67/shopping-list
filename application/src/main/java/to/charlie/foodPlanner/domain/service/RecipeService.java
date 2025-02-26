@@ -6,11 +6,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import to.charlie.foodPlanner.domain.dal.dao.RecipeDao;
-import to.charlie.foodPlanner.domain.model.converter.recipe.ExtractedRecipeToDtoConverter;
-import to.charlie.foodPlanner.domain.model.dto.recipe.RecipeDto;
 import to.charlie.foodPlanner.domain.model.dto.extraction.ExtractedRecipeDto;
+import to.charlie.foodPlanner.domain.model.entity.recipe.RecipeEntity;
 import to.charlie.foodPlanner.domain.model.exception.DuplicateRecipeException;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
 
@@ -23,15 +24,15 @@ public class RecipeService {
   public static final String REFERRER = "https://www.google.com";
 
   private final RecipeDao recipeDao;
-  private final ExtractedRecipeToDtoConverter extractedRecipeToDtoConverter;
   private final RecipeExtractionService recipeExtractionService;
+  private final ModelMapper modelMapper;
 
-  public ExtractedRecipeDto extractRecipeFromUrl(final String url)
+  public ExtractedRecipeDto extractRecipeFromUrl(final String url, final boolean saveRecipe)
       throws IOException, DuplicateRecipeException {
 
-    if (recipeDao.existsByUrl(url)) {
-      log.info("Recipe already exists for {}", url);
-      throw new DuplicateRecipeException("Recipe already exists");
+    if (saveRecipe && recipeDao.existsByUrl(url)) {
+      log.info("Recipe for url {} already exists in database", url);
+      return modelMapper.map(recipeDao.findByUrl(url), ExtractedRecipeDto.class);
     }
 
     log.info("Downloading webpage {}", url);
@@ -42,12 +43,12 @@ public class RecipeService {
           .userAgent(USER_AGENT)
           .referrer(REFERRER)
           .get();
-    } catch (final IOException e) {
+    } catch (final IOException | IllegalArgumentException e) {
       log.error("Error getting page for recipe extraction {}", e.getMessage());
       throw e;
     }
 
-    ExtractedRecipe recipe;
+    final ExtractedRecipe recipe;
     try {
       recipe = recipeExtractionService.extractRecipe(document, url);
     } catch (final IllegalArgumentException e) {
@@ -59,14 +60,28 @@ public class RecipeService {
       recipe.setUrl(url);
     }
 
-    recipeDao.save(recipe);
-    log.info("Saved recipe with {} ingredients and {} instructions",
+    log.info("extracted recipe with {} ingredients and {} instructions",
         recipe.getExtractedRecipeIngredients().size(),
         recipe.getExtractedRecipeInstructions().size());
 
-    return extractedRecipeToDtoConverter.convert(recipe);
+    if (saveRecipe) {
+      final RecipeEntity savedRecipe = recipeDao.save(recipe);
+
+      log.info("Saved recipe with {} ingredients and {} instructions",
+          recipe.getExtractedRecipeIngredients().size(),
+          recipe.getExtractedRecipeInstructions().size());
+
+      return modelMapper.map(savedRecipe, ExtractedRecipeDto.class);
+    } else {
+      return modelMapper.map(recipe, ExtractedRecipeDto.class);
+    }
   }
-  public List<RecipeDto> getAllRecipes() {
+
+  public List<ExtractedRecipeDto> getAllRecipes() {
     return recipeDao.findAll();
+  }
+
+  public Page<ExtractedRecipeDto> getRecipePage(final int page) {
+    return recipeDao.findPage(page);
   }
 }

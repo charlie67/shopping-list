@@ -6,3 +6,7 @@ export const WEBSOCKET_URL = (window.location.protocol === "https:" ? "wss://" :
 export const SHOPPINGLIST_BASE = API_BASE + "shoppinglist/";
 export const SHOPPING_LIST_ADD_ITEM_ENDPOINT = API_BASE + "shoppinglist";
 export const SHOPPINGLIST_PAGEABLE_ENDPOINT = SHOPPINGLIST_BASE + "pageable/";
+
+export const RECIPE_BASE = API_BASE + "recipe/";
+export const EXTRACT_RECIPE_ENDPOINT = RECIPE_BASE + "extract";
+export const RECIPE_PAGEABLE_ENDPOINT = RECIPE_BASE + "pageable";

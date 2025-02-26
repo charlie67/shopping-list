@@ -1,22 +1,31 @@
 package to.charlie.foodPlanner.domain.model.dto.extraction;
 
 import java.util.List;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class ExtractedRecipeDto {
 
-  String url;
+  private UUID id;
 
-  String recipeName;
+  private String url;
 
-  List<ExtractedRecipeStepsDto> instructions;
+  private String name;
 
-  List<ExtractedIngredientDto> ingredients;
+  private String imageUrl;
+
+  private String description;
+
+  private List<ExtractedRecipeStepsDto> instructions;
+
+  private List<ExtractedIngredientDto> ingredients;
 }

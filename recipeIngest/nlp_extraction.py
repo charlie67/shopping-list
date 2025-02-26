@@ -1,7 +1,6 @@
 import nltk
 import spacy
 from nltk.stem import WordNetLemmatizer
-from sklearn.model_selection import train_test_split
 
 import util
 

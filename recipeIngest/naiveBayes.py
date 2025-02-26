@@ -30,16 +30,6 @@ def extract_features(text):
 if __name__ == '__main__':
     ingredients_ft, steps_ft, description_ft = util.extract_data()
 
-    # ingredient_split = int(len(ingredients_ft) * 0.8)
-    # ingredients_ft_train = ingredients_ft[:ingredient_split]
-    # ingredients_ft_test = ingredients_ft[ingredient_split:]
-    # ingredient_words_s, ingredient_words_ln, ingredient_words_lv = stem_and_lemmatize(ingredients_ft_train)
-    #
-    # steps_split = int(len(steps_ft) * 0.8)
-    # steps_ft_train = steps_ft[:steps_split]
-    # steps_ft_test = steps_ft[steps_split:]
-    # step_words_s, step_words_ln, step_words_lv = stem_and_lemmatize(steps_ft_train)
-
     labeled_data = []
     for text in steps_ft:
         labeled_data.append((extract_features(text), 'step'))
