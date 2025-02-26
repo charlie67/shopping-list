@@ -1,15 +1,48 @@
-import {useEffect} from "react";
-import {useDispatch} from "react-redux";
-import {fetchShoppingList} from "../../actionTypes/actions";
+import React, {useState} from "react";
+import {connect, useDispatch} from "react-redux";
+import {fetchRecipes} from "../../actionTypes/RecipeActions";
+import InfiniteScroll from "react-infinite-scroll-component";
+import RecipeListItem from "../RecipeListItem/RecipeListItem";
 
-export const RecipeList = () => {
-	const dispatch = useDispatch();
+const RecipeList = ({items, hasMore}) => {
+  const dispatch = useDispatch();
+  const [page, setPage] = useState(0);
 
-	useEffect(() => {
-		dispatch(fetchShoppingList(0));
-	}, [dispatch]);
-
-	return (
-		<></>
-	);
+  const loadMoreItems = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    dispatch(fetchRecipes(page));
+  };
+  
+  return (
+    <div className={"list-scroll-container"}>
+      <InfiniteScroll
+        dataLength={items.length}
+        next={loadMoreItems}
+        hasMore={hasMore}
+        loader={<h4 className={"loading-text"}>Loading...</h4>}
+        scrollableTarget="shopping-list-container"
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 p-4">
+          {items.map((item, index) => (
+            <div
+              className="bg-white rounded-2xl shadow-md p-6 text-center"
+              key={index}
+            >
+              <RecipeListItem item={item}/>
+            </div>
+          ))}
+        </div>
+      </InfiniteScroll>
+    </div>
+  );
 };
+
+const mapStateToProps = (state) => {
+  return {
+    items: state.recipes.recipes,
+    hasMore: state.recipes.hasMore
+  };
+};
+
+export default connect(mapStateToProps)(RecipeList);

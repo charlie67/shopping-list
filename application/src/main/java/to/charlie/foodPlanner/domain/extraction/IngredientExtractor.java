@@ -18,7 +18,7 @@ public class IngredientExtractor {
     String wholeText = ingredient.trim().replaceAll(" +", " ");
     String ingredientName = wholeText.replace(ingredientMeasurement.quantityUnitText(), "").trim();
 
-    return ExtractedRecipeIngredient.builder().wholeText(wholeText)
+    return ExtractedRecipeIngredient.builder().fullText(wholeText)
         .ingredientName(ingredientName)
         .quantity(ingredientMeasurement.quantity())
         .unit(ingredientMeasurement.unit()).build();

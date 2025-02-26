@@ -12,7 +12,7 @@ const Header = () => {
 
   return (
     <header>
-      <nav className="navbar">
+      <nav className="navbar text-white">
         <h3 className="default-text navbar-text" onClick={() => navigateToPage("/")}>Shopping List</h3>
         <h3 className="default-text navbar-text" onClick={() => navigateToPage("/recipes")}>Recipes</h3>
       </nav>

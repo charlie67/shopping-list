@@ -3,14 +3,13 @@ package to.charlie.foodPlanner.domain.extraction.ldExtraction.data;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class JsonLdRecipe {
+
   @JsonProperty("@context")
   private String context;
   @JsonProperty("@id")

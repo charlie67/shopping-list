@@ -23,8 +23,8 @@ public class JsonLdExtractorConverter implements Converter<JsonLdRecipe, Extract
   private final ObjectMapper objectMapper;
 
   @Override
-  public ExtractedRecipe convert(JsonLdRecipe source) {
-    List<ExtractedRecipeInstruction> instructions = extractInstructions(
+  public ExtractedRecipe convert(final JsonLdRecipe source) {
+    final List<ExtractedRecipeInstruction> instructions = extractInstructions(
         source.getRecipeInstructions());
 
     return ExtractedRecipe.builder().url(source.getUrl())
@@ -39,7 +39,8 @@ public class JsonLdExtractorConverter implements Converter<JsonLdRecipe, Extract
         .recipeCategory(source.getRecipeCategory())
         .recipeYield(source.getRecipeYield())
         .extractedRecipeIngredients(
-            source.getRecipeIngredients().stream().map(ingredientExtractor::convertIngredient).toList())
+            source.getRecipeIngredients().stream().map(ingredientExtractor::convertIngredient)
+                .toList())
         .extractedRecipeInstructions(instructions)
         .calories(source.getNutrition().getCalories())
         .fatContent(source.getNutrition().getFatContent())
@@ -48,22 +49,23 @@ public class JsonLdExtractorConverter implements Converter<JsonLdRecipe, Extract
         .fiberContent(source.getNutrition().getFiberContent())
         .proteinContent(source.getNutrition().getProteinContent())
         .sodiumContent(source.getNutrition().getSodiumContent())
+        .imageUrl(source.getImage().get("url").asText())
         .extractionMethod("JSON-LD")
         .build();
   }
 
-  private List<ExtractedRecipeInstruction> extractInstructions(JsonNode recipeInstructions) {
-    List<ExtractedRecipeInstruction> instructions;
+  private List<ExtractedRecipeInstruction> extractInstructions(final JsonNode recipeInstructions) {
+    final List<ExtractedRecipeInstruction> instructions;
 
     if (!recipeInstructions.isEmpty()) {
       instructions = new ArrayList<>();
       // extract as an array of instructions
-      for (JsonNode recipeInstruction : recipeInstructions) {
+      for (final JsonNode recipeInstruction : recipeInstructions) {
         JsonLdHowToStep step;
         try {
           step = objectMapper.treeToValue(recipeInstruction, JsonLdHowToStep.class);
-        } catch (JsonProcessingException e) {
-          throw new IllegalArgumentException("Can't convert instructions for recipe", e);
+        } catch (final JsonProcessingException e) {
+          step = JsonLdHowToStep.builder().text(recipeInstruction.asText()).build();
         }
         instructions.add(convertInstruction(step));
       }
@@ -76,7 +78,7 @@ public class JsonLdExtractorConverter implements Converter<JsonLdRecipe, Extract
     return instructions;
   }
 
-  private ExtractedRecipeInstruction convertInstruction(JsonLdHowToStep instruction) {
+  private ExtractedRecipeInstruction convertInstruction(final JsonLdHowToStep instruction) {
     return ExtractedRecipeInstruction.builder()
         .text(instruction.getText())
         .type(instruction.getType())

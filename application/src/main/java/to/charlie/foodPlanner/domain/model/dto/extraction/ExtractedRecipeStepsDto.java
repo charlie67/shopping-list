@@ -3,15 +3,19 @@ package to.charlie.foodPlanner.domain.model.dto.extraction;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class ExtractedRecipeStepsDto {
 
-  String step;
+  private String text;
 
-  boolean possibleDuplicate;
+  private String type;
+
+  private boolean possibleDuplicate;
 }

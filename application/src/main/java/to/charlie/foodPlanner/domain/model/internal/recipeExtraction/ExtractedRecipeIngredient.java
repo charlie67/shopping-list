@@ -6,7 +6,8 @@ import lombok.Data;
 @Data
 @Builder
 public class ExtractedRecipeIngredient {
-  private String wholeText;
+
+  private String fullText;
   private String ingredientName;
   private Double quantity;
   private String unitText;

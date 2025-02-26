@@ -20,13 +20,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v1
         with:
-          java-version: 17
+          java-version: 21
       - name: Set DOCKER_TAG_NAME
         env:
-          BRANCH_NAME: ${{ github.head_ref || github.ref_name }} 
+          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
         run: |
           if [ $GITHUB_EVENT_NAME = "workflow_run" ]; then
             git fetch --tags

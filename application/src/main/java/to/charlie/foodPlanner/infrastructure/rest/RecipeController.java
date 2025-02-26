@@ -3,30 +3,29 @@ package to.charlie.foodPlanner.infrastructure.rest;
 import java.io.IOException;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import to.charlie.foodPlanner.domain.model.dto.recipe.RecipeDto;
 import to.charlie.foodPlanner.domain.model.dto.extraction.ExtractedRecipeDto;
 import to.charlie.foodPlanner.domain.model.exception.DuplicateRecipeException;
 import to.charlie.foodPlanner.domain.service.RecipeService;
 
 @RestController
+@RequestMapping("/recipe")
 @RequiredArgsConstructor
 public class RecipeController {
 
   private final RecipeService recipeService;
 
-  @RequestMapping(value = "/recipes/extract", method = RequestMethod.POST)
+  @PostMapping("/extract")
   public ResponseEntity<ExtractedRecipeDto> extract(
-      @RequestParam(value = "url") final String url) {
+      @RequestParam final String url, @RequestParam(name = "save") final boolean saveRecipe) {
     try {
-      return ResponseEntity.ok(recipeService.extractRecipeFromUrl(url));
+      return ResponseEntity.ok(recipeService.extractRecipeFromUrl(url, saveRecipe));
     } catch (final IOException e) {
       return ResponseEntity.notFound().build();
     } catch (final IllegalArgumentException e) {
@@ -36,8 +35,13 @@ public class RecipeController {
     }
   }
 
-  @GetMapping("/recipes")
-  public ResponseEntity<List<RecipeDto>> getAllRecipes() {
+  @GetMapping("/all")
+  public ResponseEntity<List<ExtractedRecipeDto>> getAllRecipes() {
     return ResponseEntity.ok(recipeService.getAllRecipes());
+  }
+
+  @GetMapping("/pageable")
+  public ResponseEntity<Page<ExtractedRecipeDto>> getRecipePage(@RequestParam final int page) {
+    return ResponseEntity.ok(recipeService.getRecipePage(page));
   }
 }
