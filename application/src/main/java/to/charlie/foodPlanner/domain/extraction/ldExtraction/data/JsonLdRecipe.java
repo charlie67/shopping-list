@@ -27,18 +27,18 @@ public class JsonLdRecipe {
   @JsonProperty("datePublished")
   private String datePublished;
   private String headline;
-  private String keywords;
+  private List<String> keywords;
   private JsonLdOrganization publisher;
   private String isAccessibleForFree;
   private JsonLdWebPageElement hasPart;
   private String cookTime;
   private JsonLdNutritionInformation nutrition;
   private String prepTime;
-  private String recipeCategory;
-  private String recipeCuisine;
+  private List<String> recipeCategory;
+  private List<String> recipeCuisine; // todo map this all the way through
   @JsonProperty("recipeIngredient")
   private List<String> recipeIngredients;
   private JsonNode recipeInstructions;
-  private String recipeYield;
+  private List<String> recipeYield;
   private String totalTime;
 }

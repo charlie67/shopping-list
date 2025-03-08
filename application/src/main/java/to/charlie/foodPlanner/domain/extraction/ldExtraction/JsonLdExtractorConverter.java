@@ -3,6 +3,7 @@ package to.charlie.foodPlanner.domain.extraction.ldExtraction;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -36,8 +37,11 @@ public class JsonLdExtractorConverter implements Converter<JsonLdRecipe, Extract
         .cookTime(source.getCookTime())
         .prepTime(source.getPrepTime())
         .totalTime(source.getTotalTime())
-        .recipeCategory(source.getRecipeCategory())
-        .recipeYield(source.getRecipeYield())
+        .recipeCategory(source.getRecipeCategory().stream().findFirst().orElse(""))// todo
+        .recipeYield(source.getRecipeYield()
+            .stream()
+            .findFirst()
+            .orElse(""))// todo map these as lists all the way down
         .extractedRecipeIngredients(
             source.getRecipeIngredients().stream().map(ingredientExtractor::convertIngredient)
                 .toList())
@@ -49,7 +53,7 @@ public class JsonLdExtractorConverter implements Converter<JsonLdRecipe, Extract
         .fiberContent(source.getNutrition().getFiberContent())
         .proteinContent(source.getNutrition().getProteinContent())
         .sodiumContent(source.getNutrition().getSodiumContent())
-        .imageUrl(source.getImage().get("url").asText())
+        .imageUrl(getImageUrl(source.getImage()))
         .extractionMethod("JSON-LD")
         .build();
   }
@@ -83,5 +87,15 @@ public class JsonLdExtractorConverter implements Converter<JsonLdRecipe, Extract
         .text(instruction.getText())
         .type(instruction.getType())
         .build();
+  }
+
+  private String getImageUrl(final JsonNode image) {
+    if (image.get("@type") != null && image.get("@type").asText().equals("ImageObject")) {
+      return image.get("url").asText();
+    } else if (image instanceof ArrayNode) {
+      return getImageUrl(image.get(0));
+    } else {
+      return image.asText();
+    }
   }
 }

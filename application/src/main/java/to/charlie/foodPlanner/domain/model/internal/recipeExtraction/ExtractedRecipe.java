@@ -13,7 +13,7 @@ public class ExtractedRecipe {
   private String url;
   private String dateModified;
   private String datePublished;
-  private String keywords;
+  private List<String> keywords;
   private String cookTime;
   private String prepTime;
   private String totalTime;

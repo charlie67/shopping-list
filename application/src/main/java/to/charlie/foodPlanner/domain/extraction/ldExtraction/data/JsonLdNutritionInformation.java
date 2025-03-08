@@ -1,11 +1,14 @@
 package to.charlie.foodPlanner.domain.extraction.ldExtraction.data;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class JsonLdNutritionInformation {
+
   @JsonProperty("@type")
   private String type;
   private String calories;
@@ -23,4 +26,6 @@ public class JsonLdNutritionInformation {
   private String proteinContent;
   @JsonProperty("sodiumContent")
   private String sodiumContent;
+  @JsonProperty("servingSize")
+  private String servingSize; // todo use this
 }
