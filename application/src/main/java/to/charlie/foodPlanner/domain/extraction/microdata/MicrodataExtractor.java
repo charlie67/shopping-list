@@ -9,12 +9,10 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 import to.charlie.foodPlanner.domain.extraction.IngredientExtractor;
-import to.charlie.foodPlanner.domain.extraction.QuantityExtractor;
 import to.charlie.foodPlanner.domain.extraction.RecipeExtractor;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipeIngredient;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipeInstruction;
-import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.IngredientMeasurement;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -23,23 +21,23 @@ public class MicrodataExtractor implements RecipeExtractor {
 
   private final IngredientExtractor ingredientExtractor;
 
-  public ExtractedRecipe extract(Document document) {
+  public ExtractedRecipe extract(final Document document) {
 
     // find all tags with the itemprop attribute
-    Elements itemPropElements = document.select("[itemprop]");
+    final Elements itemPropElements = document.select("[itemprop]");
 
     String name = null;
     String description = null;
     String dateModified = null;
     String datePublished = null;
-    String keywords = null;
+    List<String> keywords = null;
     String cookTime = null;
     String prepTime = null;
     String totalTime = null;
     String recipeCategory = null;
     String recipeYield = null;
-    List<ExtractedRecipeIngredient> extractedRecipeIngredients = new ArrayList<>();
-    List<ExtractedRecipeInstruction> extractedRecipeInstructions = new ArrayList<>();
+    final List<ExtractedRecipeIngredient> extractedRecipeIngredients = new ArrayList<>();
+    final List<ExtractedRecipeInstruction> extractedRecipeInstructions = new ArrayList<>();
     String calories = null;
     String fatContent = null;
     String saturatedFatContent = null;
@@ -49,8 +47,8 @@ public class MicrodataExtractor implements RecipeExtractor {
     String proteinContent = null;
     String sodiumContent = null;
 
-    for (Element itemPropElement : itemPropElements) {
-      String type = itemPropElement.attr("itemprop");
+    for (final Element itemPropElement : itemPropElements) {
+      final String type = itemPropElement.attr("itemprop");
 
       if (type.equals("name")) {
         name = itemPropElement.text();
@@ -61,7 +59,7 @@ public class MicrodataExtractor implements RecipeExtractor {
       } else if (type.equals("datePublished")) {
         datePublished = itemPropElement.text();
       } else if (type.equals("keywords")) {
-        keywords = itemPropElement.text();
+        keywords = List.of(itemPropElement.text());
       } else if (type.equals("cookTime")) {
         cookTime = itemPropElement.text();
       } else if (type.equals("prepTime")) {
@@ -73,7 +71,8 @@ public class MicrodataExtractor implements RecipeExtractor {
       } else if (type.equals("recipeYield")) {
         recipeYield = itemPropElement.text();
       } else if (type.equals("recipeIngredient")) {
-        extractedRecipeIngredients.add(ingredientExtractor.convertIngredient(itemPropElement.text()));
+        extractedRecipeIngredients.add(
+            ingredientExtractor.convertIngredient(itemPropElement.text()));
       } else if (type.equals("recipeInstructions")) {
         extractedRecipeInstructions.add(ExtractedRecipeInstruction.builder()
             .text(itemPropElement.text()).build());
@@ -96,7 +95,8 @@ public class MicrodataExtractor implements RecipeExtractor {
       }
     }
 
-    if (name == null || extractedRecipeIngredients.isEmpty() || extractedRecipeInstructions.isEmpty()) {
+    if (name == null || extractedRecipeIngredients.isEmpty()
+        || extractedRecipeInstructions.isEmpty()) {
       throw new IllegalArgumentException(String.format(
           "Unable to extract a recipe using Microdata, name: %s, ingredientSize: %s, recipeInstructionSize: %s",
           name, extractedRecipeIngredients.size(), extractedRecipeInstructions.size()));

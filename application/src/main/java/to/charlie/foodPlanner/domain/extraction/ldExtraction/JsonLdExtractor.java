@@ -30,6 +30,7 @@ public class JsonLdExtractor implements RecipeExtractor {
     for (final var element : elements) {
       final String jsonLd = element.data();
 
+      JsonLdRecipe recipe = null;
       try {
         final JsonLdGraphRoot graphRoot = objectMapper.readValue(jsonLd, JsonLdGraphRoot.class);
 
@@ -41,16 +42,15 @@ public class JsonLdExtractor implements RecipeExtractor {
             }
           }
         }
-        final JsonLdRecipe recipe;
-
-        recipe = objectMapper.readValue(jsonLd, JsonLdRecipe.class);
-
-        if ("Recipe".equals(recipe.getType())) {
-          return converter.convert(recipe);
-        }
-
       } catch (final JsonProcessingException e) {
-        continue;
+        try {
+          recipe = objectMapper.readValue(jsonLd, JsonLdRecipe.class);
+          if (recipe != null && "Recipe".equals(recipe.getType())) {
+            return converter.convert(recipe);
+          }
+        } catch (final JsonProcessingException ex) {
+          continue;
+        }
       }
 
     }

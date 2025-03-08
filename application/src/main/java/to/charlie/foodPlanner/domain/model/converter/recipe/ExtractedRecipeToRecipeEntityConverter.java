@@ -28,7 +28,7 @@ public class ExtractedRecipeToRecipeEntityConverter implements
         .description(recipe.getDescription())
         .dateModified(recipe.getDateModified())
         .datePublished(recipe.getDatePublished())
-        .keywords(recipe.getKeywords())
+        .keywords(recipe.getKeywords().getFirst())// todo fix this
         .cookTime(recipe.getCookTime())
         .prepTime(recipe.getPrepTime())
         .totalTime(recipe.getTotalTime())
