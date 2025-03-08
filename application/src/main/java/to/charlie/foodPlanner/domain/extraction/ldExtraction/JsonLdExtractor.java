@@ -48,8 +48,7 @@ public class JsonLdExtractor implements RecipeExtractor {
           if (recipe != null && "Recipe".equals(recipe.getType())) {
             return converter.convert(recipe);
           }
-        } catch (final JsonProcessingException ex) {
-          continue;
+        } catch (final JsonProcessingException ignored) {
         }
       }
 

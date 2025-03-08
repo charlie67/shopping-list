@@ -1,4 +1,5 @@
-.Header {}
+.Header {
+}
 
 header {
   z-index: 100;
@@ -19,7 +20,7 @@ header {
 
 @media (min-width: 768px) {
   .navbar {
-    grid-template-columns: 1fr 1fr 70%;
+    grid-template-columns: 240px 1fr 70%;
   }
 }
 
