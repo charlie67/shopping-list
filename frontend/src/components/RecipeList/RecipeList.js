@@ -13,7 +13,7 @@ const RecipeList = ({items, hasMore}) => {
     setPage(nextPage);
     dispatch(fetchRecipes(page));
   };
-  
+
   return (
     <div className={"list-scroll-container"}>
       <InfiniteScroll
