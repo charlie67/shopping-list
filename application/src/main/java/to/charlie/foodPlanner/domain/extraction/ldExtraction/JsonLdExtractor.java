@@ -23,36 +23,37 @@ public class JsonLdExtractor implements RecipeExtractor {
   public ExtractedRecipe extract(final Document document) {
     final Elements elements = document.select("script[type=application/ld+json]");
 
-    if (elements.size() > 1) {
-      log.warn("Multiple JSON-LD found for {} parsing first", document.title());
-    }
+    log.warn("{} JSON-LD scripts found for {}", elements.size(), document.title());
 
     for (final var element : elements) {
       final String jsonLd = element.data();
 
-      JsonLdRecipe recipe = null;
       try {
         final JsonLdGraphRoot graphRoot = objectMapper.readValue(jsonLd, JsonLdGraphRoot.class);
 
-        // first try any graph tags
         if (graphRoot.getGraph() != null) {
           for (final JsonLdRecipe candidate : graphRoot.getGraph()) {
             if ("Recipe".equals(candidate.getType())) {
               return converter.convert(candidate);
             }
           }
+        } else {
+          throw new IllegalArgumentException("No graph found for JsonLd");
         }
-      } catch (final JsonProcessingException e) {
+      } catch (final JsonProcessingException | IllegalArgumentException e) {
         try {
-          recipe = objectMapper.readValue(jsonLd, JsonLdRecipe.class);
+          log.info("Unable to parse JSON-LD into a graph root", e);
+
+          final JsonLdRecipe recipe = objectMapper.readValue(jsonLd, JsonLdRecipe.class);
           if (recipe != null && "Recipe".equals(recipe.getType())) {
             return converter.convert(recipe);
           }
-        } catch (final JsonProcessingException ignored) {
+        } catch (final JsonProcessingException e2) {
+          log.error("Unable to parse JSON-LD into a recipe", e2);
         }
       }
-
     }
+
     throw new IllegalArgumentException("No recipe JSON-LD found");
   }
 }

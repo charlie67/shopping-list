@@ -23,10 +23,9 @@ const ShoppingList = ({shoppingList, hasMore}) => {
 
 
   const handleAddButtonClick = async () => {
-    const targetDate = "123";
     const title = input;
 
-    axios.post(SHOPPING_LIST_ADD_ITEM_ENDPOINT, {title, targetDate}).then(function (response) {
+    axios.post(SHOPPING_LIST_ADD_ITEM_ENDPOINT, {title}).then(function (response) {
       dispatch(shoppingListItemCreated(response.data));
       setInput("");
     }).catch(function (error) {
