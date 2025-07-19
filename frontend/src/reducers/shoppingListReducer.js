@@ -33,8 +33,13 @@ const shoppingListSlice = createSlice({
       }
     }).addCase(SHOPPING_LIST_ITEM_CREATED, (state, action) => {
       const item = action.payload;
-      state.shoppingListItems.push(item);
-      reorderShoppingList(state.shoppingListItems)
+      console.log("Adding item to shopping list:", item);
+      console.log("Item already exists:", state.shoppingListItems.find(it => it.id === item.id));
+
+      if (state.shoppingListItems.find(it => it.id === item.id) === undefined) {
+        state.shoppingListItems.push(item);
+        reorderShoppingList(state.shoppingListItems)
+      }
     }).addCase(SHOPPING_LIST_ITEM_DELETED, (state, action) => {
       const index = state.shoppingListItems.findIndex(item => item.id === action.payload.id);
       if (index !== -1) {

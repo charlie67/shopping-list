@@ -5,7 +5,7 @@ import {faPlus} from "@fortawesome/free-solid-svg-icons";
 import axios from 'axios';
 
 import "./ShoppingList.scss";
-import {SHOPPING_LIST_ADD_ITEM_ENDPOINT, SHOPPINGLIST_BASE} from "../../url_const";
+import {SHOPPING_LIST_ADD_ITEM_ENDPOINT, SHOPPING_LIST_BASE} from "../../url_const";
 import ShoppingListItem from "../ShoppingListItem/ShoppingListItem";
 import {fetchShoppingList, shoppingListItemCreated} from "../../actionTypes/actions";
 import {connect, useDispatch} from "react-redux";
@@ -35,13 +35,13 @@ const ShoppingList = ({shoppingList, hasMore}) => {
   }
 
   const addItemKeyPress = async (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && input.trim() !== "") {
       await handleAddButtonClick();
     }
   }
 
   const deleteItem = async (id) => {
-    await axios.delete(SHOPPINGLIST_BASE + id).catch(function (error) {
+    await axios.delete(SHOPPING_LIST_BASE + id).catch(function (error) {
       console.error("error deleting item", error);
     });
   }

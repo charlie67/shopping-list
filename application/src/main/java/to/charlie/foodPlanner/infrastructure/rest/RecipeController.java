@@ -1,7 +1,6 @@
 package to.charlie.foodPlanner.infrastructure.rest;
 
 import java.io.IOException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -35,12 +34,7 @@ public class RecipeController {
     }
   }
 
-  @GetMapping("/all")
-  public ResponseEntity<List<ExtractedRecipeDto>> getAllRecipes() {
-    return ResponseEntity.ok(recipeService.getAllRecipes());
-  }
-
-  @GetMapping("/pageable")
+  @GetMapping
   public ResponseEntity<Page<ExtractedRecipeDto>> getRecipePage(@RequestParam final int page) {
     return ResponseEntity.ok(recipeService.getRecipePage(page));
   }

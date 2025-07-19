@@ -39,8 +39,8 @@ public class ShoppingListController {
   @ResponseStatus(code = HttpStatus.CREATED)
   @PostMapping
   public ResponseEntity<ShoppingListItemDto> create(
-      @Valid @RequestBody final ShoppingListItemCreateDto todoCreateDto) {
-    final ShoppingListItemDto shoppingListItemDto = shoppingListService.create(todoCreateDto);
+      @Valid @RequestBody final ShoppingListItemCreateDto createDto) {
+    final ShoppingListItemDto shoppingListItemDto = shoppingListService.create(createDto);
     return new ResponseEntity<>(shoppingListItemDto, HttpStatus.CREATED);
   }
 
@@ -74,9 +74,9 @@ public class ShoppingListController {
       @PathVariable final int pageNumber) {
     final int pageSize = shoppingListService.calculatePageSize();
 
-    Page<ShoppingListItemEntity> entities = shoppingListService.readAllPageable(pageNumber,
+    final Page<ShoppingListItemEntity> entities = shoppingListService.readAllPageable(pageNumber,
         pageSize);
-    Page<ShoppingListItemDto> dtos = entities.map(ShoppingListItemEntityMapper::entityToDto);
+    final Page<ShoppingListItemDto> dtos = entities.map(ShoppingListItemEntityMapper::entityToDto);
     return new ResponseEntity<>(dtos, HttpStatus.OK);
   }
 
