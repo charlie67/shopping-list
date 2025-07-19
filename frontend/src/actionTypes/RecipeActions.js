@@ -1,8 +1,6 @@
 import {createAsyncThunk} from "@reduxjs/toolkit";
 import {RECIPE_PAGEABLE_ENDPOINT} from "../url_const";
 
-const fetchedPages = new Set()
-
 export const fetchRecipes = createAsyncThunk(
   'recipe/fetchRecipes',
   async (page, {dispatch, rejectWithValue}) => {
