@@ -1,4 +1,4 @@
-FROM openjdk:21-buster
+FROM eclipse-temurin:21.0.7_6-jre-noble
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y nginx
