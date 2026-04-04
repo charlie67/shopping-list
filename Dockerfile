@@ -2,7 +2,7 @@ FROM eclipse-temurin:21.0.7_6-jre-noble
 RUN apt-get update && \
     apt-get upgrade -y && \
     apt-get install -y nginx
-COPY application/target/food-planner-application-0.0.1-SNAPSHOT.jar /app.jar
+COPY application/target/food-planner-application-0.0.1-SNAPSHOT-exec.jar /app.jar
 COPY frontend/build /var/www/html/
 COPY docker/nginx.conf /etc/nginx/sites-enabled/nginx.conf
 EXPOSE 80
