@@ -24,3 +24,18 @@ jobs:
 
       - name: Build and run integration tests
         run: ./mvnw -B clean verify -Pintegration-tests
+
+      - name: Test report summary
+        if: always()
+        uses: dorny/test-reporter@v1
+        with:
+          name: Integration Tests
+          path: integration-tests/target/failsafe-reports/*.xml
+          reporter: java-junit
+
+      - name: Upload Cucumber report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cucumber-report
+          path: integration-tests/target/cucumber-report.html
