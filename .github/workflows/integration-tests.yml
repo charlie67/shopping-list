@@ -19,5 +19,8 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Make Maven Wrapper executable
+        run: chmod +x mvnw
+
       - name: Build and run integration tests
-        run: mvn -B clean verify -Pintegration-tests
+        run: ./mvnw -B clean verify -Pintegration-tests
