@@ -2,15 +2,11 @@
 Feature: Shopping list retrieval and manipulation
 
   Scenario: The user can add an item to the shopping list
-    When I add the folowing items to the shopping list "milk", "bread", "apple juice"
-    Then the response status code is 201
-    And when I send an HTTP GET request to "/shoppinglist"
-    Then the response status code is 200
-    And the response body is:
-      """
-      [
-        {
-          "title": "Milk"
-        }
-      ]
-      """
+    Given "itemName" is set to "Milk"
+    When I send an HTTP POST request to "/shoppinglist" with the body from file: "add-item.json"
+    Then "RESPONSE_STATUS" should be "201"
+    And the response body should contain the following fields:
+      | title     | Milk         |
+      | quantity  | 0            |
+      | completed | false        |
+      | id        | <valid_uuid> |

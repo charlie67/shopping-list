@@ -1,0 +1,18 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="CucumberTestIT" type="JUnit" factoryName="JUnit" nameIsGenerated="true">
+    <module name="integration-tests" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="to.charlie.integrationTests.foodPlanner.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <option name="PACKAGE_NAME" value="to.charlie.integrationTests.foodPlanner" />
+    <option name="MAIN_CLASS_NAME" value="to.charlie.integrationTests.foodPlanner.CucumberTestIT" />
+    <option name="METHOD_NAME" value="" />
+    <option name="TEST_OBJECT" value="class" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
