@@ -1,26 +1,21 @@
 package to.charlie.foodPlanner.infrastructure.rest;
 
 import jakarta.validation.Valid;
-import java.security.Principal;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import to.charlie.foodPlanner.domain.model.converter.ShoppingListItemEntityMapper;
-import to.charlie.foodPlanner.domain.model.dto.CountDto;
 import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemCreateDto;
 import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemDto;
 import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemUpdateDto;
@@ -45,30 +40,6 @@ public class ShoppingListController {
   }
 
   @ResponseStatus(code = HttpStatus.OK)
-  @GetMapping
-  public ResponseEntity<List<ShoppingListItemEntity>> readAll(
-      final Principal principal, @RequestParam(required = false) final String isCompleted) {
-    if (isCompleted != null) {
-      return new ResponseEntity<>(
-          shoppingListService.readAllByIsCompleted(principal.getName(), isCompleted),
-          HttpStatus.OK);
-    }
-    return new ResponseEntity<>(shoppingListService.readAll(principal.getName()), HttpStatus.OK);
-  }
-
-  @ResponseStatus(code = HttpStatus.OK)
-  @RequestMapping(value = "/count", method = RequestMethod.GET)
-  public ResponseEntity<CountDto> countAll(
-      final Principal principal, @RequestParam(required = false) final String isCompleted) {
-    if (isCompleted != null) {
-      return new ResponseEntity<>(
-          shoppingListService.countAllByIsCompleted(principal.getName(), isCompleted),
-          HttpStatus.OK);
-    }
-    return new ResponseEntity<>(shoppingListService.countAll(), HttpStatus.OK);
-  }
-
-  @ResponseStatus(code = HttpStatus.OK)
   @RequestMapping(value = "/pageable/{pageNumber}", method = RequestMethod.GET)
   public ResponseEntity<Page<ShoppingListItemDto>> readPageable(
       @PathVariable final int pageNumber) {
@@ -78,14 +49,6 @@ public class ShoppingListController {
         pageSize);
     final Page<ShoppingListItemDto> dtos = entities.map(ShoppingListItemEntityMapper::entityToDto);
     return new ResponseEntity<>(dtos, HttpStatus.OK);
-  }
-
-  @ResponseStatus(code = HttpStatus.OK)
-  @RequestMapping(value = "/id/{id}", method = RequestMethod.GET)
-  public ResponseEntity<ShoppingListItemEntity> read(@PathVariable final UUID id,
-      final Principal principal) {
-    return new ResponseEntity<>(shoppingListService.readById(id, principal.getName()),
-        HttpStatus.OK);
   }
 
   @ResponseStatus(code = HttpStatus.OK)

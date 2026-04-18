@@ -17,5 +17,7 @@ public class ExtractedRecipeStepsDto {
 
   private String type;
 
+  private int stepCount;
+
   private boolean possibleDuplicate;
 }

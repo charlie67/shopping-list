@@ -14,8 +14,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import to.charlie.foodPlanner.domain.dal.repository.TodoPagingRepository;
-import to.charlie.foodPlanner.domain.dal.repository.TodoRepository;
 import to.charlie.foodPlanner.domain.model.converter.ShoppingListItemEntityMapper;
 import to.charlie.foodPlanner.domain.model.dto.CountDto;
 import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemCreateDto;
@@ -28,6 +26,8 @@ import to.charlie.foodPlanner.domain.service.websocket.WebSocketService;
 import to.charlie.foodPlanner.errorhandler.BadRequestException;
 import to.charlie.foodPlanner.errorhandler.InvalidPageException;
 import to.charlie.foodPlanner.errorhandler.ResourceNotFoundException;
+import to.charlie.foodPlanner.infrastructure.dal.repository.TodoPagingRepository;
+import to.charlie.foodPlanner.infrastructure.dal.repository.TodoRepository;
 
 @Service
 @RequiredArgsConstructor

@@ -1,9 +1,9 @@
-package to.charlie.foodPlanner.domain.dal.dao;
+package to.charlie.foodPlanner.infrastructure.dal.dao;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import to.charlie.foodPlanner.domain.dal.repository.RecipeIngredientRepository;
 import to.charlie.foodPlanner.domain.model.entity.recipe.RecipeIngredientEntity;
+import to.charlie.foodPlanner.infrastructure.dal.repository.RecipeIngredientRepository;
 
 @Component
 @RequiredArgsConstructor
