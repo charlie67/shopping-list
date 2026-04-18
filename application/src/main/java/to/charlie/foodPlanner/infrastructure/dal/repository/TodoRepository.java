@@ -1,4 +1,4 @@
-package to.charlie.foodPlanner.domain.dal.repository;
+package to.charlie.foodPlanner.infrastructure.dal.repository;
 
 import java.util.List;
 import java.util.UUID;

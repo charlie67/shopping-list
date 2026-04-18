@@ -1,0 +1,44 @@
+package to.charlie.foodPlanner.domain.extraction.justtherecipe;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.util.UriComponentsBuilder;
+import to.charlie.foodPlanner.domain.extraction.justtherecipe.dto.JustTheRecipeResponseDto;
+
+@Component
+@RequiredArgsConstructor
+public class JustTheRecipeClient {
+
+	private static final String USER_AGENT = "Samsung-fridge";
+	private static final String BASE_URL = "https://www.justtherecipe.com/extractRecipeAtUrl";
+	private final RestClient restClient;
+
+	@Retryable(
+					retryFor = JustTheRecipeExtractionError.class,
+					maxAttempts = 3,
+					backoff = @Backoff(delay = 1000),
+					listeners = "justTheRecipeRetryListener"
+	)
+	public JustTheRecipeResponseDto getRecipe(final String recipeUrl) {
+		// https://www.justtherecipe.com/extractRecipeAtUrl?url={recipeUrl}
+		final String targetUrl = UriComponentsBuilder.fromHttpUrl(BASE_URL)
+						.queryParam("url", recipeUrl)
+						.build()
+						.toUriString();
+
+		return restClient
+						.get()
+						.uri(targetUrl)
+						.header("User-Agent", USER_AGENT)
+						.retrieve()
+						.onStatus(status -> status.value() != 200, (request, response) -> {
+							throw new JustTheRecipeExtractionError(
+											"Failed to fetch recipe from JustTheRecipe API. Status code: "
+															+ response.getStatusCode().value());
+						})
+						.body(JustTheRecipeResponseDto.class);
+	}
+}
