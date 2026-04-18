@@ -1,4 +1,4 @@
-package to.charlie.foodPlanner.domain.dal.dao;
+package to.charlie.foodPlanner.infrastructure.dal.dao;
 
 import java.util.List;
 import java.util.Optional;
@@ -9,12 +9,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
-import to.charlie.foodPlanner.domain.dal.repository.PageableRecipeRepository;
-import to.charlie.foodPlanner.domain.dal.repository.RecipeRepository;
 import to.charlie.foodPlanner.domain.model.converter.recipe.ExtractedRecipeToRecipeEntityConverter;
 import to.charlie.foodPlanner.domain.model.dto.extraction.ExtractedRecipeDto;
 import to.charlie.foodPlanner.domain.model.entity.recipe.RecipeEntity;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
+import to.charlie.foodPlanner.infrastructure.dal.repository.PageableRecipeRepository;
+import to.charlie.foodPlanner.infrastructure.dal.repository.RecipeRepository;
 
 @Component
 @RequiredArgsConstructor

@@ -9,18 +9,18 @@ import org.jsoup.nodes.Document;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
-import to.charlie.foodPlanner.domain.dal.dao.RecipeDao;
 import to.charlie.foodPlanner.domain.model.dto.extraction.ExtractedRecipeDto;
 import to.charlie.foodPlanner.domain.model.entity.recipe.RecipeEntity;
 import to.charlie.foodPlanner.domain.model.exception.DuplicateRecipeException;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
+import to.charlie.foodPlanner.infrastructure.dal.dao.RecipeDao;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class RecipeService {
 
-  public static final String USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:101.0) Gecko/20100101 Firefox/101.0";
+  public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:149.0) Gecko/20100101 Firefox/149.0";
   public static final String REFERRER = "https://www.google.com";
 
   private final RecipeDao recipeDao;

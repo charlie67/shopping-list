@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import to.charlie.foodPlanner.domain.extraction.RecipeExtractor;
+import to.charlie.foodPlanner.domain.extraction.justtherecipe.JustTheRecipeExtractor;
 import to.charlie.foodPlanner.domain.extraction.ldExtraction.JsonLdExtractor;
 import to.charlie.foodPlanner.domain.extraction.manual.ManualExtractor;
 import to.charlie.foodPlanner.domain.extraction.microdata.MicrodataExtractor;
@@ -18,11 +19,12 @@ public class RecipeExtractorConfiguration {
   private final JsonLdExtractor jsonLdExtractor;
   private final MicrodataExtractor microdataExtractor;
   private final ManualExtractor manualExtractor;
+  private final JustTheRecipeExtractor justTheRecipeExtractor;
 
   @Bean
   @Qualifier("orderedRecipeExtractors")
   public List<RecipeExtractor> orderedRecipeExtractors() {
     // this is the ordered list that is traversed until a recipe is successfully extracted
-    return List.of(jsonLdExtractor, microdataExtractor);
+    return List.of(jsonLdExtractor, microdataExtractor, justTheRecipeExtractor);
   }
 }

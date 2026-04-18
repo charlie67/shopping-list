@@ -7,6 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,8 +15,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-
-import java.util.UUID;
 
 @Table(name = "recipe_steps")
 @Entity
@@ -25,19 +24,20 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 public class RecipeStepEntity {
+
   @Id
   @GeneratedValue
   @JdbcTypeCode(SqlTypes.UUID)
-  @Column(name = "id", nullable = false)
+  @Column
   private UUID id;
 
-  @Column(name = "text", nullable = false)
+  @Column
   private String text;
 
-  @Column(name = "type")
+  @Column
   private String type;
 
-  @Column(name = "step_count", nullable = false)
+  @Column
   private int stepCount;
 
   @ManyToOne

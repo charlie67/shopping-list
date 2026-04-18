@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 import to.charlie.foodPlanner.domain.extraction.RecipeExtractor;
 import to.charlie.foodPlanner.domain.extraction.ldExtraction.data.JsonLdGraphRoot;
 import to.charlie.foodPlanner.domain.extraction.ldExtraction.data.JsonLdRecipe;
+import to.charlie.foodPlanner.domain.model.exception.RecipeExtractionFailed;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
 
 @Component
@@ -20,7 +21,8 @@ public class JsonLdExtractor implements RecipeExtractor {
   private final ObjectMapper objectMapper;
   private final JsonLdExtractorConverter converter;
 
-  public ExtractedRecipe extract(final Document document) {
+  public ExtractedRecipe extract(final Document document, final String url)
+      throws RecipeExtractionFailed {
     final Elements elements = document.select("script[type=application/ld+json]");
 
     log.warn("{} JSON-LD scripts found for {}", elements.size(), document.title());
@@ -54,6 +56,6 @@ public class JsonLdExtractor implements RecipeExtractor {
       }
     }
 
-    throw new IllegalArgumentException("No recipe JSON-LD found");
+    throw new RecipeExtractionFailed("No recipe JSON-LD found");
   }
 }

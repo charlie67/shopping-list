@@ -10,6 +10,7 @@ import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 import to.charlie.foodPlanner.domain.extraction.IngredientExtractor;
 import to.charlie.foodPlanner.domain.extraction.RecipeExtractor;
+import to.charlie.foodPlanner.domain.model.exception.RecipeExtractionFailed;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipeIngredient;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipeInstruction;
@@ -21,7 +22,8 @@ public class MicrodataExtractor implements RecipeExtractor {
 
   private final IngredientExtractor ingredientExtractor;
 
-  public ExtractedRecipe extract(final Document document) {
+  public ExtractedRecipe extract(final Document document, final String url)
+      throws RecipeExtractionFailed {
 
     // find all tags with the itemprop attribute
     final Elements itemPropElements = document.select("[itemprop]");
@@ -97,7 +99,7 @@ public class MicrodataExtractor implements RecipeExtractor {
 
     if (name == null || extractedRecipeIngredients.isEmpty()
         || extractedRecipeInstructions.isEmpty()) {
-      throw new IllegalArgumentException(String.format(
+      throw new RecipeExtractionFailed(String.format(
           "Unable to extract a recipe using Microdata, name: %s, ingredientSize: %s, recipeInstructionSize: %s",
           name, extractedRecipeIngredients.size(), extractedRecipeInstructions.size()));
     }
