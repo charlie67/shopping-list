@@ -15,6 +15,7 @@
     <option name="configurationPath" value="" />
     <option name="exclusions">
       <set>
+        <option value=".*\.properties" />
         <option value=".*\.sql" />
       </set>
     </option>
