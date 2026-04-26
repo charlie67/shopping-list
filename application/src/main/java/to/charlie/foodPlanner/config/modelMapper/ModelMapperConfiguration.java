@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import to.charlie.foodPlanner.domain.model.dto.extraction.ExtractedIngredientDto;
 import to.charlie.foodPlanner.domain.model.dto.extraction.ExtractedRecipeDto;
 import to.charlie.foodPlanner.domain.model.entity.recipe.RecipeEntity;
+import to.charlie.foodPlanner.domain.model.entity.recipe.RecipeIngredientEntity;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipeIngredient;
 
 @Component
@@ -21,7 +22,15 @@ public class ModelMapperConfiguration {
       protected void configure() {
         map().setIngredientName(source.getIngredientName());
         map().setUnit(source.getUnit());
-        map().setFullName(source.getFullText());
+        map().setFullText(source.getFullText());
+      }
+    });
+
+    modelMapper.addMappings(new PropertyMap<RecipeIngredientEntity, ExtractedIngredientDto>() {
+      @Override
+      protected void configure() {
+        map().setIngredientName(source.getIngredient().getName());
+        map().setFullText(source.getWholeText());
       }
     });
 
