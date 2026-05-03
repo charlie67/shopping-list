@@ -3,7 +3,7 @@ import csv
 
 def extract_data():
     ingredients_ft = []
-    with open('ingredients.csv', 'r') as fd:
+    with open('logisticRegression/ingredients.csv', 'r') as fd:
         ingredients_reader = csv.reader(fd)
 
         for row in ingredients_reader:
@@ -13,7 +13,7 @@ def extract_data():
     print(f"ingredients_ft length {res}")
 
     steps_ft = []
-    with open('steps.csv', 'r') as fd:
+    with open('logisticRegression/steps.csv', 'r') as fd:
         steps_reader = csv.reader(fd)
 
         for row in steps_reader:
@@ -23,7 +23,7 @@ def extract_data():
     print(f"steps_ft length {res}")
 
     description_ft = []
-    with open('description.csv', 'r') as fd:
+    with open('logisticRegression/description.csv', 'r') as fd:
         des_reader = csv.reader(fd)
 
         for row in des_reader:
