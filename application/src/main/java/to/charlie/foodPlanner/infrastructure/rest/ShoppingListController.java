@@ -3,6 +3,7 @@ package to.charlie.foodPlanner.infrastructure.rest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,11 +16,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import to.charlie.foodPlanner.domain.exception.ResourceNotFoundException;
-import to.charlie.foodPlanner.domain.model.converter.ShoppingListItemEntityMapper;
 import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemCreateDto;
 import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemDto;
 import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemUpdateDto;
-import to.charlie.foodPlanner.domain.model.entity.ShoppingListItemEntity;
 import to.charlie.foodPlanner.domain.service.ShoppingListService;
 
 import java.util.UUID;
@@ -31,6 +30,8 @@ import java.util.UUID;
 public class ShoppingListController {
 
 	private final ShoppingListService shoppingListService;
+
+	private final ModelMapper modelMapper;
 
 	@ResponseStatus(code = HttpStatus.CREATED)
 	@PostMapping
@@ -44,11 +45,9 @@ public class ShoppingListController {
 	@RequestMapping(value = "/pageable/{pageNumber}", method = RequestMethod.GET)
 	public ResponseEntity<Page<ShoppingListItemDto>> readPageable(
 					@PathVariable final int pageNumber) {
-		final int pageSize = shoppingListService.calculatePageSize();
 
-		final Page<ShoppingListItemEntity> entities = shoppingListService.readAllPageable(pageNumber,
-						pageSize);
-		final Page<ShoppingListItemDto> dtos = entities.map(ShoppingListItemEntityMapper::entityToDto);
+		final Page<ShoppingListItemDto> dtos = shoppingListService.readAllPageable(pageNumber, 100)
+						.map(entity -> modelMapper.map(entity, ShoppingListItemDto.class));
 		return new ResponseEntity<>(dtos, HttpStatus.OK);
 	}
 

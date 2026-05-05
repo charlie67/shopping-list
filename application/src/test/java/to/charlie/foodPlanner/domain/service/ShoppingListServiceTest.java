@@ -6,9 +6,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
+import to.charlie.foodPlanner.config.modelMapper.ModelMapperConfiguration;
 import to.charlie.foodPlanner.domain.exception.BadRequestException;
 import to.charlie.foodPlanner.domain.exception.ResourceNotFoundException;
-import to.charlie.foodPlanner.domain.model.dto.CountDto;
 import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemCreateDto;
 import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemDto;
 import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemUpdateDto;
@@ -20,7 +21,6 @@ import to.charlie.foodPlanner.infrastructure.dal.repository.TodoPagingRepository
 import to.charlie.foodPlanner.infrastructure.dal.repository.TodoRepository;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -46,7 +46,8 @@ class ShoppingListServiceTest {
 
 	@BeforeEach
 	void setUp() {
-		service = new ShoppingListService(todoRepository, todoPagingRepository, webSocketService);
+		final ModelMapper modelMapper = new ModelMapperConfiguration().modelMapper();
+		service = new ShoppingListService(todoRepository, todoPagingRepository, webSocketService, modelMapper);
 	}
 
 	private ShoppingListItemEntity buildSavedEntity(final UUID id, final String title, final boolean completed) {
@@ -77,31 +78,6 @@ class ShoppingListServiceTest {
 		final ArgumentCaptor<WebSocketMessageDto> messageCaptor = ArgumentCaptor.forClass(WebSocketMessageDto.class);
 		verify(webSocketService).sendMessageToAllClients(messageCaptor.capture());
 		assertThat(messageCaptor.getValue().getMessageType()).isEqualTo(WebsocketUpdateType.SHOPPING_LIST_ITEM_CREATED);
-	}
-
-	@Test
-	void readById_whenItemExists_thenReturnsItem() {
-		// given
-		final UUID id = UUID.randomUUID();
-		final ShoppingListItemEntity entity = buildSavedEntity(id, "Eggs", false);
-		when(todoRepository.findById(id)).thenReturn(Optional.of(entity));
-
-		// when
-		final ShoppingListItemEntity result = service.readById(id, "user");
-
-		// then
-		assertThat(result).isEqualTo(entity);
-	}
-
-	@Test
-	void readById_whenItemNotFound_thenThrowsResourceNotFoundException() {
-		// given
-		final UUID id = UUID.randomUUID();
-		when(todoRepository.findById(id)).thenReturn(Optional.empty());
-
-		// when / then
-		assertThatThrownBy(() -> service.readById(id, "user"))
-						.isInstanceOf(ResourceNotFoundException.class);
 	}
 
 	@Test
@@ -239,97 +215,5 @@ class ShoppingListServiceTest {
 		// when / then
 		assertThatThrownBy(() -> service.markCompleteById(id))
 						.isInstanceOf(ResourceNotFoundException.class);
-	}
-
-	@Test
-	void countAll_whenCalled_thenReturnsCountDto() {
-		// given
-		when(todoRepository.count()).thenReturn(5L);
-
-		// when
-		final CountDto result = service.countAll();
-
-		// then
-		assertThat(result.getCount()).isEqualTo(5L);
-	}
-
-	@Test
-	void countAllByIsCompleted_whenIsCompletedTrue_thenReturnsCountOfCompletedItems() {
-		// given
-		when(todoRepository.countByCompleted(true)).thenReturn(3L);
-
-		// when
-		final CountDto result = service.countAllByIsCompleted("user", "true");
-
-		// then
-		assertThat(result.getCount()).isEqualTo(3L);
-	}
-
-	@Test
-	void countAllByIsCompleted_whenIsCompletedFalse_thenReturnsCountOfIncompleteItems() {
-		// given
-		when(todoRepository.countByCompleted(false)).thenReturn(7L);
-
-		// when
-		final CountDto result = service.countAllByIsCompleted("user", "false");
-
-		// then
-		assertThat(result.getCount()).isEqualTo(7L);
-	}
-
-	@Test
-	void calculatePageSize_whenAmountCompletedIsLarge_thenReturnsThatAmountPlusTen() {
-		// given
-		when(todoRepository.countByCompletedTrue()).thenReturn(200L);
-
-		// when
-		final int result = service.calculatePageSize();
-
-		// then
-		assertThat(result).isEqualTo(210);
-	}
-
-	@Test
-	void calculatePageSize_whenAmountCompletedIsSmall_thenReturnsMinimumOf100() {
-		// given
-		when(todoRepository.countByCompletedTrue()).thenReturn(5L);
-
-		// when
-		final int result = service.calculatePageSize();
-
-		// then
-		assertThat(result).isEqualTo(100);
-	}
-
-	@Test
-	void readAll_whenCalled_thenReturnsAllItems() {
-		// given
-		final List<ShoppingListItemEntity> entities = List.of(
-						buildSavedEntity(UUID.randomUUID(), "Milk", false),
-						buildSavedEntity(UUID.randomUUID(), "Eggs", true)
-		);
-		when(todoRepository.findAll()).thenReturn(entities);
-
-		// when
-		final List<ShoppingListItemEntity> result = service.readAll("user");
-
-		// then
-		assertThat(result).hasSize(2);
-	}
-
-	@Test
-	void readAllByIsCompleted_whenCompletedTrue_thenReturnsOnlyCompletedItems() {
-		// given
-		final List<ShoppingListItemEntity> completedEntities = List.of(
-						buildSavedEntity(UUID.randomUUID(), "Milk", true)
-		);
-		when(todoRepository.findAllByCompleted(true)).thenReturn(completedEntities);
-
-		// when
-		final List<ShoppingListItemEntity> result = service.readAllByIsCompleted("user", "true");
-
-		// then
-		assertThat(result).hasSize(1);
-		assertThat(result.get(0).isCompleted()).isTrue();
 	}
 }
