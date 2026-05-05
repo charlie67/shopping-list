@@ -7,6 +7,6 @@ Feature: Shopping list retrieval and manipulation
     Then "RESPONSE_STATUS" should be "201"
     And the response body should contain the following fields:
       | title     | Milk         |
-      | quantity  | 0            |
+      | quantity  | 1            |
       | completed | false        |
       | id        | <valid_uuid> |
