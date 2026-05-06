@@ -10,6 +10,7 @@ export enum IngredientUnit {
 export interface RecipeInstruction {
     text: string;
     type: string;
+    stepCount: number;
     possibleDuplicate: boolean;
 }
 
@@ -17,7 +18,7 @@ export interface RecipeIngredient {
     ingredientName: string;
     quantity: number;
     unit: IngredientUnit;
-    fullName: string;
+    fullText: string;
     possibleDuplicate: boolean;
 }
 

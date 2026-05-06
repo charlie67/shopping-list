@@ -20,7 +20,7 @@ public class ExtractedIngredientDto {
 
   private MeasurementUnit unit;
 
-  private String fullName;
+  private String fullText;
 
   private boolean possibleDuplicate;
 }
