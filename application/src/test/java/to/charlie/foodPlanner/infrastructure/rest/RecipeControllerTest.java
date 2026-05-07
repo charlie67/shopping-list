@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import to.charlie.foodPlanner.domain.model.dto.extraction.ExtractedRecipeDto;
 import to.charlie.foodPlanner.domain.model.exception.DuplicateRecipeException;
 import to.charlie.foodPlanner.domain.service.RecipeService;
+import to.charlie.foodPlanner.infrastructure.rest.controllers.RecipeController;
 
 import java.io.IOException;
 import java.util.List;

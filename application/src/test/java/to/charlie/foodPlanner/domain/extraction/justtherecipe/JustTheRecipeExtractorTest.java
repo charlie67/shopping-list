@@ -1,7 +1,6 @@
 package to.charlie.foodPlanner.domain.extraction.justtherecipe;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -19,6 +18,7 @@ import to.charlie.foodPlanner.domain.extraction.justtherecipe.dto.JustTheRecipeR
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipeIngredient;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.MeasurementUnit;
+import to.charlie.foodPlanner.infrastructure.rest.clients.JustTheRecipeClient;
 
 @ExtendWith(MockitoExtension.class)
 class JustTheRecipeExtractorTest {

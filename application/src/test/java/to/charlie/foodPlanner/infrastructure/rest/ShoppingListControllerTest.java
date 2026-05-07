@@ -20,6 +20,7 @@ import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemDto;
 import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemUpdateDto;
 import to.charlie.foodPlanner.domain.model.entity.ShoppingListItemEntity;
 import to.charlie.foodPlanner.domain.service.ShoppingListService;
+import to.charlie.foodPlanner.infrastructure.rest.controllers.ShoppingListController;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -10,6 +10,7 @@ import to.charlie.foodPlanner.domain.extraction.justtherecipe.dto.InstructionDto
 import to.charlie.foodPlanner.domain.extraction.justtherecipe.dto.JustTheRecipeResponseDto;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipeInstruction;
+import to.charlie.foodPlanner.infrastructure.rest.clients.JustTheRecipeClient;
 
 @Component
 @RequiredArgsConstructor
@@ -45,15 +46,15 @@ public class JustTheRecipeExtractor implements RecipeExtractor {
 						.build();
 	}
 
-	public String findMainRecipeImage(Document document) {
+	public String findMainRecipeImage(final Document document) {
 		// Look for Open Graph image
-		Element ogImage = document.selectFirst("meta[property=og:image]");
+		final Element ogImage = document.selectFirst("meta[property=og:image]");
 		if (ogImage != null && !ogImage.attr("content").isEmpty()) {
 			return ogImage.attr("content");
 		}
 
 		// Fallback to Twitter card image
-		Element twitterImage = document.selectFirst("meta[name=twitter:image]");
+		final Element twitterImage = document.selectFirst("meta[name=twitter:image]");
 		if (twitterImage != null && !twitterImage.attr("content").isEmpty()) {
 			return twitterImage.attr("content");
 		}

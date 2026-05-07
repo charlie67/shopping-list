@@ -1,4 +1,4 @@
-package to.charlie.foodPlanner.infrastructure.rest;
+package to.charlie.foodPlanner.infrastructure.rest.controllers;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
