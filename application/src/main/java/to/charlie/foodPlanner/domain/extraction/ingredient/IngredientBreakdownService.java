@@ -3,6 +3,7 @@ package to.charlie.foodPlanner.domain.extraction.ingredient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import to.charlie.foodPlanner.domain.model.dto.ingredientextractor.IngredientBreakdownDto;
+import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedIngredient;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipeIngredient;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.MeasurementUnit;
 import to.charlie.foodPlanner.infrastructure.rest.clients.IngredientBreakdownClient;
@@ -30,7 +31,7 @@ public class IngredientBreakdownService {
 			}
 
 			ingredientList.add(ExtractedRecipeIngredient.builder()
-							.ingredientName(ingredient.name())
+							.ingredient(ExtractedIngredient.builder().name(ingredient.name()).build())
 							.comment(dto.comment())
 							.purpose(dto.purpose())
 							.quantity(lastQuantity.quantity())

@@ -11,6 +11,7 @@ import to.charlie.foodPlanner.domain.extraction.ingredient.IngredientBreakdownSe
 import to.charlie.foodPlanner.domain.extraction.recipe.justtherecipe.dto.IngredientDto;
 import to.charlie.foodPlanner.domain.extraction.recipe.justtherecipe.dto.InstructionDto;
 import to.charlie.foodPlanner.domain.extraction.recipe.justtherecipe.dto.JustTheRecipeResponseDto;
+import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedIngredient;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipeIngredient;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.MeasurementUnit;
@@ -98,7 +99,7 @@ class JustTheRecipeExtractorTest {
 		final String url = "https://example.com/recipe";
 		final ExtractedRecipeIngredient extractedIngredient = ExtractedRecipeIngredient.builder()
 						.fullText("flour")
-						.ingredientName("flour")
+						.ingredient(ExtractedIngredient.builder().name("flour").build())
 						.quantity(0.0)
 						.unit(MeasurementUnit.UNKNOWN)
 						.build();

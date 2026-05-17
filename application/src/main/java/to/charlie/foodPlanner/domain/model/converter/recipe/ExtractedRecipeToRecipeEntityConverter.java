@@ -51,7 +51,7 @@ public class ExtractedRecipeToRecipeEntityConverter implements
 										.stream()
 										.map(extractedIngredient -> RecipeIngredientEntity.builder()
 														.ingredient(
-																		ingredientDao.findOrCreateIngredient(extractedIngredient.getIngredientName()))
+																		ingredientDao.findOrCreateIngredient(extractedIngredient.getIngredient().getName()))
 														.quantity(extractedIngredient.getQuantity() == null ? 0 : extractedIngredient.getQuantity())
 														.unit(extractedIngredient.getUnit())
 														.quantityUnit(extractedIngredient.getQuantityUnit())
