@@ -1,5 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="ShoppingListApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+    <option name="ACTIVE_PROFILES" value="local" />
     <module name="food-planner-application" />
     <option name="SPRING_BOOT_MAIN_CLASS" value="to.charlie.foodPlanner.ShoppingListApplication" />
     <method v="2">

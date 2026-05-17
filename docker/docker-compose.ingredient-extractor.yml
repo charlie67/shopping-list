@@ -1,0 +1,9 @@
+version: '3.6'
+services:
+
+  ingredient-extractor:
+    container_name: ingredient-extractor
+    image: ghcr.io/charlie67/ingredient-extractor-flask:v0.0.8
+    ports:
+      - "5001:5001"
+    platform: linux/amd64

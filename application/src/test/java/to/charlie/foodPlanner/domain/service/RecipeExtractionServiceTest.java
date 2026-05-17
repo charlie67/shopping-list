@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import to.charlie.foodPlanner.domain.extraction.RecipeExtractor;
+import to.charlie.foodPlanner.domain.extraction.recipe.RecipeExtractor;
 import to.charlie.foodPlanner.domain.model.exception.RecipeExtractionFailed;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
 
