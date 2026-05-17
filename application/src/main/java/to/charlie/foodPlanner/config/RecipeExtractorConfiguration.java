@@ -5,10 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
-import to.charlie.foodPlanner.domain.extraction.RecipeExtractor;
-import to.charlie.foodPlanner.domain.extraction.justtherecipe.JustTheRecipeExtractor;
-import to.charlie.foodPlanner.domain.extraction.ldExtraction.JsonLdExtractor;
-import to.charlie.foodPlanner.domain.extraction.microdata.MicrodataExtractor;
+import to.charlie.foodPlanner.domain.extraction.recipe.RecipeExtractor;
+import to.charlie.foodPlanner.domain.extraction.recipe.justtherecipe.JustTheRecipeExtractor;
+import to.charlie.foodPlanner.domain.extraction.recipe.ldExtraction.JsonLdExtractor;
+import to.charlie.foodPlanner.domain.extraction.recipe.microdata.MicrodataExtractor;
 
 import java.util.List;
 

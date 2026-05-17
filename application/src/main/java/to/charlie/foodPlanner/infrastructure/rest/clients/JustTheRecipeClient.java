@@ -7,7 +7,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
-import to.charlie.foodPlanner.domain.extraction.justtherecipe.dto.JustTheRecipeResponseDto;
+import to.charlie.foodPlanner.domain.extraction.recipe.justtherecipe.dto.JustTheRecipeResponseDto;
 import to.charlie.foodPlanner.domain.model.exception.JustTheRecipeExtractionException;
 
 @Component
