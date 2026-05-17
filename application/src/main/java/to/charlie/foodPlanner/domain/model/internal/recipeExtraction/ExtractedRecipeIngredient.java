@@ -11,6 +11,7 @@ public class ExtractedRecipeIngredient {
 	private String ingredientName;
 	private Double quantity;
 	private String quantityText;
+	private String quantityUnit;
 
 	private String unitText;
 	private MeasurementUnit unit;

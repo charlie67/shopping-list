@@ -54,6 +54,8 @@ public class ExtractedRecipeToRecipeEntityConverter implements
 																		ingredientDao.findOrCreateIngredient(extractedIngredient.getIngredientName()))
 														.quantity(extractedIngredient.getQuantity() == null ? 0 : extractedIngredient.getQuantity())
 														.unit(extractedIngredient.getUnit())
+														.quantityUnit(extractedIngredient.getQuantityUnit())
+														.quantityText(extractedIngredient.getQuantityText())
 														.wholeText(extractedIngredient.getFullText())
 														.preparation(extractedIngredient.getPreparation())
 														.size(extractedIngredient.getSize())

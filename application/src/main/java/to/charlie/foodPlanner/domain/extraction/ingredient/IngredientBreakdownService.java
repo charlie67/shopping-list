@@ -36,6 +36,7 @@ public class IngredientBreakdownService {
 							.quantity(lastQuantity.quantity())
 							.fullText(ingredientString)
 							.quantityText(lastQuantity.text())
+							.quantityUnit(lastQuantity.unit())
 							.unitText(lastQuantity.unit())
 							.unit(MeasurementUnit.convert(lastQuantity.unit()))
 							.size(dto.size())

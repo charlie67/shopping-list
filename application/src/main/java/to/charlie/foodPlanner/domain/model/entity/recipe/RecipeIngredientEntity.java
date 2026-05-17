@@ -57,6 +57,12 @@ public class RecipeIngredientEntity {
 	@Column
 	private String comment;
 
+	@Column
+	private String quantityUnit;
+
+	@Column
+	private String quantityText;
+
 	@OneToOne(cascade = CascadeType.ALL, optional = false, orphanRemoval = true)
 	@JoinColumn(name = "ingredient_id", nullable = false)
 	private IngredientEntity ingredient;
