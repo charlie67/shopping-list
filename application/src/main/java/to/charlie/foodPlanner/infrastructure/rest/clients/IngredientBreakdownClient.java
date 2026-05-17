@@ -1,6 +1,9 @@
 package to.charlie.foodPlanner.infrastructure.rest.clients;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -10,16 +13,24 @@ import to.charlie.foodPlanner.domain.model.exception.BreakdownIngredientExceptio
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class IngredientBreakdownClient {
 
 	private final RestClient restClient;
-	private IngredientBreakdownApiConfiguration configuration;
+	private final IngredientBreakdownApiConfiguration configuration;
 
+	@Retryable(
+					retryFor = BreakdownIngredientException.class,
+					maxAttempts = 3,
+					backoff = @Backoff(delay = 1000),
+					listeners = "IngredientBreakdownRetryListener"
+	)
 	public IngredientBreakdownDto extractIngredients(final String ingredientString) {
 		final String targetUrl = UriComponentsBuilder.fromUriString(configuration.getUrl())
 						.queryParam("ingredient", ingredientString)
 						.build()
 						.toUriString();
+		log.info("Sending API request to ingredient breakdown service for ingredient {}", ingredientString);
 
 		return restClient.get().uri(targetUrl).retrieve()
 						.onStatus(status -> status.value() != 200, (request, response) -> {

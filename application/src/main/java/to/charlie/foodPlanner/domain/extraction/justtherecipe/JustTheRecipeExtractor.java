@@ -1,11 +1,12 @@
 package to.charlie.foodPlanner.domain.extraction.justtherecipe;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Component;
-import to.charlie.foodPlanner.domain.extraction.IngredientExtractor;
 import to.charlie.foodPlanner.domain.extraction.RecipeExtractor;
+import to.charlie.foodPlanner.domain.extraction.ingredientExtraction.IngredientBreakdownService;
 import to.charlie.foodPlanner.domain.extraction.justtherecipe.dto.InstructionDto;
 import to.charlie.foodPlanner.domain.extraction.justtherecipe.dto.JustTheRecipeResponseDto;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
@@ -14,13 +15,15 @@ import to.charlie.foodPlanner.infrastructure.rest.clients.JustTheRecipeClient;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JustTheRecipeExtractor implements RecipeExtractor {
 
 	private final JustTheRecipeClient justTheRecipeClient;
-	private final IngredientExtractor ingredientExtractor;
+	private final IngredientBreakdownService ingredientBreakdownService;
 
 	@Override
 	public ExtractedRecipe extract(final Document document, final String url) {
+		log.info("Attempting to use JustTheRecipe to extract {}", url);
 
 		final JustTheRecipeResponseDto response = justTheRecipeClient.getRecipe(url);
 
@@ -30,7 +33,7 @@ public class JustTheRecipeExtractor implements RecipeExtractor {
 						.recipeYield(String.valueOf(response.servings()))
 						.totalTime(String.valueOf(response.totalTime()))
 						.extractedRecipeIngredients(response.ingredients().stream()
-										.map(ingredient -> ingredientExtractor.convertIngredient(ingredient.name()))
+										.flatMap(ingredient -> ingredientBreakdownService.convertIngredient(ingredient.name()).stream())
 										.toList())
 						.extractedRecipeInstructions(response.instructions().stream()
 										.map(this::mapInstruction)

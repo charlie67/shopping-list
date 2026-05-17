@@ -13,7 +13,9 @@ public record IngredientBreakdownDto(
 				String preparation,
 				@JsonProperty("quantity")
 				List<QuantityItemDto> quantities,
-				String size
+				String size,
+				String comment,
+				String purpose
 ) {
 
 	@JsonIgnoreProperties(ignoreUnknown = true)

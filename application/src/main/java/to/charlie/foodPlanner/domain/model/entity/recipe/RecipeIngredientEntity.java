@@ -11,7 +11,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,6 +21,8 @@ import org.hibernate.type.SqlTypes;
 import to.charlie.foodPlanner.domain.model.entity.IngredientEntity;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.MeasurementUnit;
 
+import java.util.UUID;
+
 @Table(name = "recipe_ingredient")
 @Entity
 @Getter
@@ -31,27 +32,39 @@ import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.Measurement
 @NoArgsConstructor
 public class RecipeIngredientEntity {
 
-  @Id
-  @GeneratedValue
-  @JdbcTypeCode(SqlTypes.UUID)
-  @Column(name = "id", nullable = false)
-  private UUID id;
+	@Id
+	@GeneratedValue
+	@JdbcTypeCode(SqlTypes.UUID)
+	@Column(name = "id", nullable = false)
+	private UUID id;
 
-  @Column(name = "quantity")
-  private double quantity;
+	@Column
+	private double quantity;
 
-  @Enumerated(EnumType.STRING)
-  @Column(name = "unit")
-  private MeasurementUnit unit;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "unit")
+	private MeasurementUnit unit;
 
-  @OneToOne(cascade = CascadeType.ALL, optional = false, orphanRemoval = true)
-  @JoinColumn(name = "ingredient_id", nullable = false)
-  private IngredientEntity ingredient;
+	@Column
+	private String size;
 
-  @ManyToOne
-  @JoinColumn(name = "recipe_id", nullable = false)
-  private RecipeEntity recipe;
+	@Column
+	private String preparation;
 
-  @Column(name = "whole_text")
-  private String wholeText;
+	@Column
+	private String purpose;
+
+	@Column
+	private String comment;
+
+	@OneToOne(cascade = CascadeType.ALL, optional = false, orphanRemoval = true)
+	@JoinColumn(name = "ingredient_id", nullable = false)
+	private IngredientEntity ingredient;
+
+	@ManyToOne
+	@JoinColumn(name = "recipe_id", nullable = false)
+	private RecipeEntity recipe;
+
+	@Column(name = "whole_text")
+	private String wholeText;
 }

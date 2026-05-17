@@ -7,9 +7,15 @@ import lombok.Data;
 @Builder
 public class ExtractedRecipeIngredient {
 
-  private String fullText;
-  private String ingredientName;
-  private Double quantity;
-  private String unitText;
-  private MeasurementUnit unit;
+	private String fullText;
+	private String ingredientName;
+	private Double quantity;
+	private String quantityText;
+
+	private String unitText;
+	private MeasurementUnit unit;
+	private String size;
+	private String preparation;
+	private String comment;
+	private String purpose;
 }

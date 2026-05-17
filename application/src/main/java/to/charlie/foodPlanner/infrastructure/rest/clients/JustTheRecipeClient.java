@@ -1,6 +1,7 @@
 package to.charlie.foodPlanner.infrastructure.rest.clients;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
@@ -11,6 +12,7 @@ import to.charlie.foodPlanner.domain.model.exception.JustTheRecipeExtractionExce
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JustTheRecipeClient {
 
 	private static final String USER_AGENT = "Samsung-fridge";
@@ -24,6 +26,8 @@ public class JustTheRecipeClient {
 					listeners = "justTheRecipeRetryListener"
 	)
 	public JustTheRecipeResponseDto getRecipe(final String recipeUrl) {
+		log.info("Sending API request to JustTheRecipe for URL {}", recipeUrl);
+
 		// https://www.justtherecipe.com/extractRecipeAtUrl?url={recipeUrl}
 		final String targetUrl = UriComponentsBuilder.fromUriString(BASE_URL)
 						.queryParam("url", recipeUrl)
