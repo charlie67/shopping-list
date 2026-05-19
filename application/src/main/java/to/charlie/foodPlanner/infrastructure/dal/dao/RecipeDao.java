@@ -6,9 +6,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
-import to.charlie.foodPlanner.domain.model.converter.recipe.ExtractedRecipeToRecipeEntityConverter;
 import to.charlie.foodPlanner.domain.model.dto.extraction.ExtractedRecipeDto;
 import to.charlie.foodPlanner.domain.model.entity.recipe.RecipeEntity;
+import to.charlie.foodPlanner.domain.model.entity.recipe.RecipeStepEntity;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
 import to.charlie.foodPlanner.infrastructure.dal.repository.PageableRecipeRepository;
 import to.charlie.foodPlanner.infrastructure.dal.repository.RecipeRepository;
@@ -21,16 +21,28 @@ public class RecipeDao {
 
 	private final RecipeRepository recipeRepository;
 	private final PageableRecipeRepository pageableRecipeRepository;
-	private final ExtractedRecipeToRecipeEntityConverter extractedRecipeConverter;
 	private final ModelMapper modelMapper;
+	private final IngredientDao ingredientDao;
 
 	public RecipeEntity save(final RecipeEntity recipeEntity) {
 		return recipeRepository.save(recipeEntity);
 	}
 
 	public RecipeEntity save(final ExtractedRecipe recipeDto) {
-		final RecipeEntity recipeEntity = extractedRecipeConverter.convert(recipeDto);
-		return save(recipeEntity);
+		final RecipeEntity entity = modelMapper.map(recipeDto, RecipeEntity.class);
+
+		entity.getIngredients().forEach(ri -> {
+			ri.setIngredient(ingredientDao.findOrCreateIngredient(ri.getIngredient().getName()));
+			ri.setRecipe(entity);
+		});
+
+		int n = 1;
+		for (RecipeStepEntity step : entity.getSteps()) {
+			step.setStepCount(n++);
+			step.setRecipe(entity);
+		}
+
+		return save(entity);
 	}
 
 	public boolean existsByUrl(final String url) {

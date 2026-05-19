@@ -21,7 +21,7 @@ public class IngredientBreakdownService {
 
 		final var ingredientList = new ArrayList<ExtractedRecipeIngredient>();
 
-		IngredientBreakdownDto.QuantityItemDto lastQuantity = new IngredientBreakdownDto.QuantityItemDto(0D, "", "");
+		IngredientBreakdownDto.QuantityItemDto lastQuantity = new IngredientBreakdownDto.QuantityItemDto(0D, null, null);
 
 		for (int i = 0; i < dto.ingredients().size(); i++) {
 			final IngredientBreakdownDto.IngredientItemDto ingredient = dto.ingredients().get(i);

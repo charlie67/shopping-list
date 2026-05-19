@@ -9,13 +9,13 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import to.charlie.foodPlanner.domain.model.converter.recipe.ExtractedRecipeToRecipeEntityConverter;
 import to.charlie.foodPlanner.domain.model.dto.extraction.ExtractedRecipeDto;
 import to.charlie.foodPlanner.domain.model.entity.recipe.RecipeEntity;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
 import to.charlie.foodPlanner.infrastructure.dal.repository.PageableRecipeRepository;
 import to.charlie.foodPlanner.infrastructure.dal.repository.RecipeRepository;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -36,16 +36,16 @@ class RecipeDaoTest {
 	private PageableRecipeRepository pageableRecipeRepository;
 
 	@Mock
-	private ExtractedRecipeToRecipeEntityConverter extractedRecipeConverter;
+	private ModelMapper modelMapper;
 
 	@Mock
-	private ModelMapper modelMapper;
+	private IngredientDao ingredientDao;
 
 	private RecipeDao recipeDao;
 
 	@BeforeEach
 	void setUp() {
-		recipeDao = new RecipeDao(recipeRepository, pageableRecipeRepository, extractedRecipeConverter, modelMapper);
+		recipeDao = new RecipeDao(recipeRepository, pageableRecipeRepository, modelMapper, ingredientDao);
 	}
 
 	private RecipeEntity buildRecipeEntity(final UUID id, final String name, final String url) {
@@ -75,8 +75,14 @@ class RecipeDaoTest {
 						.extractedRecipeIngredients(List.of())
 						.extractedRecipeInstructions(List.of())
 						.build();
-		final RecipeEntity convertedEntity = buildRecipeEntity(UUID.randomUUID(), "Soup", "https://example.com/soup");
-		when(extractedRecipeConverter.convert(extractedRecipe)).thenReturn(convertedEntity);
+		final RecipeEntity convertedEntity = RecipeEntity.builder()
+						.id(UUID.randomUUID())
+						.name("Soup")
+						.url("https://example.com/soup")
+						.ingredients(new LinkedHashSet<>())
+						.steps(new LinkedHashSet<>())
+						.build();
+		when(modelMapper.map(extractedRecipe, RecipeEntity.class)).thenReturn(convertedEntity);
 		when(recipeRepository.save(convertedEntity)).thenReturn(convertedEntity);
 
 		// when
@@ -84,7 +90,7 @@ class RecipeDaoTest {
 
 		// then
 		assertThat(result).isEqualTo(convertedEntity);
-		verify(extractedRecipeConverter).convert(extractedRecipe);
+		verify(modelMapper).map(extractedRecipe, RecipeEntity.class);
 		verify(recipeRepository).save(convertedEntity);
 	}
 

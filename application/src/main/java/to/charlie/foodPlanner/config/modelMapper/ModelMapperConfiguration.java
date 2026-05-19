@@ -12,10 +12,12 @@ import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemDto;
 import to.charlie.foodPlanner.domain.model.entity.ShoppingListItemEntity;
 import to.charlie.foodPlanner.domain.model.entity.recipe.RecipeEntity;
 import to.charlie.foodPlanner.domain.model.entity.recipe.RecipeIngredientEntity;
+import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipeIngredient;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 
 @Component
 public class ModelMapperConfiguration {
@@ -23,6 +25,26 @@ public class ModelMapperConfiguration {
 	@Bean
 	public ModelMapper modelMapper() {
 		final ModelMapper modelMapper = new ModelMapper();
+
+		// Null source values must not overwrite primitive targets (e.g. nullable Double quantity -> primitive double).
+		modelMapper.getConfiguration().setSkipNullEnabled(true);
+
+		modelMapper.addMappings(new PropertyMap<ExtractedRecipeIngredient, RecipeIngredientEntity>() {
+			@Override
+			protected void configure() {
+				map().setWholeText(source.getFullText());
+			}
+		});
+
+		final Converter<List<String>, String> firstKeywordOrEmpty =
+						ctx -> ctx.getSource() == null || ctx.getSource().isEmpty() ? "" : ctx.getSource().getFirst();
+
+		modelMapper.typeMap(ExtractedRecipe.class, RecipeEntity.class)
+						.addMappings(mapper -> {
+							mapper.using(firstKeywordOrEmpty).map(ExtractedRecipe::getKeywords, RecipeEntity::setKeywords);
+							mapper.map(ExtractedRecipe::getExtractedRecipeIngredients, RecipeEntity::setIngredients);
+							mapper.map(ExtractedRecipe::getExtractedRecipeInstructions, RecipeEntity::setSteps);
+						});
 
 		modelMapper.addMappings(new PropertyMap<ExtractedRecipeIngredient, ExtractedIngredientDto>() {
 			@Override
