@@ -13,7 +13,7 @@ export function RecipeCard({recipe, onOpen}: Props) {
 
     const addAllIngredients = (ingredients: RecipeIngredient[]) => {
         ingredients.forEach((ing) => {
-            dispatch(addShoppingListItem(ing.ingredientName));
+            dispatch(addShoppingListItem(ing.fullText));
         })
     }
 
