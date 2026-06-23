@@ -1,11 +1,11 @@
 :4000 {
-        bind 0.0.0.0
+        bind localhost
         route /api/* {
                 uri strip_prefix /api/
                 rewrite * /{uri} # rewrite the request without the "/api" prefix
-                reverse_proxy :8080
+                reverse_proxy localhost:8080
         }
         route {
-                reverse_proxy :3000
+                reverse_proxy localhost:3000
         }
 }

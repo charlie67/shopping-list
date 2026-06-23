@@ -1,7 +1,7 @@
+import {useState} from 'react';
 import {ExternalLink, Plus} from 'lucide-react';
-import {ExtractedRecipeDto, RecipeIngredient} from '@/common/types/recipe';
-import {useAppDispatch} from "@/common/hooks/redux.ts";
-import {addShoppingListItem} from "@/features/shopping-list/shoppingListSlice.ts";
+import {ExtractedRecipeDto} from '@/common/types/recipe';
+import {IngredientPicker} from './IngredientPicker';
 
 interface Props {
     recipe: ExtractedRecipeDto;
@@ -9,13 +9,7 @@ interface Props {
 }
 
 export function RecipeCard({recipe, onOpen}: Props) {
-    const dispatch = useAppDispatch();
-
-    const addAllIngredients = (ingredients: RecipeIngredient[]) => {
-        ingredients.forEach((ing) => {
-            dispatch(addShoppingListItem(ing.ingredientName));
-        })
-    }
+    const [showPicker, setShowPicker] = useState(false);
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -59,7 +53,7 @@ export function RecipeCard({recipe, onOpen}: Props) {
                     <button
                         onClick={(e) => {
                             e.stopPropagation();
-                            addAllIngredients(recipe.ingredients);
+                            setShowPicker(true);
                         }}
                         className="cursor-pointer flex items-center gap-1.5 rounded-lg bg-indigo-600/20 px-3 py-2 text-xs font-medium text-indigo-300 hover:bg-indigo-600/30 hover:text-indigo-200 transition-colors"
                     >
@@ -68,6 +62,15 @@ export function RecipeCard({recipe, onOpen}: Props) {
                     </button>
                 </div>
             </div>
+            {showPicker && (
+                <div onClick={(e) => e.stopPropagation()}>
+                    <IngredientPicker
+                        recipeName={recipe.name}
+                        ingredients={recipe.ingredients}
+                        onClose={() => setShowPicker(false)}
+                    />
+                </div>
+            )}
         </div>
     );
 }

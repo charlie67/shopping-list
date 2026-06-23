@@ -21,28 +21,29 @@ public class IngredientBreakdownService {
 
 		final var ingredientList = new ArrayList<ExtractedRecipeIngredient>();
 
-		IngredientBreakdownDto.QuantityItemDto lastQuantity = new IngredientBreakdownDto.QuantityItemDto(0D, null, null);
-
 		for (int i = 0; i < dto.ingredients().size(); i++) {
 			final IngredientBreakdownDto.IngredientItemDto ingredient = dto.ingredients().get(i);
+			final IngredientBreakdownDto.QuantityItemDto quantity =
+							(dto.quantities() != null && i < dto.quantities().size()) ? dto.quantities().get(i) : null;
 
-			if (i < dto.quantities().size() && dto.quantities().get(i) != null) {
-				lastQuantity = dto.quantities().get(i);
+			final ExtractedRecipeIngredient.ExtractedRecipeIngredientBuilder builder =
+							ExtractedRecipeIngredient.builder()
+											.ingredient(ExtractedIngredient.builder().name(ingredient.name()).build())
+											.comment(dto.comment())
+											.purpose(dto.purpose())
+											.fullText(ingredientString)
+											.size(dto.size())
+											.preparation(dto.preparation());
+
+			if (quantity != null) {
+				builder.quantity(quantity.quantity())
+								.quantityText(quantity.text())
+								.quantityUnit(quantity.unit())
+								.unitText(quantity.unit())
+								.unit(MeasurementUnit.convert(quantity.unit()));
 			}
 
-			ingredientList.add(ExtractedRecipeIngredient.builder()
-							.ingredient(ExtractedIngredient.builder().name(ingredient.name()).build())
-							.comment(dto.comment())
-							.purpose(dto.purpose())
-							.quantity(lastQuantity.quantity())
-							.fullText(ingredientString)
-							.quantityText(lastQuantity.text())
-							.quantityUnit(lastQuantity.unit())
-							.unitText(lastQuantity.unit())
-							.unit(MeasurementUnit.convert(lastQuantity.unit()))
-							.size(dto.size())
-							.preparation(dto.preparation())
-							.build());
+			ingredientList.add(builder.build());
 		}
 
 		return ingredientList;

@@ -1,0 +1,19 @@
+{
+  "ingredient": [
+    {
+      "name": "red pepper"
+    }
+  ],
+  "original": "1 red pepper",
+  "preparation": null,
+  "quantity": [
+    {
+      "quantity": 1.0,
+      "text": "1",
+      "unit": "whole"
+    }
+  ],
+  "size": null,
+  "comment": null,
+  "purpose": null
+}

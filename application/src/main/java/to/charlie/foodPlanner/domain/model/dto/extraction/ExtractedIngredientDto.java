@@ -14,13 +14,23 @@ import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.Measurement
 @Builder
 public class ExtractedIngredientDto {
 
-  private String ingredientName;
+	private String ingredientName;
 
-  private double quantity;
+	private double quantity;
 
-  private MeasurementUnit unit;
+	private MeasurementUnit unit;
 
-  private String fullText;
+	private String size;
 
-  private boolean possibleDuplicate;
+	private String preparation;
+
+	private String purpose;
+
+	private String comment;
+
+	private String quantityText;
+
+	private String fullText;
+
+	private boolean possibleDuplicate;
 }

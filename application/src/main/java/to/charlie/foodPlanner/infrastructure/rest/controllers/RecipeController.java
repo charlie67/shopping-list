@@ -14,6 +14,8 @@ import to.charlie.foodPlanner.domain.service.RecipeService;
 
 import java.io.IOException;
 
+import static org.springframework.http.HttpStatus.CREATED;
+
 @RestController
 @RequestMapping("/recipe")
 @RequiredArgsConstructor
@@ -25,7 +27,7 @@ public class RecipeController {
 	public ResponseEntity<ExtractedRecipeDto> extract(
 					@RequestParam final String url, @RequestParam(name = "save") final boolean saveRecipe) {
 		try {
-			return ResponseEntity.ok(recipeService.extractRecipeFromUrl(url, saveRecipe));
+			return ResponseEntity.status(CREATED).body(recipeService.extractRecipeFromUrl(url, saveRecipe));
 		} catch (final IOException e) {
 			return ResponseEntity.notFound().build();
 		} catch (final IllegalArgumentException e) {

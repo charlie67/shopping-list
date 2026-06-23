@@ -8,7 +8,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import to.charlie.foodPlanner.domain.model.dto.extraction.ExtractedRecipeDto;
 import to.charlie.foodPlanner.domain.model.entity.recipe.RecipeEntity;
-import to.charlie.foodPlanner.domain.model.entity.recipe.RecipeStepEntity;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
 import to.charlie.foodPlanner.infrastructure.dal.repository.PageableRecipeRepository;
 import to.charlie.foodPlanner.infrastructure.dal.repository.RecipeRepository;
@@ -36,11 +35,8 @@ public class RecipeDao {
 			ri.setRecipe(entity);
 		});
 
-		int n = 1;
-		for (RecipeStepEntity step : entity.getSteps()) {
-			step.setStepCount(n++);
-			step.setRecipe(entity);
-		}
+		// stepCount is assigned during mapping to preserve the recipe's original order.
+		entity.getSteps().forEach(step -> step.setRecipe(entity));
 
 		return save(entity);
 	}

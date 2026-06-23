@@ -7,6 +7,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
+import to.charlie.foodPlanner.config.JustTheRecipeConfiguration;
 import to.charlie.foodPlanner.domain.extraction.recipe.justtherecipe.dto.JustTheRecipeResponseDto;
 import to.charlie.foodPlanner.domain.model.exception.JustTheRecipeExtractionException;
 
@@ -16,8 +17,9 @@ import to.charlie.foodPlanner.domain.model.exception.JustTheRecipeExtractionExce
 public class JustTheRecipeClient {
 
 	private static final String USER_AGENT = "Samsung-fridge";
-	private static final String BASE_URL = "https://www.justtherecipe.com/extractRecipeAtUrl";
+
 	private final RestClient restClient;
+	private final JustTheRecipeConfiguration justTheRecipeConfiguration;
 
 	@Retryable(
 					retryFor = JustTheRecipeExtractionException.class,
@@ -26,13 +28,13 @@ public class JustTheRecipeClient {
 					listeners = "justTheRecipeRetryListener"
 	)
 	public JustTheRecipeResponseDto getRecipe(final String recipeUrl) {
-		log.info("Sending API request to JustTheRecipe for URL {}", recipeUrl);
-
 		// https://www.justtherecipe.com/extractRecipeAtUrl?url={recipeUrl}
-		final String targetUrl = UriComponentsBuilder.fromUriString(BASE_URL)
+		final String targetUrl = UriComponentsBuilder.fromUriString(justTheRecipeConfiguration.getUrl())
 						.queryParam("url", recipeUrl)
 						.build()
 						.toUriString();
+
+		log.info("Sending API request {} to JustTheRecipe for URL {}", targetUrl, recipeUrl);
 
 		return restClient
 						.get()

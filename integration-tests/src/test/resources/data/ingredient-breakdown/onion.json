@@ -1,0 +1,19 @@
+{
+  "ingredient": [
+    {
+      "name": "onion"
+    }
+  ],
+  "original": "1 large onion",
+  "preparation": null,
+  "quantity": [
+    {
+      "quantity": 1.0,
+      "text": "1",
+      "unit": "whole"
+    }
+  ],
+  "size": "large",
+  "comment": null,
+  "purpose": null
+}

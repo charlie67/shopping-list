@@ -7,6 +7,7 @@ import org.jsoup.nodes.Document;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import to.charlie.foodPlanner.domain.exception.ResourceNotFoundException;
 import to.charlie.foodPlanner.domain.model.dto.extraction.ExtractedRecipeDto;
 import to.charlie.foodPlanner.domain.model.entity.recipe.RecipeEntity;
 import to.charlie.foodPlanner.domain.model.exception.DuplicateRecipeException;
@@ -32,7 +33,9 @@ public class RecipeService {
 
 		if (saveRecipe && recipeDao.existsByUrl(url)) {
 			log.info("Recipe for url {} already exists in database", url);
-			return modelMapper.map(recipeDao.findByUrl(url), ExtractedRecipeDto.class);
+			final ExtractedRecipe existing = recipeDao.findByUrl(url)
+							.orElseThrow(() -> new ResourceNotFoundException("Recipe not found"));
+			return modelMapper.map(existing, ExtractedRecipeDto.class);
 		}
 
 		log.info("Downloading webpage {}", url);

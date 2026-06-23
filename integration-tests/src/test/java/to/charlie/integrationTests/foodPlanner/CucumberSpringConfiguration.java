@@ -9,13 +9,14 @@ import to.charlie.integrationTests.foodPlanner.utilities.Ports;
 
 @CucumberContextConfiguration
 @SpringBootTest(classes = {ShoppingListApplication.class,
-    TestConfig.class}, webEnvironment = WebEnvironment.DEFINED_PORT, properties = {
-    "server.port=" + Ports.SPRING,
+				TestConfig.class}, webEnvironment = WebEnvironment.DEFINED_PORT, properties = {
+				"server.port=" + Ports.SPRING,
 })
 public class CucumberSpringConfiguration {
 
-  @BeforeAll
-  public static void beforeAll() {
-    PostgresContainer.getInstance();
-  }
+	@BeforeAll
+	public static void beforeAll() {
+		PostgresContainer.getInstance();
+		WireMockContainer.getInstance();
+	}
 }

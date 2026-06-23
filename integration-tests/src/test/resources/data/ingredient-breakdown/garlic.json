@@ -1,0 +1,19 @@
+{
+  "ingredient": [
+    {
+      "name": "garlic"
+    }
+  ],
+  "original": "2 garlic cloves",
+  "preparation": null,
+  "quantity": [
+    {
+      "quantity": 2.0,
+      "text": "2",
+      "unit": "clove"
+    }
+  ],
+  "size": null,
+  "comment": null,
+  "purpose": null
+}
