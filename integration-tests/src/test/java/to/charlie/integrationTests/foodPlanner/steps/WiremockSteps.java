@@ -4,7 +4,6 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 import io.cucumber.java.en.Given;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import to.charlie.integrationTests.foodPlanner.WireMockContainer;
 import to.charlie.integrationTests.foodPlanner.utilities.DataLoader;
 
@@ -16,9 +15,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 
 @Slf4j
 public class WiremockSteps {
-
-	@Value("${WIREMOCK_BASE_URL}")
-	private String wiremockBaseUrl;
 
 	@Autowired
 	public DataLoader loader;
