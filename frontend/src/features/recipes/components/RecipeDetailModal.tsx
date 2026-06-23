@@ -27,7 +27,7 @@ export function RecipeDetailModal({recipe, onClose}: Props) {
 
     const addAllIngredients = () => {
         recipe.ingredients.forEach((ing) => {
-            dispatch(addShoppingListItem(ing.ingredientName));
+            dispatch(addShoppingListItem(ing.fullText));
         });
     };
 
