@@ -1,7 +1,7 @@
 package to.charlie.foodPlanner.infrastructure.dal.dao;
 
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
 import to.charlie.foodPlanner.domain.model.entity.IngredientEntity;
 import to.charlie.foodPlanner.infrastructure.dal.repository.IngredientRepository;
@@ -13,15 +13,15 @@ public class IngredientDao {
   private final IngredientRepository ingredientRepository;
 
   public IngredientEntity findOrCreateIngredient(final String ingredient) {
-    final Optional<IngredientEntity> ingredientEntityOptional = ingredientRepository.findByName(
-        ingredient);
-    if (ingredientEntityOptional.isEmpty()) {
-      final IngredientEntity ingredientEntity = IngredientEntity.builder().name(ingredient).build();
-      ingredientRepository.save(ingredientEntity);
-
-      return ingredientEntity;
-    } else {
-      return ingredientEntityOptional.get();
-    }
+    return ingredientRepository.findByName(ingredient)
+        .orElseGet(() -> {
+          try {
+            return ingredientRepository.save(
+                IngredientEntity.builder().name(ingredient).build());
+          } catch (final DataIntegrityViolationException e) {
+            return ingredientRepository.findByName(ingredient)
+                .orElseThrow(() -> e);
+          }
+        });
   }
 }

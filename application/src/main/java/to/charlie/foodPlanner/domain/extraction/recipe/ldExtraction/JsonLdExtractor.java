@@ -19,7 +19,7 @@ import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRe
 public class JsonLdExtractor implements RecipeExtractor {
 
 	private final ObjectMapper objectMapper;
-	private final JsonLdExtractorConverter converter;
+	private final JsonLdRecipeBuilder converter;
 
 	public ExtractedRecipe extract(final Document document, final String url)
 					throws RecipeExtractionFailed {

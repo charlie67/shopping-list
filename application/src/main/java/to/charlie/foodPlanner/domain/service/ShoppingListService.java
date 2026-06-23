@@ -87,9 +87,14 @@ public class ShoppingListService {
 		if (shoppingListItemUpdateDto.getTitle() != null
 						&& !shoppingListItemUpdateDto.getTitle().isEmpty()) {
 			shoppingListItem.setTitle(shoppingListItemUpdateDto.getTitle());
-		} else if (shoppingListItemUpdateDto.getComplete() != null) {
+		}
+		if (shoppingListItemUpdateDto.getComplete() != null) {
 			shoppingListItem.setCompleted(shoppingListItemUpdateDto.getComplete());
-		} else {
+		}
+
+		if ((shoppingListItemUpdateDto.getTitle() == null
+						|| shoppingListItemUpdateDto.getTitle().isEmpty())
+						&& shoppingListItemUpdateDto.getComplete() == null) {
 			throw new BadRequestException("Invalid request");
 		}
 

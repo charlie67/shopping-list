@@ -33,7 +33,7 @@ public class MicrodataExtractor implements RecipeExtractor {
 		String description = null;
 		String dateModified = null;
 		String datePublished = null;
-		List<String> keywords = null;
+		final List<String> keywords = new ArrayList<>();
 		String cookTime = null;
 		String prepTime = null;
 		String totalTime = null;
@@ -62,7 +62,7 @@ public class MicrodataExtractor implements RecipeExtractor {
 			} else if (type.equals("datePublished")) {
 				datePublished = itemPropElement.text();
 			} else if (type.equals("keywords")) {
-				keywords = List.of(itemPropElement.text());
+				keywords.add(itemPropElement.text());
 			} else if (type.equals("cookTime")) {
 				cookTime = itemPropElement.text();
 			} else if (type.equals("prepTime")) {

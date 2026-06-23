@@ -2,8 +2,8 @@ package to.charlie.foodPlanner.domain.service.websocket;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ import to.charlie.foodPlanner.domain.model.dto.websocket.WebSocketMessageDto;
 @RequiredArgsConstructor
 public class WebSocketService {
 
-  private final Map<String, WebSocketSession> sessionMap = new HashMap<>();
+  private final Map<String, WebSocketSession> sessionMap = new ConcurrentHashMap<>();
 
   private final ObjectMapper objectMapper;
 

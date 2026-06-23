@@ -8,7 +8,7 @@ import lombok.Data;
 public class ExtractedRecipeIngredient {
 
 	private String fullText;
-	private String ingredientName;
+	private ExtractedIngredient ingredient;
 	private Double quantity;
 	private String quantityText;
 	private String quantityUnit;

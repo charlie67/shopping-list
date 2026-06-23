@@ -1,60 +1,60 @@
 package to.charlie.foodPlanner.infrastructure.dal.dao;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.StreamSupport;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
-import to.charlie.foodPlanner.domain.model.converter.recipe.ExtractedRecipeToRecipeEntityConverter;
 import to.charlie.foodPlanner.domain.model.dto.extraction.ExtractedRecipeDto;
 import to.charlie.foodPlanner.domain.model.entity.recipe.RecipeEntity;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
 import to.charlie.foodPlanner.infrastructure.dal.repository.PageableRecipeRepository;
 import to.charlie.foodPlanner.infrastructure.dal.repository.RecipeRepository;
 
+import java.util.Optional;
+
 @Component
 @RequiredArgsConstructor
 public class RecipeDao {
 
-  private final RecipeRepository recipeRepository;
-  private final PageableRecipeRepository pageableRecipeRepository;
-  private final ExtractedRecipeToRecipeEntityConverter extractedRecipeConverter;
-  private final ModelMapper modelMapper;
+	private final RecipeRepository recipeRepository;
+	private final PageableRecipeRepository pageableRecipeRepository;
+	private final ModelMapper modelMapper;
+	private final IngredientDao ingredientDao;
 
-  public RecipeEntity save(final RecipeEntity recipeEntity) {
-    return recipeRepository.save(recipeEntity);
-  }
+	public RecipeEntity save(final RecipeEntity recipeEntity) {
+		return recipeRepository.save(recipeEntity);
+	}
 
-  public List<ExtractedRecipeDto> findAll() {
-    return StreamSupport.stream(recipeRepository.findAll()
-            .spliterator(), false)
-        .map(it -> modelMapper.map(it, ExtractedRecipeDto.class))
-        .toList();
-  }
+	public RecipeEntity save(final ExtractedRecipe recipeDto) {
+		final RecipeEntity entity = modelMapper.map(recipeDto, RecipeEntity.class);
 
-  public RecipeEntity save(final ExtractedRecipe recipeDto) {
-    final RecipeEntity recipeEntity = extractedRecipeConverter.convert(recipeDto);
-    return save(recipeEntity);
-  }
+		entity.getIngredients().forEach(ri -> {
+			ri.setIngredient(ingredientDao.findOrCreateIngredient(ri.getIngredient().getName()));
+			ri.setRecipe(entity);
+		});
 
-  public boolean existsByUrl(final String url) {
-    return recipeRepository.existsByUrl(url);
-  }
+		// stepCount is assigned during mapping to preserve the recipe's original order.
+		entity.getSteps().forEach(step -> step.setRecipe(entity));
 
-  public Page<ExtractedRecipeDto> findPage(final int page) {
-    final Pageable pageable = PageRequest.of(page, 20);
+		return save(entity);
+	}
 
-    final Page<RecipeEntity> allRecipesPageable = pageableRecipeRepository.findAll(pageable);
+	public boolean existsByUrl(final String url) {
+		return recipeRepository.existsByUrl(url);
+	}
 
-    return allRecipesPageable.map(it -> modelMapper.map(it, ExtractedRecipeDto.class));
-  }
+	public Page<ExtractedRecipeDto> findPage(final int page) {
+		final Pageable pageable = PageRequest.of(page, 20);
 
-  public Optional<ExtractedRecipe> findByUrl(final String url) {
-    return recipeRepository.findByUrl(url)
-        .map(entity -> modelMapper.map(entity, ExtractedRecipe.class));
-  }
+		final Page<RecipeEntity> allRecipesPageable = pageableRecipeRepository.findAll(pageable);
+
+		return allRecipesPageable.map(it -> modelMapper.map(it, ExtractedRecipeDto.class));
+	}
+
+	public Optional<ExtractedRecipe> findByUrl(final String url) {
+		return recipeRepository.findByUrl(url)
+						.map(entity -> modelMapper.map(entity, ExtractedRecipe.class));
+	}
 }

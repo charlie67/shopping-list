@@ -4,18 +4,20 @@ import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.MeasurementUnit;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
-public final class IngredientDto {
+public class IngredientDto {
 
-  private final String ingredientName;
-  private final double quantity;
-  private final MeasurementUnit unit;
-  private final UUID id;
+  private String ingredientName;
+  private double quantity;
+  private MeasurementUnit unit;
+  private UUID id;
 
 }

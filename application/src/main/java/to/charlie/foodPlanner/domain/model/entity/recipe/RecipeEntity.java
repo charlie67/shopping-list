@@ -7,6 +7,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
@@ -103,6 +104,7 @@ public class RecipeEntity {
   private Set<RecipeIngredientEntity> ingredients = new LinkedHashSet<>();
 
   @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OrderBy("stepCount")
   private Set<RecipeStepEntity> steps = new LinkedHashSet<>();
 
   @Builder.Default

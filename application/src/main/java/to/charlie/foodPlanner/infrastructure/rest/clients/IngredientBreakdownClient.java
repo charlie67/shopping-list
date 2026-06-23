@@ -30,7 +30,7 @@ public class IngredientBreakdownClient {
 						.queryParam("ingredient", ingredientString)
 						.build()
 						.toUriString();
-		log.info("Sending API request to ingredient breakdown service for ingredient {}", ingredientString);
+		log.info("Sending API request {} to ingredient breakdown service for ingredient {}", targetUrl, ingredientString);
 
 		return restClient.get().uri(targetUrl).retrieve()
 						.onStatus(status -> status.value() != 200, (request, response) -> {

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 import to.charlie.foodPlanner.domain.extraction.ingredient.IngredientBreakdownService;
 import to.charlie.foodPlanner.domain.extraction.recipe.ldExtraction.data.JsonLdHowToStep;
@@ -19,12 +18,11 @@ import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-public class JsonLdExtractorConverter implements Converter<JsonLdRecipe, ExtractedRecipe> {
+public class JsonLdRecipeBuilder {
 
 	private final IngredientBreakdownService ingredientExtractor;
 	private final ObjectMapper objectMapper;
 
-	@Override
 	public ExtractedRecipe convert(final JsonLdRecipe source) {
 		final List<ExtractedRecipeInstruction> instructions = extractInstructions(
 						source.getRecipeInstructions());
