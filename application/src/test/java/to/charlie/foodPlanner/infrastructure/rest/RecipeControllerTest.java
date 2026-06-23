@@ -29,119 +29,119 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(MockitoExtension.class)
 class RecipeControllerTest {
 
-    @Mock
-    private RecipeService recipeService;
+	@Mock
+	private RecipeService recipeService;
 
-    private MockMvc mockMvc;
+	private MockMvc mockMvc;
 
-    @BeforeEach
-    void setUp() {
-        mockMvc = MockMvcBuilders.standaloneSetup(new RecipeController(recipeService)).build();
-    }
+	@BeforeEach
+	void setUp() {
+		mockMvc = MockMvcBuilders.standaloneSetup(new RecipeController(recipeService)).build();
+	}
 
-    @Test
-    void extract_whenUrlIsValidAndSaveIsTrue_thenReturnsOkWithRecipe() throws Exception {
-        // given
-        final String url = "https://example.com/recipe";
-        final ExtractedRecipeDto dto = ExtractedRecipeDto.builder()
-                .id(UUID.randomUUID())
-                .name("Pasta")
-                .url(url)
-                .build();
-        when(recipeService.extractRecipeFromUrl(url, true)).thenReturn(dto);
+	@Test
+	void extract_whenUrlIsValidAndSaveIsTrue_thenReturnsOkWithRecipe() throws Exception {
+		// given
+		final String url = "https://example.com/recipe";
+		final ExtractedRecipeDto dto = ExtractedRecipeDto.builder()
+						.id(UUID.randomUUID())
+						.name("Pasta")
+						.url(url)
+						.build();
+		when(recipeService.extractRecipeFromUrl(url, true)).thenReturn(dto);
 
-        // when / then
-        mockMvc.perform(post("/recipe/extract")
-                        .param("url", url)
-                        .param("save", "true")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Pasta"));
-    }
+		// when / then
+		mockMvc.perform(post("/recipe/extract")
+										.param("url", url)
+										.param("save", "true")
+										.contentType(MediaType.APPLICATION_JSON))
+						.andExpect(status().isCreated())
+						.andExpect(jsonPath("$.name").value("Pasta"));
+	}
 
-    @Test
-    void extract_whenUrlIsValidAndSaveIsFalse_thenReturnsOkWithRecipe() throws Exception {
-        // given
-        final String url = "https://example.com/recipe";
-        final ExtractedRecipeDto dto = ExtractedRecipeDto.builder()
-                .id(UUID.randomUUID())
-                .name("Soup")
-                .url(url)
-                .build();
-        when(recipeService.extractRecipeFromUrl(url, false)).thenReturn(dto);
+	@Test
+	void extract_whenUrlIsValidAndSaveIsFalse_thenReturnsOkWithRecipe() throws Exception {
+		// given
+		final String url = "https://example.com/recipe";
+		final ExtractedRecipeDto dto = ExtractedRecipeDto.builder()
+						.id(UUID.randomUUID())
+						.name("Soup")
+						.url(url)
+						.build();
+		when(recipeService.extractRecipeFromUrl(url, false)).thenReturn(dto);
 
-        // when / then
-        mockMvc.perform(post("/recipe/extract")
-                        .param("url", url)
-                        .param("save", "false"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Soup"));
-    }
+		// when / then
+		mockMvc.perform(post("/recipe/extract")
+										.param("url", url)
+										.param("save", "false"))
+						.andExpect(status().isCreated())
+						.andExpect(jsonPath("$.name").value("Soup"));
+	}
 
-    @Test
-    void extract_whenIoExceptionThrown_thenReturnsNotFound() throws Exception {
-        // given
-        final String url = "https://example.com/unreachable";
-        when(recipeService.extractRecipeFromUrl(url, false)).thenThrow(new IOException("connection failed"));
+	@Test
+	void extract_whenIoExceptionThrown_thenReturnsNotFound() throws Exception {
+		// given
+		final String url = "https://example.com/unreachable";
+		when(recipeService.extractRecipeFromUrl(url, false)).thenThrow(new IOException("connection failed"));
 
-        // when / then
-        mockMvc.perform(post("/recipe/extract")
-                        .param("url", url)
-                        .param("save", "false"))
-                .andExpect(status().isNotFound());
-    }
+		// when / then
+		mockMvc.perform(post("/recipe/extract")
+										.param("url", url)
+										.param("save", "false"))
+						.andExpect(status().isNotFound());
+	}
 
-    @Test
-    void extract_whenIllegalArgumentExceptionThrown_thenReturnsInternalServerError() throws Exception {
-        // given
-        final String url = "https://example.com/bad";
-        when(recipeService.extractRecipeFromUrl(url, false)).thenThrow(new IllegalArgumentException("bad url"));
+	@Test
+	void extract_whenIllegalArgumentExceptionThrown_thenReturnsInternalServerError() throws Exception {
+		// given
+		final String url = "https://example.com/bad";
+		when(recipeService.extractRecipeFromUrl(url, false)).thenThrow(new IllegalArgumentException("bad url"));
 
-        // when / then
-        mockMvc.perform(post("/recipe/extract")
-                        .param("url", url)
-                        .param("save", "false"))
-                .andExpect(status().isInternalServerError());
-    }
+		// when / then
+		mockMvc.perform(post("/recipe/extract")
+										.param("url", url)
+										.param("save", "false"))
+						.andExpect(status().isInternalServerError());
+	}
 
-    @Test
-    void extract_whenDuplicateRecipeExceptionThrown_thenReturnsOkWithEmptyBody() throws Exception {
-        // given
-        final String url = "https://example.com/duplicate";
-        when(recipeService.extractRecipeFromUrl(url, true)).thenThrow(new DuplicateRecipeException("already exists"));
+	@Test
+	void extract_whenDuplicateRecipeExceptionThrown_thenReturnsOkWithEmptyBody() throws Exception {
+		// given
+		final String url = "https://example.com/duplicate";
+		when(recipeService.extractRecipeFromUrl(url, true)).thenThrow(new DuplicateRecipeException("already exists"));
 
-        // when / then
-        mockMvc.perform(post("/recipe/extract")
-                        .param("url", url)
-                        .param("save", "true"))
-                .andExpect(status().isOk());
-    }
+		// when / then
+		mockMvc.perform(post("/recipe/extract")
+										.param("url", url)
+										.param("save", "true"))
+						.andExpect(status().isOk());
+	}
 
-    @Test
-    void getRecipePage_whenPageIsValid_thenReturnsOkWithPage() throws Exception {
-        // given
-        final ExtractedRecipeDto dto = ExtractedRecipeDto.builder()
-                .id(UUID.randomUUID())
-                .name("Risotto")
-                .build();
-        final Page<ExtractedRecipeDto> page = new PageImpl<>(List.of(dto), PageRequest.of(0, 20), 1);
-        when(recipeService.getRecipePage(0)).thenReturn(page);
+	@Test
+	void getRecipePage_whenPageIsValid_thenReturnsOkWithPage() throws Exception {
+		// given
+		final ExtractedRecipeDto dto = ExtractedRecipeDto.builder()
+						.id(UUID.randomUUID())
+						.name("Risotto")
+						.build();
+		final Page<ExtractedRecipeDto> page = new PageImpl<>(List.of(dto), PageRequest.of(0, 20), 1);
+		when(recipeService.getRecipePage(0)).thenReturn(page);
 
-        // when / then
-        mockMvc.perform(get("/recipe").param("page", "0"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].name").value("Risotto"));
-    }
+		// when / then
+		mockMvc.perform(get("/recipe").param("page", "0"))
+						.andExpect(status().isOk())
+						.andExpect(jsonPath("$.content[0].name").value("Risotto"));
+	}
 
-    @Test
-    void getRecipePage_whenPageIsEmpty_thenReturnsOkWithEmptyPage() throws Exception {
-        // given
-        final Page<ExtractedRecipeDto> emptyPage = new PageImpl<>(List.of(), PageRequest.of(5, 20), 0);
-        when(recipeService.getRecipePage(5)).thenReturn(emptyPage);
+	@Test
+	void getRecipePage_whenPageIsEmpty_thenReturnsOkWithEmptyPage() throws Exception {
+		// given
+		final Page<ExtractedRecipeDto> emptyPage = new PageImpl<>(List.of(), PageRequest.of(5, 20), 0);
+		when(recipeService.getRecipePage(5)).thenReturn(emptyPage);
 
-        // when / then
-        mockMvc.perform(get("/recipe").param("page", "5"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").isEmpty());
-    }
+		// when / then
+		mockMvc.perform(get("/recipe").param("page", "5"))
+						.andExpect(status().isOk())
+						.andExpect(jsonPath("$.content").isEmpty());
+	}
 }
