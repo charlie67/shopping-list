@@ -5,5 +5,5 @@ COPY frontend/build /var/www/html/
 COPY docker/Caddyfile /etc/caddy/Caddyfile
 EXPOSE 80
 COPY docker/entrypoint.sh entrypoint.sh
-RUN chmod 777 entrypoint.sh
+RUN chmod 755 entrypoint.sh
 CMD ./entrypoint.sh
