@@ -1,13 +1,9 @@
-FROM eclipse-temurin:21.0.7_6-jre-noble
-RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y nginx
+FROM eclipse-temurin:25.0.3_9-jre-alpine-3.23
+COPY --from=caddy:2.11.4-alpine /usr/bin/caddy /usr/bin/caddy
 COPY application/target/food-planner-application-0.0.1-SNAPSHOT-exec.jar /app.jar
 COPY frontend/build /var/www/html/
-COPY docker/nginx.conf /etc/nginx/sites-enabled/nginx.conf
+COPY docker/Caddyfile /etc/caddy/Caddyfile
 EXPOSE 80
 COPY docker/entrypoint.sh entrypoint.sh
-RUN chmod 777 entrypoint.sh
-RUN echo "daemon off;" >> /etc/nginx/nginx.conf
-RUN rm /etc/nginx/sites-enabled/default
+RUN chmod 755 entrypoint.sh
 CMD ./entrypoint.sh
