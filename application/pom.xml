@@ -15,7 +15,7 @@
 
     <properties>
         <java.version>25</java.version>
-        <modelmapper.version>3.2.0</modelmapper.version>
+        <modelmapper.version>3.2.6</modelmapper.version>
     </properties>
 
     <dependencies>
