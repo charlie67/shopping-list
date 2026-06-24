@@ -1,10 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 
 # Start the first process
-nginx&
+caddy run --config /etc/caddy/Caddyfile --adapter caddyfile&
 status=$?
 if [ $status -ne 0 ]; then
-  echo "Failed to start nginx: $status"
+  echo "Failed to start caddy: $status"
   exit $status
 fi
 
