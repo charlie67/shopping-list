@@ -1,6 +1,7 @@
 import {useEffect, useState} from 'react';
 import {ExternalLink, Plus, X} from 'lucide-react';
 import {ExtractedRecipeDto} from '@/common/types/recipe';
+import {useWakeLock} from '@/common/hooks/useWakeLock';
 import {IngredientPicker} from './IngredientPicker';
 
 interface Props {
@@ -10,6 +11,8 @@ interface Props {
 
 export function RecipeDetailModal({recipe, onClose}: Props) {
     const [showPicker, setShowPicker] = useState(false);
+
+    useWakeLock();
 
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
