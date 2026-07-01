@@ -1,9 +1,10 @@
-import {useEffect} from 'react';
+import {useEffect, useState} from 'react';
 import {ExternalLink, Plus, X} from 'lucide-react';
 import {ExtractedRecipeDto} from '@/common/types/recipe';
 import {useAppDispatch} from '@/common/hooks/redux';
 import {addShoppingListItem} from '@/features/shopping-list/shoppingListSlice';
 import {useWakeLock} from '@/common/hooks/useWakeLock';
+import {IngredientPicker} from './IngredientPicker';
 
 interface Props {
     recipe: ExtractedRecipeDto;
@@ -11,7 +12,7 @@ interface Props {
 }
 
 export function RecipeDetailModal({recipe, onClose}: Props) {
-    const dispatch = useAppDispatch();
+    const [showPicker, setShowPicker] = useState(false);
 
     useWakeLock();
 
@@ -27,12 +28,6 @@ export function RecipeDetailModal({recipe, onClose}: Props) {
             document.body.style.overflow = prevOverflow;
         };
     }, [onClose]);
-
-    const addAllIngredients = () => {
-        recipe.ingredients.forEach((ing) => {
-            dispatch(addShoppingListItem(ing.fullText));
-        });
-    };
 
     const sortedSteps = [...recipe.instructions].sort(
         (a, b) => (a.stepCount ?? 0) - (b.stepCount ?? 0),
@@ -90,11 +85,11 @@ export function RecipeDetailModal({recipe, onClose}: Props) {
                                 View source
                             </a>
                             <button
-                                onClick={addAllIngredients}
+                                onClick={() => setShowPicker(true)}
                                 className="flex cursor-pointer items-center gap-1.5 rounded-lg bg-indigo-600/20 px-3 py-2 text-xs font-medium text-indigo-300 transition-colors hover:bg-indigo-600/30 hover:text-indigo-200"
                             >
                                 <Plus size={14}/>
-                                Add all ingredients
+                                Add ingredients
                             </button>
                         </div>
 
@@ -145,6 +140,16 @@ export function RecipeDetailModal({recipe, onClose}: Props) {
                     </div>
                 </div>
             </div>
+
+            {showPicker && (
+                <div onClick={(e) => e.stopPropagation()}>
+                    <IngredientPicker
+                        recipeName={recipe.name}
+                        ingredients={recipe.ingredients}
+                        onClose={() => setShowPicker(false)}
+                    />
+                </div>
+            )}
         </div>
     );
 }
