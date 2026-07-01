@@ -131,18 +131,26 @@ public class HttpSteps {
 
 	@Then("the response body should contain the following fields:")
 	public void theResponseBodyShouldContainTheFollowingFields(final DataTable table) {
-		final String body = context.get("RESPONSE_BODY");
+		assertJsonFields(context.get("RESPONSE_BODY"), table);
+	}
 
-		final DocumentContext context = JsonPath.parse(body);
+	/**
+	 * Asserts that the given JSON document contains every field listed in the data table, where each
+	 * row is a JSON path and its expected value. The special value {@code <valid_uuid>} asserts the
+	 * field is a parseable UUID rather than checking an exact value. Shared by the HTTP response and
+	 * WebSocket message assertions so both use the same matching semantics.
+	 */
+	static void assertJsonFields(final String body, final DataTable table) {
+		final DocumentContext document = JsonPath.parse(body);
 
 		for (final List<String> row : table.asLists(String.class)) {
 			final String jsonPath = row.get(0);
 			final String expectedValue = row.get(1);
 
-			final String actualValue = context.read(jsonPath, String.class);
+			final String actualValue = document.read(jsonPath, String.class);
 			if (actualValue == null) {
 				throw new AssertionError(
-								"Expected value for JSON path '" + jsonPath + "' not found in response body.");
+								"Expected value for JSON path '" + jsonPath + "' not found in JSON body.");
 			}
 
 			if (expectedValue.equals("<valid_uuid>")) {

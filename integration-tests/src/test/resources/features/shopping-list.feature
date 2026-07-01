@@ -2,7 +2,8 @@
 Feature: Shopping list retrieval and manipulation
 
   Scenario: The user can add, complete, and delete an item from the shopping list
-    Given "itemName" is set to "Milk"
+    Given I am connected to the shopping list WebSocket
+    And "itemName" is set to "Milk"
     When I send an HTTP POST request to "/shoppinglist" with the body from file: "add-item.json"
     Then "RESPONSE_STATUS" should be "201"
     And the response body should contain the following fields:
@@ -11,6 +12,12 @@ Feature: Shopping list retrieval and manipulation
       | completed | false        |
       | id        | <valid_uuid> |
     And I store the value of "id" from the HTTP response as "SHOPPING_LIST_ITEM_ID"
+    # The creation is broadcast over the WebSocket
+    And I should receive a WebSocket message with the following fields:
+      | messageType    | SHOPPING_LIST_ITEM_CREATED |
+      | data.title     | Milk                       |
+      | data.completed | false                      |
+      | data.id        | <valid_uuid>               |
     # Update the item name
     When "itemName" is set to "Chocolate Milk"
     And I send an HTTP PATCH request to "/shoppinglist/{shopping-id}" with the body from file: "update-name.json"
@@ -20,6 +27,12 @@ Feature: Shopping list retrieval and manipulation
       | quantity  | 1              |
       | completed | false          |
       | id        | <valid_uuid>   |
+    # The name change is broadcast over the WebSocket
+    And I should receive a WebSocket message with the following fields:
+      | messageType    | SHOPPING_LIST_ITEM_UPDATED |
+      | data.title     | Chocolate Milk             |
+      | data.completed | false                      |
+      | data.id        | <valid_uuid>               |
     # Mark the item as completed
     When I send an HTTP PATCH request to "/shoppinglist/{shopping-id}" with the body from file: "complete-item.json"
     Then "RESPONSE_STATUS" should be "200"
@@ -28,9 +41,19 @@ Feature: Shopping list retrieval and manipulation
       | quantity  | 1              |
       | completed | true           |
       | id        | <valid_uuid>   |
+    # The completion is broadcast over the WebSocket
+    And I should receive a WebSocket message with the following fields:
+      | messageType    | SHOPPING_LIST_ITEM_UPDATED |
+      | data.title     | Chocolate Milk             |
+      | data.completed | true                       |
+      | data.id        | <valid_uuid>               |
     # Delete the item
     When I send an HTTP DELETE request to "/shoppinglist/{shopping-id}"
     Then "RESPONSE_STATUS" should be "204"
+    # The deletion is broadcast over the WebSocket
+    And I should receive a WebSocket message with the following fields:
+      | messageType | SHOPPING_LIST_ITEM_DELETED |
+      | data.id     | <valid_uuid>               |
 
   Scenario: The shopping list can be read as a page with incomplete items first
     Given "itemName" is set to "Bread"
