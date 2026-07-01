@@ -16,7 +16,17 @@ export function useWakeLock(enabled: boolean = true) {
 
         const requestLock = async () => {
             try {
-                sentinel = await navigator.wakeLock.request('screen');
+                const next = await navigator.wakeLock.request('screen');
+                if (cancelled) {
+                    // Effect was cleaned up while the request was in flight.
+                    void next.release().catch(() => {
+                    });
+                    return;
+                }
+                // Release any lock we still hold before replacing it.
+                void sentinel?.release().catch(() => {
+                });
+                sentinel = next;
             } catch {
                 // Request can reject (e.g. tab not visible, low battery); ignore.
             }
