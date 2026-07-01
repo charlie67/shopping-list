@@ -1,8 +1,6 @@
 import {useEffect, useState} from 'react';
 import {ExternalLink, Plus, X} from 'lucide-react';
 import {ExtractedRecipeDto} from '@/common/types/recipe';
-import {useAppDispatch} from '@/common/hooks/redux';
-import {addShoppingListItem} from '@/features/shopping-list/shoppingListSlice';
 import {useWakeLock} from '@/common/hooks/useWakeLock';
 import {IngredientPicker} from './IngredientPicker';
 
