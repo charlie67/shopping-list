@@ -7,6 +7,10 @@ export function getRecipePage(page: number): Promise<Page<ExtractedRecipeDto>> {
     return apiGet<Page<ExtractedRecipeDto>>(`${RECIPE_ENDPOINT}?page=${page}`);
 }
 
+export function getRecipeById(id: string): Promise<ExtractedRecipeDto> {
+    return apiGet<ExtractedRecipeDto>(`${RECIPE_ENDPOINT}/${id}`);
+}
+
 export function extractRecipe(url: string, save: boolean): Promise<ExtractedRecipeDto> {
     return apiPost<ExtractedRecipeDto>(
         `${RECIPE_EXTRACT_ENDPOINT}?url=${encodeURIComponent(url)}&save=${save}`,
