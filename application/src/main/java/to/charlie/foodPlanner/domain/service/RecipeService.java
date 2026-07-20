@@ -15,6 +15,8 @@ import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRe
 import to.charlie.foodPlanner.infrastructure.dal.dao.RecipeDao;
 
 import java.io.IOException;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -82,5 +84,9 @@ public class RecipeService {
 
 	public Page<ExtractedRecipeDto> getRecipePage(final int page) {
 		return recipeDao.findPage(page);
+	}
+
+	public Optional<ExtractedRecipeDto> getRecipeById(final UUID id) {
+		return recipeDao.findById(id);
 	}
 }

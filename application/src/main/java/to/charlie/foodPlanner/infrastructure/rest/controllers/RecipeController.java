@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,6 +14,7 @@ import to.charlie.foodPlanner.domain.model.exception.DuplicateRecipeException;
 import to.charlie.foodPlanner.domain.service.RecipeService;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import static org.springframework.http.HttpStatus.CREATED;
 
@@ -40,5 +42,12 @@ public class RecipeController {
 	@GetMapping
 	public ResponseEntity<Page<ExtractedRecipeDto>> getRecipePage(@RequestParam final int page) {
 		return ResponseEntity.ok(recipeService.getRecipePage(page));
+	}
+
+	@GetMapping("/{id}")
+	public ResponseEntity<ExtractedRecipeDto> getRecipe(@PathVariable final UUID id) {
+		return recipeService.getRecipeById(id)
+						.map(ResponseEntity::ok)
+						.orElseGet(() -> ResponseEntity.notFound().build());
 	}
 }

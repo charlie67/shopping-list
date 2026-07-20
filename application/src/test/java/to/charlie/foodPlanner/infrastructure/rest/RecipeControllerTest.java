@@ -18,6 +18,7 @@ import to.charlie.foodPlanner.infrastructure.rest.controllers.RecipeController;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.Mockito.when;
@@ -143,5 +144,32 @@ class RecipeControllerTest {
 		mockMvc.perform(get("/recipe").param("page", "5"))
 						.andExpect(status().isOk())
 						.andExpect(jsonPath("$.content").isEmpty());
+	}
+
+	@Test
+	void getRecipe_whenRecipeExists_thenReturnsOkWithRecipe() throws Exception {
+		// given
+		final UUID id = UUID.randomUUID();
+		final ExtractedRecipeDto dto = ExtractedRecipeDto.builder()
+						.id(id)
+						.name("Curry")
+						.build();
+		when(recipeService.getRecipeById(id)).thenReturn(Optional.of(dto));
+
+		// when / then
+		mockMvc.perform(get("/recipe/{id}", id))
+						.andExpect(status().isOk())
+						.andExpect(jsonPath("$.name").value("Curry"));
+	}
+
+	@Test
+	void getRecipe_whenRecipeDoesNotExist_thenReturnsNotFound() throws Exception {
+		// given
+		final UUID id = UUID.randomUUID();
+		when(recipeService.getRecipeById(id)).thenReturn(Optional.empty());
+
+		// when / then
+		mockMvc.perform(get("/recipe/{id}", id))
+						.andExpect(status().isNotFound());
 	}
 }

@@ -13,6 +13,7 @@ import to.charlie.foodPlanner.infrastructure.dal.repository.PageableRecipeReposi
 import to.charlie.foodPlanner.infrastructure.dal.repository.RecipeRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -56,5 +57,10 @@ public class RecipeDao {
 	public Optional<ExtractedRecipe> findByUrl(final String url) {
 		return recipeRepository.findByUrl(url)
 						.map(entity -> modelMapper.map(entity, ExtractedRecipe.class));
+	}
+
+	public Optional<ExtractedRecipeDto> findById(final UUID id) {
+		return recipeRepository.findById(id)
+						.map(entity -> modelMapper.map(entity, ExtractedRecipeDto.class));
 	}
 }

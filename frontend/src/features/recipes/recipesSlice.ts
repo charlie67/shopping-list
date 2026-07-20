@@ -26,6 +26,13 @@ export const fetchRecipesPage = createAsyncThunk(
     },
 );
 
+export const fetchRecipeById = createAsyncThunk(
+    'recipes/fetchById',
+    async (id: string) => {
+        return api.getRecipeById(id);
+    },
+);
+
 export const extractRecipeFromUrl = createAsyncThunk(
     'recipes/extract',
     async (url: string) => {
@@ -52,6 +59,11 @@ const recipesSlice = createSlice({
             })
             .addCase(fetchRecipesPage.rejected, (state) => {
                 state.status = 'failed';
+            })
+            .addCase(fetchRecipeById.fulfilled, (state, action) => {
+                if (action.payload) {
+                    state.items[action.payload.id] = action.payload;
+                }
             })
             .addCase(extractRecipeFromUrl.pending, (state) => {
                 state.extractionStatus = 'loading';
