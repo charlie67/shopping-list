@@ -2,6 +2,7 @@ import {useEffect, useState} from 'react';
 import {ExternalLink, Loader2, Pencil, Plus, Trash2, X} from 'lucide-react';
 import {ExtractedRecipeDto} from '@/common/types/recipe';
 import {useAppDispatch, useAppSelector} from '@/common/hooks/redux';
+import {useEscapeKey} from '@/common/hooks/useEscapeKey';
 import {useWakeLock} from '@/common/hooks/useWakeLock';
 import {clearDeleteStatus, deleteRecipe, selectDeleteStatus} from '../recipesSlice';
 import {IngredientPicker} from './IngredientPicker';
@@ -44,25 +45,24 @@ export function RecipeDetailModal({recipe, onClose}: Props) {
         }
     };
 
+    // The editor and the ingredient picker sit on top of this modal and handle Escape themselves,
+    // so it only reaches here when neither is open. While the delete confirmation is up, Escape
+    // backs out of that instead of closing.
+    useEscapeKey(() => {
+        if (confirmingDelete) {
+            if (!isDeleting) cancelDelete();
+            return;
+        }
+        onClose();
+    });
+
     useEffect(() => {
-        // The editor has its own Escape handling, so while it is open this modal ignores the key.
-        // While the delete confirmation is up, Escape backs out of that instead of closing.
-        const onKey = (e: KeyboardEvent) => {
-            if (e.key !== 'Escape' || isEditing) return;
-            if (confirmingDelete) {
-                if (!isDeleting) cancelDelete();
-                return;
-            }
-            onClose();
-        };
-        document.addEventListener('keydown', onKey);
         const prevOverflow = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
         return () => {
-            document.removeEventListener('keydown', onKey);
             document.body.style.overflow = prevOverflow;
         };
-    }, [onClose, isEditing, confirmingDelete, isDeleting]);
+    }, []);
 
     const sortedSteps = [...recipe.instructions].sort(
         (a, b) => (a.stepCount ?? 0) - (b.stepCount ?? 0),

@@ -2,6 +2,7 @@ import {useEffect, useState} from 'react';
 import {Check, Plus, X} from 'lucide-react';
 import {RecipeIngredient} from '@/common/types/recipe';
 import {useAppDispatch} from '@/common/hooks/redux';
+import {useEscapeKey} from '@/common/hooks/useEscapeKey';
 import {addShoppingListItem} from '@/features/shopping-list/shoppingListSlice';
 import {shortenIngredient} from '../ingredientParts';
 
@@ -33,18 +34,15 @@ export function IngredientPicker({recipeName, ingredients, onClose}: Props) {
     const textFor = (index: number) =>
         (!useOriginal.has(index) && shortTexts[index]) || ingredients[index].fullText;
 
+    useEscapeKey(onClose);
+
     useEffect(() => {
-        const onKey = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') onClose();
-        };
-        document.addEventListener('keydown', onKey);
         const prevOverflow = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
         return () => {
-            document.removeEventListener('keydown', onKey);
             document.body.style.overflow = prevOverflow;
         };
-    }, [onClose]);
+    }, []);
 
     const toggle = (index: number) => {
         setSelected((prev) => {

@@ -2,6 +2,7 @@ import {useCallback, useEffect, useState} from 'react';
 import {Loader2, Plus, Trash2} from 'lucide-react';
 import {ExtractedRecipeDto, IngredientUnit, RecipeIngredient, RecipeInstruction} from '@/common/types/recipe';
 import {useAppDispatch, useAppSelector} from '@/common/hooks/redux';
+import {useEscapeKey} from '@/common/hooks/useEscapeKey';
 import {
     clearDraft,
     clearUpdateStatus,
@@ -72,20 +73,19 @@ export function RecipeEditorModal({recipe, mode = 'create', onClose}: Props) {
         }
     }, [dispatch, isEditMode, onClose]);
 
+    // Escape is still swallowed mid-save, so it neither closes whatever is underneath nor reaches
+    // the browser.
+    useEscapeKey(() => {
+        if (!isSaving) handleCancel();
+    });
+
     useEffect(() => {
-        const onKey = (e: KeyboardEvent) => {
-            if (e.key === 'Escape' && !isSaving) {
-                handleCancel();
-            }
-        };
-        document.addEventListener('keydown', onKey);
         const prevOverflow = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
         return () => {
-            document.removeEventListener('keydown', onKey);
             document.body.style.overflow = prevOverflow;
         };
-    }, [handleCancel, isSaving]);
+    }, []);
 
     const setField = <K extends keyof ExtractedRecipeDto>(field: K, value: ExtractedRecipeDto[K]) => {
         setEdited((prev) => ({...prev, [field]: value}));
@@ -175,7 +175,8 @@ export function RecipeEditorModal({recipe, mode = 'create', onClose}: Props) {
 
                 <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-5 sm:p-7">
                     {edited.imageUrl && (
-                        <div className="aspect-video w-full shrink-0 overflow-hidden rounded-xl bg-gray-800 sm:aspect-[21/9]">
+                        <div
+                            className="aspect-video w-full shrink-0 overflow-hidden rounded-xl bg-gray-800 sm:aspect-[21/9]">
                             <img src={edited.imageUrl} alt={edited.name} className="h-full w-full object-cover"/>
                         </div>
                     )}
