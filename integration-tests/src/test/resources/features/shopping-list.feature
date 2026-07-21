@@ -20,7 +20,7 @@ Feature: Shopping list retrieval and manipulation
       | data.id        | <valid_uuid>               |
     # Update the item name
     When "itemName" is set to "Chocolate Milk"
-    And I send an HTTP PATCH request to "/shoppinglist/{shopping-id}" with the body from file: "update-name.json"
+    And I send an HTTP PATCH request to "/shoppinglist/{SHOPPING_LIST_ITEM_ID}" with the body from file: "update-name.json"
     Then "RESPONSE_STATUS" should be "200"
     And the response body should contain the following fields:
       | title     | Chocolate Milk |
@@ -34,7 +34,7 @@ Feature: Shopping list retrieval and manipulation
       | data.completed | false                      |
       | data.id        | <valid_uuid>               |
     # Mark the item as completed
-    When I send an HTTP PATCH request to "/shoppinglist/{shopping-id}" with the body from file: "complete-item.json"
+    When I send an HTTP PATCH request to "/shoppinglist/{SHOPPING_LIST_ITEM_ID}" with the body from file: "complete-item.json"
     Then "RESPONSE_STATUS" should be "200"
     And the response body should contain the following fields:
       | title     | Chocolate Milk |
@@ -48,7 +48,7 @@ Feature: Shopping list retrieval and manipulation
       | data.completed | true                       |
       | data.id        | <valid_uuid>               |
     # Delete the item
-    When I send an HTTP DELETE request to "/shoppinglist/{shopping-id}"
+    When I send an HTTP DELETE request to "/shoppinglist/{SHOPPING_LIST_ITEM_ID}"
     Then "RESPONSE_STATUS" should be "204"
     # The deletion is broadcast over the WebSocket
     And I should receive a WebSocket message with the following fields:
@@ -61,7 +61,7 @@ Feature: Shopping list retrieval and manipulation
     And "itemName" is set to "Eggs"
     And I send an HTTP POST request to "/shoppinglist" with the body from file: "add-item.json"
     And I store the value of "id" from the HTTP response as "SHOPPING_LIST_ITEM_ID"
-    And I send an HTTP PATCH request to "/shoppinglist/{shopping-id}" with the body from file: "complete-item.json"
+    And I send an HTTP PATCH request to "/shoppinglist/{SHOPPING_LIST_ITEM_ID}" with the body from file: "complete-item.json"
     When I send an HTTP GET request to "/shoppinglist/pageable/0"
     Then "RESPONSE_STATUS" should be "200"
     And the response body should contain the following fields:

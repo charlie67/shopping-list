@@ -1,5 +1,6 @@
 package to.charlie.foodPlanner.domain.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
@@ -30,14 +31,13 @@ public class RecipeService {
 	private final RecipeExtractionService recipeExtractionService;
 	private final ModelMapper modelMapper;
 
-	public ExtractedRecipeDto extractRecipeFromUrl(final String url, final boolean saveRecipe)
+	public ExtractedRecipeDto extractRecipeFromUrl(final String url)
 					throws IOException, DuplicateRecipeException {
 
-		if (saveRecipe && recipeDao.existsByUrl(url)) {
+		if (recipeDao.existsByUrl(url)) {
 			log.info("Recipe for url {} already exists in database", url);
-			final ExtractedRecipe existing = recipeDao.findByUrl(url)
+			return recipeDao.findDtoByUrl(url)
 							.orElseThrow(() -> new ResourceNotFoundException("Recipe not found"));
-			return modelMapper.map(existing, ExtractedRecipeDto.class);
 		}
 
 		log.info("Downloading webpage {}", url);
@@ -69,17 +69,7 @@ public class RecipeService {
 						recipe.getExtractedRecipeIngredients().size(),
 						recipe.getExtractedRecipeInstructions().size());
 
-		if (saveRecipe) {
-			final RecipeEntity savedRecipe = recipeDao.save(recipe);
-
-			log.info("Saved recipe with {} ingredients and {} instructions",
-							recipe.getExtractedRecipeIngredients().size(),
-							recipe.getExtractedRecipeInstructions().size());
-
-			return modelMapper.map(savedRecipe, ExtractedRecipeDto.class);
-		} else {
-			return modelMapper.map(recipe, ExtractedRecipeDto.class);
-		}
+		return modelMapper.map(recipe, ExtractedRecipeDto.class);
 	}
 
 	public Page<ExtractedRecipeDto> getRecipePage(final int page) {
@@ -88,5 +78,41 @@ public class RecipeService {
 
 	public Optional<ExtractedRecipeDto> getRecipeById(final UUID id) {
 		return recipeDao.findById(id);
+	}
+
+	public ExtractedRecipeDto saveRecipe(final ExtractedRecipeDto extractedRecipe) {
+		// The UI only offers to save a recipe it has just extracted, but nothing stops the same URL being
+		// submitted twice, so fall back to the stored copy rather than inserting a second row.
+		if (extractedRecipe.getUrl() != null && recipeDao.existsByUrl(extractedRecipe.getUrl())) {
+			log.info("Recipe for url {} already exists in database, not saving again", extractedRecipe.getUrl());
+			return recipeDao.findDtoByUrl(extractedRecipe.getUrl())
+							.orElseThrow(() -> new ResourceNotFoundException("Recipe not found"));
+		}
+
+		final ExtractedRecipe recipe = modelMapper.map(extractedRecipe, ExtractedRecipe.class);
+
+		final RecipeEntity savedRecipe = recipeDao.save(recipe);
+
+		log.info("Saved recipe with {} ingredients and {} instructions",
+						recipe.getExtractedRecipeIngredients().size(),
+						recipe.getExtractedRecipeInstructions().size());
+
+		return modelMapper.map(savedRecipe, ExtractedRecipeDto.class);
+	}
+
+	public ExtractedRecipeDto updateRecipe(final UUID id, final ExtractedRecipeDto extractedRecipe) {
+		final ExtractedRecipe recipe = modelMapper.map(extractedRecipe, ExtractedRecipe.class);
+		recipe.setId(id);
+
+		final RecipeEntity savedRecipe = recipeDao.save(recipe);
+
+		log.info("Update recipe with ID {}", recipe.getId());
+
+		return modelMapper.map(savedRecipe, ExtractedRecipeDto.class);
+	}
+
+	@Transactional
+	public void deleteRecipeById(final UUID id) {
+		recipeDao.delete(id);
 	}
 }

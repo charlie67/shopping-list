@@ -1,5 +1,4 @@
 import {useCallback, useEffect, useRef} from 'react';
-import {useSearchParams} from 'react-router-dom';
 import {Loader2} from 'lucide-react';
 import {useAppDispatch, useAppSelector} from '@/common/hooks/redux';
 import {useInfiniteScroll} from '@/common/hooks/useInfiniteScroll';
@@ -11,10 +10,9 @@ import {
     selectRecipesPage,
     selectRecipesStatus,
 } from '../recipesSlice';
+import {useSelectedRecipeId} from '../useSelectedRecipeId';
 import {RecipeCard} from './RecipeCard';
 import {RecipeDetailModal} from './RecipeDetailModal';
-
-const SELECTED_RECIPE_PARAM = 'recipe';
 
 export function RecipeGrid() {
     const dispatch = useAppDispatch();
@@ -22,21 +20,8 @@ export function RecipeGrid() {
     const hasMore = useAppSelector(selectRecipesHasMore);
     const status = useAppSelector(selectRecipesStatus);
     const currentPage = useAppSelector(selectRecipesPage);
-    const [searchParams, setSearchParams] = useSearchParams();
-    const selectedRecipeId = searchParams.get(SELECTED_RECIPE_PARAM);
+    const [selectedRecipeId, setSelectedRecipeId] = useSelectedRecipeId();
     const requestedIdRef = useRef<string | null>(null);
-
-    const setSelectedRecipeId = useCallback((id: string | null) => {
-        setSearchParams((params) => {
-            const next = new URLSearchParams(params);
-            if (id) {
-                next.set(SELECTED_RECIPE_PARAM, id);
-            } else {
-                next.delete(SELECTED_RECIPE_PARAM);
-            }
-            return next;
-        });
-    }, [setSearchParams]);
 
     // When a recipe is selected via the URL (e.g. after a refresh) but it is not
     // among the loaded pages yet, fetch it directly so the modal can reopen.

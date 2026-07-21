@@ -54,13 +54,18 @@ public class RecipeDao {
 		return allRecipesPageable.map(it -> modelMapper.map(it, ExtractedRecipeDto.class));
 	}
 
-	public Optional<ExtractedRecipe> findByUrl(final String url) {
+	public Optional<ExtractedRecipeDto> findDtoByUrl(final String url) {
 		return recipeRepository.findByUrl(url)
-						.map(entity -> modelMapper.map(entity, ExtractedRecipe.class));
+						.map(entity -> modelMapper.map(entity, ExtractedRecipeDto.class));
 	}
 
 	public Optional<ExtractedRecipeDto> findById(final UUID id) {
 		return recipeRepository.findById(id)
 						.map(entity -> modelMapper.map(entity, ExtractedRecipeDto.class));
+	}
+
+	public void delete(final UUID id) {
+		recipeRepository.findById(id)
+						.ifPresent(recipeRepository::delete);
 	}
 }

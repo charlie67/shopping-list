@@ -1,6 +1,5 @@
 package to.charlie.foodPlanner.domain.model.entity.recipe;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,7 +8,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -63,7 +61,10 @@ public class RecipeIngredientEntity {
 	@Column
 	private String quantityText;
 
-	@OneToOne(cascade = CascadeType.ALL, optional = false, orphanRemoval = true)
+	// Ingredients are a shared lookup table: many recipes point at the same row, which RecipeDao
+	// resolves through IngredientDao.findOrCreateIngredient before saving. No cascade, so deleting a
+	// recipe only removes its own recipe_ingredient rows and leaves the shared ingredient alone.
+	@ManyToOne(optional = false)
 	@JoinColumn(name = "ingredient_id", nullable = false)
 	private IngredientEntity ingredient;
 

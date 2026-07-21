@@ -17,18 +17,19 @@ import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import to.charlie.integrationTests.foodPlanner.utilities.Context;
 import to.charlie.integrationTests.foodPlanner.utilities.DataLoader;
 import to.charlie.integrationTests.foodPlanner.utilities.Ports;
+import to.charlie.integrationTests.foodPlanner.utilities.UrlVariableResolver;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,8 +43,8 @@ public class HttpSteps {
 	@Autowired
 	public Context context;
 
-	@Value("${WIREMOCK_BASE_URL}")
-	private String wiremockBaseUrl;
+	@Autowired
+	public UrlVariableResolver urlVariableResolver;
 
 	private final CloseableHttpClient client = HttpClientBuilder
 					.create()
@@ -68,22 +69,23 @@ public class HttpSteps {
 	public void sendHttpRequest(final String method, final String url, final String bodyFile) {
 		final String content = bodyFile == null ? "" : loader.loadData(bodyFile);
 
-		final String modifiedUrl = replaceUrlVariables(url);
+		final String modifiedUrl = urlVariableResolver.resolve(url);
 
 		final String builtUrl = "http://localhost:" + Ports.SPRING + modifiedUrl;
 
 		sendRequest(method, builtUrl, content);
 	}
 
-	private @NotNull String replaceUrlVariables(final String url) {
-		String modifiedUrl = url;
-		if (url.contains("{shopping-id}")) {
-			modifiedUrl = url.replace("{shopping-id}", context.get("SHOPPING_LIST_ITEM_ID"));
-		}
-		if (url.contains("{wiremock-url}")) {
-			modifiedUrl = url.replace("{wiremock-url}", wiremockBaseUrl);
-		}
-		return modifiedUrl;
+	/**
+	 * Sends the body of the previous response back to the API. Used by the extract flow, where the
+	 * recipe returned by {@code GET /recipe/extract} is what gets posted back to be saved.
+	 */
+	@SneakyThrows
+	@When("I send an HTTP {} request to {string} with the previous response body")
+	public void sendHttpRequestWithPreviousResponseBody(final String method, final String url) {
+		final String builtUrl = "http://localhost:" + Ports.SPRING + urlVariableResolver.resolve(url);
+
+		sendRequest(method, builtUrl, context.get("RESPONSE_BODY"));
 	}
 
 	private void sendRequest(final String method, final String url, final String body) {
@@ -107,16 +109,18 @@ public class HttpSteps {
 		final CloseableHttpResponse response = client.execute(request);
 
 		context.set("RESPONSE_STATUS", String.valueOf(response.getStatusLine().getStatusCode()));
-		context.set("RESPONSE_BODY", EntityUtils.toString(response.getEntity()));
+		context.set("RESPONSE_BODY", EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
 	}
 
 	@SneakyThrows
 	private void sendGenericHttpRequest(final HttpEntityEnclosingRequestBase request, final String body) {
-		request.setEntity(new StringEntity(body));
+		// Recipe text contains non-ASCII characters (non-breaking spaces), so the body has to go out as
+		// UTF-8 rather than StringEntity's ISO-8859-1 default.
+		request.setEntity(new StringEntity(body, ContentType.APPLICATION_JSON));
 		final CloseableHttpResponse response = client.execute(request);
 
 		context.set("RESPONSE_STATUS", String.valueOf(response.getStatusLine().getStatusCode()));
-		context.set("RESPONSE_BODY", EntityUtils.toString(response.getEntity()));
+		context.set("RESPONSE_BODY", EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
 	}
 
 	@SneakyThrows

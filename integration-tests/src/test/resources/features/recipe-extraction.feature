@@ -7,7 +7,41 @@ Feature: Recipe parsing and retrieval
     And ingredient breakdown service is set to return the data from file "ingredient-breakdown/pepper.json" for ingredient "1 red pepper"
     And ingredient breakdown service is set to return the data from file "ingredient-breakdown/garlic.json" for ingredient "2 garlic cloves"
     And ingredient breakdown service is set to return the data from file "ingredient-breakdown/oil.json" for ingredient "1 tbsp oil"
-    When I send an HTTP POST request to "/recipe/extract?url={wiremock-url}/mock/recipes/my-best-chilli&save=true"
+    When I send an HTTP GET request to "/recipe/extract?url={WIREMOCK_URL}/mock/recipes/my-best-chilli"
+    Then "RESPONSE_STATUS" should be "200"
+    And the response body should contain the following fields:
+      | name                       | Chilli con carne recipe |
+      | ingredients[0].fullText    | 1 large onion           |
+      | instructions[0].type       | HowToStep               |
+    When I send an HTTP POST request to "/recipe" with the previous response body
     Then "RESPONSE_STATUS" should be "201"
     And the response body should match the file: "recipes/my-best-chilli-response.json"
+
+  Scenario: Deleting a recipe leaves ingredients shared with other recipes intact
+    Given recipe URL "/mock/recipes/my-best-chilli" is set to return the data from file "recipes/my-best-chilli.html"
+    And recipe URL "/mock/recipes/onion-soup" is set to return the data from file "recipes/onion-soup.html"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/onion.json" for ingredient "1 large onion"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/pepper.json" for ingredient "1 red pepper"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/garlic.json" for ingredient "2 garlic cloves"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/oil.json" for ingredient "1 tbsp oil"
+    # Both recipes list "1 large onion", so they end up pointing at the same row in the shared
+    # ingredient table.
+    When I send an HTTP GET request to "/recipe/extract?url={WIREMOCK_URL}/mock/recipes/my-best-chilli"
+    And I send an HTTP POST request to "/recipe" with the previous response body
+    Then "RESPONSE_STATUS" should be "201"
+    And I store the value of "id" from the HTTP response as "RECIPE_ID"
+    When I send an HTTP GET request to "/recipe/extract?url={WIREMOCK_URL}/mock/recipes/onion-soup"
+    And I send an HTTP POST request to "/recipe" with the previous response body
+    Then "RESPONSE_STATUS" should be "201"
+    And I store the value of "id" from the HTTP response as "SECOND_RECIPE_ID"
+    When I send an HTTP DELETE request to "/recipe/{RECIPE_ID}"
+    Then "RESPONSE_STATUS" should be "200"
+    When I send an HTTP GET request to "/recipe/{RECIPE_ID}"
+    Then "RESPONSE_STATUS" should be "404"
+    # The surviving recipe still resolves its shared ingredients, so the delete did not take them.
+    When I send an HTTP GET request to "/recipe/{SECOND_RECIPE_ID}"
+    Then "RESPONSE_STATUS" should be "200"
+    And the response body should contain the following fields:
+      | name                    | Onion soup recipe |
+      | ingredients[0].fullText | 1 large onion     |
 

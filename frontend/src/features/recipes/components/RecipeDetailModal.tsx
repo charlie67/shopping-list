@@ -1,8 +1,11 @@
 import {useEffect, useState} from 'react';
-import {ExternalLink, Plus, X} from 'lucide-react';
+import {ExternalLink, Loader2, Pencil, Plus, Trash2, X} from 'lucide-react';
 import {ExtractedRecipeDto} from '@/common/types/recipe';
+import {useAppDispatch, useAppSelector} from '@/common/hooks/redux';
 import {useWakeLock} from '@/common/hooks/useWakeLock';
+import {clearDeleteStatus, deleteRecipe, selectDeleteStatus} from '../recipesSlice';
 import {IngredientPicker} from './IngredientPicker';
+import {RecipeEditorModal} from './RecipeEditorModal';
 
 interface Props {
     recipe: ExtractedRecipeDto;
@@ -10,13 +13,47 @@ interface Props {
 }
 
 export function RecipeDetailModal({recipe, onClose}: Props) {
+    const dispatch = useAppDispatch();
+    const deleteStatus = useAppSelector(selectDeleteStatus);
     const [showPicker, setShowPicker] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [confirmingDelete, setConfirmingDelete] = useState(false);
+
+    const isDeleting = deleteStatus === 'loading';
 
     useWakeLock();
 
+    // A failed delete must not leave its error behind for the next recipe opened.
+    useEffect(() => () => {
+        dispatch(clearDeleteStatus());
+    }, [dispatch]);
+
+    const cancelDelete = () => {
+        setConfirmingDelete(false);
+        dispatch(clearDeleteStatus());
+    };
+
+    const handleDelete = async () => {
+        try {
+            await dispatch(deleteRecipe(recipe.id)).unwrap();
+            // Closing clears the recipe search param, so the grid does not try to refetch the
+            // recipe that has just been deleted.
+            onClose();
+        } catch {
+            // deleteStatus renders the failure; the modal stays open.
+        }
+    };
+
     useEffect(() => {
+        // The editor has its own Escape handling, so while it is open this modal ignores the key.
+        // While the delete confirmation is up, Escape backs out of that instead of closing.
         const onKey = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') onClose();
+            if (e.key !== 'Escape' || isEditing) return;
+            if (confirmingDelete) {
+                if (!isDeleting) cancelDelete();
+                return;
+            }
+            onClose();
         };
         document.addEventListener('keydown', onKey);
         const prevOverflow = document.body.style.overflow;
@@ -25,7 +62,7 @@ export function RecipeDetailModal({recipe, onClose}: Props) {
             document.removeEventListener('keydown', onKey);
             document.body.style.overflow = prevOverflow;
         };
-    }, [onClose]);
+    }, [onClose, isEditing, confirmingDelete, isDeleting]);
 
     const sortedSteps = [...recipe.instructions].sort(
         (a, b) => (a.stepCount ?? 0) - (b.stepCount ?? 0),
@@ -89,6 +126,44 @@ export function RecipeDetailModal({recipe, onClose}: Props) {
                                 <Plus size={14}/>
                                 Add ingredients
                             </button>
+                            <button
+                                onClick={() => setIsEditing(true)}
+                                className="flex cursor-pointer items-center gap-1.5 rounded-lg bg-white/5 px-3 py-2 text-xs font-medium text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
+                            >
+                                <Pencil size={14}/>
+                                Edit
+                            </button>
+                            {confirmingDelete ? (
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <span className="text-xs text-gray-300">Delete this recipe?</span>
+                                    <button
+                                        onClick={cancelDelete}
+                                        disabled={isDeleting}
+                                        className="cursor-pointer rounded-lg bg-white/5 px-3 py-2 text-xs font-medium text-gray-300 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-50"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handleDelete}
+                                        disabled={isDeleting}
+                                        className="flex cursor-pointer items-center gap-1.5 rounded-lg bg-red-600 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-red-500 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-400"
+                                    >
+                                        {isDeleting && <Loader2 size={14} className="animate-spin"/>}
+                                        Delete
+                                    </button>
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={() => setConfirmingDelete(true)}
+                                    className="flex cursor-pointer items-center gap-1.5 rounded-lg bg-white/5 px-3 py-2 text-xs font-medium text-gray-300 transition-colors hover:bg-red-500/20 hover:text-red-300"
+                                >
+                                    <Trash2 size={14}/>
+                                    Delete
+                                </button>
+                            )}
+                            {deleteStatus === 'failed' && (
+                                <p className="text-xs text-red-400">Could not delete the recipe.</p>
+                            )}
                         </div>
 
                         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] lg:gap-8">
@@ -145,6 +220,16 @@ export function RecipeDetailModal({recipe, onClose}: Props) {
                         recipeName={recipe.name}
                         ingredients={recipe.ingredients}
                         onClose={() => setShowPicker(false)}
+                    />
+                </div>
+            )}
+
+            {isEditing && (
+                <div onClick={(e) => e.stopPropagation()}>
+                    <RecipeEditorModal
+                        recipe={recipe}
+                        mode="edit"
+                        onClose={() => setIsEditing(false)}
                     />
                 </div>
             )}

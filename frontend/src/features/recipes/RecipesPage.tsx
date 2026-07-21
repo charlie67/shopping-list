@@ -1,12 +1,14 @@
 import {useEffect} from 'react';
 import {useAppDispatch, useAppSelector} from '@/common/hooks/redux';
-import {fetchRecipesPage, selectRecipesPage} from './recipesSlice';
+import {fetchRecipesPage, selectRecipeDraft, selectRecipesPage} from './recipesSlice';
 import {RecipeUrlInput} from './components/RecipeUrlInput';
 import {RecipeGrid} from './components/RecipeGrid';
+import {RecipeEditorModal} from './components/RecipeEditorModal';
 
 export function RecipesPage() {
     const dispatch = useAppDispatch();
     const currentPage = useAppSelector(selectRecipesPage);
+    const draft = useAppSelector(selectRecipeDraft);
 
     useEffect(() => {
         if (currentPage === -1) {
@@ -20,6 +22,7 @@ export function RecipesPage() {
             <div className="mt-6">
                 <RecipeGrid/>
             </div>
+            {draft && <RecipeEditorModal recipe={draft}/>}
         </div>
     );
 }

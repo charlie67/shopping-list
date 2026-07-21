@@ -25,6 +25,40 @@ public class ExtractedRecipeDto {
 
   private String description;
 
+  private String dateModified;
+
+  private String datePublished;
+
+  private String keywords;
+
+  private String cookTime;
+
+  private String prepTime;
+
+  private String totalTime;
+
+  private String recipeCategory;
+
+  private String recipeYield;
+
+  private String calories;
+
+  private String fatContent;
+
+  private String saturatedFatContent;
+
+  private String carbohydrateContent;
+
+  private String sugarContent;
+
+  private String fiberContent;
+
+  private String proteinContent;
+
+  private String sodiumContent;
+
+  private String extractionMethod;
+
   private List<ExtractedRecipeStepsDto> instructions;
 
   private List<ExtractedIngredientDto> ingredients;

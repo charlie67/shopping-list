@@ -17,7 +17,13 @@ export interface RecipeInstruction {
 export interface RecipeIngredient {
     ingredientName: string;
     quantity: number;
-    unit: IngredientUnit;
+    // Extraction leaves the unit unset for ingredients with no measurable quantity.
+    unit: IngredientUnit | null;
+    size: string | null;
+    preparation: string | null;
+    purpose: string | null;
+    comment: string | null;
+    quantityText: string | null;
     fullText: string;
     possibleDuplicate: boolean;
 }
@@ -28,6 +34,23 @@ export interface ExtractedRecipeDto {
     name: string;
     imageUrl: string;
     description: string;
+    dateModified: string | null;
+    datePublished: string | null;
+    keywords: string | null;
+    cookTime: string | null;
+    prepTime: string | null;
+    totalTime: string | null;
+    recipeCategory: string | null;
+    recipeYield: string | null;
+    calories: string | null;
+    fatContent: string | null;
+    saturatedFatContent: string | null;
+    carbohydrateContent: string | null;
+    sugarContent: string | null;
+    fiberContent: string | null;
+    proteinContent: string | null;
+    sodiumContent: string | null;
+    extractionMethod: string | null;
     instructions: RecipeInstruction[];
     ingredients: RecipeIngredient[];
 }

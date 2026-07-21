@@ -8,17 +8,20 @@ import org.springframework.stereotype.Component;
 import to.charlie.foodPlanner.domain.model.dto.IngredientDto;
 import to.charlie.foodPlanner.domain.model.dto.extraction.ExtractedIngredientDto;
 import to.charlie.foodPlanner.domain.model.dto.extraction.ExtractedRecipeDto;
+import to.charlie.foodPlanner.domain.model.dto.extraction.ExtractedRecipeStepsDto;
 import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemDto;
 import to.charlie.foodPlanner.domain.model.entity.ShoppingListItemEntity;
 import to.charlie.foodPlanner.domain.model.entity.recipe.RecipeEntity;
 import to.charlie.foodPlanner.domain.model.entity.recipe.RecipeIngredientEntity;
 import to.charlie.foodPlanner.domain.model.entity.recipe.RecipeStepEntity;
+import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedIngredient;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipeIngredient;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipeInstruction;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,8 +44,10 @@ public class ModelMapperConfiguration {
 			}
 		});
 
-		final Converter<List<String>, String> firstKeywordOrEmpty =
-						ctx -> ctx.getSource() == null || ctx.getSource().isEmpty() ? "" : ctx.getSource().getFirst();
+		// Keywords are a list internally but a single column on the entity and a single field on the DTO,
+		// so they are flattened to a comma-separated string and split back out on the way in.
+		final Converter<List<String>, String> joinKeywords =
+						ctx -> ctx.getSource() == null ? "" : String.join(", ", ctx.getSource());
 
 		// Map instructions in their original order, baking the recipe order into stepCount. This keeps the
 		// step ordering deterministic instead of relying on the iteration order of a HashSet.
@@ -74,9 +79,64 @@ public class ModelMapperConfiguration {
 
 		modelMapper.typeMap(ExtractedRecipe.class, RecipeEntity.class)
 						.addMappings(mapper -> {
-							mapper.using(firstKeywordOrEmpty).map(ExtractedRecipe::getKeywords, RecipeEntity::setKeywords);
+							mapper.using(joinKeywords).map(ExtractedRecipe::getKeywords, RecipeEntity::setKeywords);
 							mapper.using(orderedIngredients).map(ExtractedRecipe::getExtractedRecipeIngredients, RecipeEntity::setIngredients);
 							mapper.using(orderedSteps).map(ExtractedRecipe::getExtractedRecipeInstructions, RecipeEntity::setSteps);
+						});
+
+		// The DTO carries a flat ingredient name and differently named collections, and the internal model
+		// types are @Data + @Builder with no no-arg constructor, so ModelMapper cannot instantiate them
+		// itself. Building them here through their builders keeps the whole DTO -> internal leg explicit.
+		final Converter<List<ExtractedIngredientDto>, List<ExtractedRecipeIngredient>> toRecipeIngredients = ctx -> {
+			if (ctx.getSource() == null) {
+				return List.of();
+			}
+			return ctx.getSource().stream()
+							.map(dto -> ExtractedRecipeIngredient.builder()
+											.fullText(dto.getFullText())
+											.ingredient(ExtractedIngredient.builder().name(dto.getIngredientName()).build())
+											.quantity(dto.getQuantity())
+											.quantityText(dto.getQuantityText())
+											.unit(dto.getUnit())
+											.size(dto.getSize())
+											.preparation(dto.getPreparation())
+											.comment(dto.getComment())
+											.purpose(dto.getPurpose())
+											.build())
+							.toList();
+		};
+
+		// Instruction order is significant: the ExtractedRecipe -> RecipeEntity mapping derives stepCount
+		// from list position, so the incoming order is preserved as-is.
+		final Converter<List<ExtractedRecipeStepsDto>, List<ExtractedRecipeInstruction>> toRecipeInstructions = ctx -> {
+			if (ctx.getSource() == null) {
+				return List.of();
+			}
+			return ctx.getSource().stream()
+							.map(dto -> ExtractedRecipeInstruction.builder()
+											.text(dto.getText())
+											.type(dto.getType())
+											.build())
+							.toList();
+		};
+
+		final Converter<String, List<String>> splitKeywords =
+						ctx -> ctx.getSource() == null || ctx.getSource().isBlank()
+										? List.of()
+										: Arrays.stream(ctx.getSource().split(",")).map(String::trim).filter(k -> !k.isEmpty()).toList();
+
+		// Without this the DTO's flat keyword string would be filled from List::toString, brackets and all.
+		modelMapper.typeMap(ExtractedRecipe.class, ExtractedRecipeDto.class)
+						.addMappings(mapper ->
+										mapper.using(joinKeywords).map(ExtractedRecipe::getKeywords, ExtractedRecipeDto::setKeywords));
+
+		modelMapper.typeMap(ExtractedRecipeDto.class, ExtractedRecipe.class)
+						.addMappings(mapper -> {
+							mapper.using(toRecipeIngredients)
+											.map(ExtractedRecipeDto::getIngredients, ExtractedRecipe::setExtractedRecipeIngredients);
+							mapper.using(toRecipeInstructions)
+											.map(ExtractedRecipeDto::getInstructions, ExtractedRecipe::setExtractedRecipeInstructions);
+							mapper.using(splitKeywords).map(ExtractedRecipeDto::getKeywords, ExtractedRecipe::setKeywords);
 						});
 
 		modelMapper.addMappings(new PropertyMap<ExtractedRecipeIngredient, ExtractedIngredientDto>() {

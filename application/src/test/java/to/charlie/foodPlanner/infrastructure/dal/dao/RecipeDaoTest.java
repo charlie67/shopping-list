@@ -138,16 +138,16 @@ class RecipeDaoTest {
 	}
 
 	@Test
-	void findByUrl_whenUrlExists_thenReturnsMappedExtractedRecipe() {
+	void findDtoByUrl_whenUrlExists_thenReturnsMappedDto() {
 		// given
 		final String url = "https://example.com/found";
 		final RecipeEntity entity = buildRecipeEntity(UUID.randomUUID(), "Stew", url);
-		final ExtractedRecipe extractedRecipe = ExtractedRecipe.builder().name("Stew").url(url).build();
+		final ExtractedRecipeDto dto = ExtractedRecipeDto.builder().name("Stew").url(url).build();
 		when(recipeRepository.findByUrl(url)).thenReturn(Optional.of(entity));
-		when(modelMapper.map(entity, ExtractedRecipe.class)).thenReturn(extractedRecipe);
+		when(modelMapper.map(entity, ExtractedRecipeDto.class)).thenReturn(dto);
 
 		// when
-		final Optional<ExtractedRecipe> result = recipeDao.findByUrl(url);
+		final Optional<ExtractedRecipeDto> result = recipeDao.findDtoByUrl(url);
 
 		// then
 		assertThat(result).isPresent();
@@ -155,13 +155,13 @@ class RecipeDaoTest {
 	}
 
 	@Test
-	void findByUrl_whenUrlDoesNotExist_thenReturnsEmpty() {
+	void findDtoByUrl_whenUrlDoesNotExist_thenReturnsEmpty() {
 		// given
 		final String url = "https://example.com/notfound";
 		when(recipeRepository.findByUrl(url)).thenReturn(Optional.empty());
 
 		// when
-		final Optional<ExtractedRecipe> result = recipeDao.findByUrl(url);
+		final Optional<ExtractedRecipeDto> result = recipeDao.findDtoByUrl(url);
 
 		// then
 		assertThat(result).isEmpty();

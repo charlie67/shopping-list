@@ -4,7 +4,9 @@ Feature: Recipe pagination and retrieval
   Scenario: Saved recipes are returned on the first page
     Given recipe URL "/mock/recipes/my-best-chilli" is set to return the data from file "recipes/my-best-chilli.html"
     And ingredient breakdown service is set to return the data from file "ingredient-breakdown/onion.json" for any ingredient
-    And I send an HTTP POST request to "/recipe/extract?url={wiremock-url}/mock/recipes/my-best-chilli&save=true"
+    And I send an HTTP GET request to "/recipe/extract?url={WIREMOCK_URL}/mock/recipes/my-best-chilli"
+    And "RESPONSE_STATUS" should be "200"
+    And I send an HTTP POST request to "/recipe" with the previous response body
     And "RESPONSE_STATUS" should be "201"
     When I send an HTTP GET request to "/recipe?page=0"
     Then "RESPONSE_STATUS" should be "200"
@@ -22,7 +24,8 @@ Feature: Recipe pagination and retrieval
   Scenario: An out-of-range page returns no content
     Given recipe URL "/mock/recipes/my-best-chilli" is set to return the data from file "recipes/my-best-chilli.html"
     And ingredient breakdown service is set to return the data from file "ingredient-breakdown/onion.json" for any ingredient
-    And I send an HTTP POST request to "/recipe/extract?url={wiremock-url}/mock/recipes/my-best-chilli&save=true"
+    And I send an HTTP GET request to "/recipe/extract?url={WIREMOCK_URL}/mock/recipes/my-best-chilli"
+    And I send an HTTP POST request to "/recipe" with the previous response body
     When I send an HTTP GET request to "/recipe?page=1"
     Then "RESPONSE_STATUS" should be "200"
     And the response body should contain the following fields:

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @Builder
@@ -13,6 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ExtractedRecipe {
 
+	private UUID id;
 	private String description;
 	private String name;
 	private String url;

@@ -21,7 +21,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -41,27 +44,7 @@ class RecipeControllerTest {
 	}
 
 	@Test
-	void extract_whenUrlIsValidAndSaveIsTrue_thenReturnsOkWithRecipe() throws Exception {
-		// given
-		final String url = "https://example.com/recipe";
-		final ExtractedRecipeDto dto = ExtractedRecipeDto.builder()
-						.id(UUID.randomUUID())
-						.name("Pasta")
-						.url(url)
-						.build();
-		when(recipeService.extractRecipeFromUrl(url, true)).thenReturn(dto);
-
-		// when / then
-		mockMvc.perform(post("/recipe/extract")
-										.param("url", url)
-										.param("save", "true")
-										.contentType(MediaType.APPLICATION_JSON))
-						.andExpect(status().isCreated())
-						.andExpect(jsonPath("$.name").value("Pasta"));
-	}
-
-	@Test
-	void extract_whenUrlIsValidAndSaveIsFalse_thenReturnsOkWithRecipe() throws Exception {
+	void extract_whenUrlIsValid_thenReturnsOkWithRecipe() throws Exception {
 		// given
 		final String url = "https://example.com/recipe";
 		final ExtractedRecipeDto dto = ExtractedRecipeDto.builder()
@@ -69,13 +52,11 @@ class RecipeControllerTest {
 						.name("Soup")
 						.url(url)
 						.build();
-		when(recipeService.extractRecipeFromUrl(url, false)).thenReturn(dto);
+		when(recipeService.extractRecipeFromUrl(url)).thenReturn(dto);
 
 		// when / then
-		mockMvc.perform(post("/recipe/extract")
-										.param("url", url)
-										.param("save", "false"))
-						.andExpect(status().isCreated())
+		mockMvc.perform(get("/recipe/extract").param("url", url))
+						.andExpect(status().isOk())
 						.andExpect(jsonPath("$.name").value("Soup"));
 	}
 
@@ -83,12 +64,10 @@ class RecipeControllerTest {
 	void extract_whenIoExceptionThrown_thenReturnsNotFound() throws Exception {
 		// given
 		final String url = "https://example.com/unreachable";
-		when(recipeService.extractRecipeFromUrl(url, false)).thenThrow(new IOException("connection failed"));
+		when(recipeService.extractRecipeFromUrl(url)).thenThrow(new IOException("connection failed"));
 
 		// when / then
-		mockMvc.perform(post("/recipe/extract")
-										.param("url", url)
-										.param("save", "false"))
+		mockMvc.perform(get("/recipe/extract").param("url", url))
 						.andExpect(status().isNotFound());
 	}
 
@@ -96,12 +75,10 @@ class RecipeControllerTest {
 	void extract_whenIllegalArgumentExceptionThrown_thenReturnsInternalServerError() throws Exception {
 		// given
 		final String url = "https://example.com/bad";
-		when(recipeService.extractRecipeFromUrl(url, false)).thenThrow(new IllegalArgumentException("bad url"));
+		when(recipeService.extractRecipeFromUrl(url)).thenThrow(new IllegalArgumentException("bad url"));
 
 		// when / then
-		mockMvc.perform(post("/recipe/extract")
-										.param("url", url)
-										.param("save", "false"))
+		mockMvc.perform(get("/recipe/extract").param("url", url))
 						.andExpect(status().isInternalServerError());
 	}
 
@@ -109,13 +86,32 @@ class RecipeControllerTest {
 	void extract_whenDuplicateRecipeExceptionThrown_thenReturnsOkWithEmptyBody() throws Exception {
 		// given
 		final String url = "https://example.com/duplicate";
-		when(recipeService.extractRecipeFromUrl(url, true)).thenThrow(new DuplicateRecipeException("already exists"));
+		when(recipeService.extractRecipeFromUrl(url)).thenThrow(new DuplicateRecipeException("already exists"));
 
 		// when / then
-		mockMvc.perform(post("/recipe/extract")
-										.param("url", url)
-										.param("save", "true"))
+		mockMvc.perform(get("/recipe/extract").param("url", url))
 						.andExpect(status().isOk());
+	}
+
+	@Test
+	void save_whenRecipePosted_thenReturnsCreatedWithSavedRecipe() throws Exception {
+		// given
+		final String url = "https://example.com/recipe";
+		final ExtractedRecipeDto saved = ExtractedRecipeDto.builder()
+						.id(UUID.randomUUID())
+						.name("Edited soup")
+						.url(url)
+						.build();
+		when(recipeService.saveRecipe(any(ExtractedRecipeDto.class))).thenReturn(saved);
+
+		// when / then
+		mockMvc.perform(post("/recipe")
+										.contentType(MediaType.APPLICATION_JSON)
+										.content("""
+														{"url": "%s", "name": "Edited soup", "ingredients": [], "instructions": []}
+														""".formatted(url)))
+						.andExpect(status().isCreated())
+						.andExpect(jsonPath("$.name").value("Edited soup"));
 	}
 
 	@Test
@@ -171,5 +167,17 @@ class RecipeControllerTest {
 		// when / then
 		mockMvc.perform(get("/recipe/{id}", id))
 						.andExpect(status().isNotFound());
+	}
+
+	@Test
+	void delete_whenRecipeExists_thenReturnsOk() throws Exception {
+		// given
+		final UUID id = UUID.randomUUID();
+
+		// when / then
+		mockMvc.perform(delete("/recipe/{id}", id))
+						.andExpect(status().isOk());
+
+		verify(recipeService).deleteRecipeById(id);
 	}
 }
