@@ -1,10 +1,11 @@
 import {useEffect, useState} from 'react';
-import {ExternalLink, Loader2, Pencil, Plus, Trash2, X} from 'lucide-react';
+import {Code2, ExternalLink, Loader2, Pencil, Plus, Trash2, X} from 'lucide-react';
 import {ExtractedRecipeDto} from '@/common/types/recipe';
 import {useAppDispatch, useAppSelector} from '@/common/hooks/redux';
 import {useEscapeKey} from '@/common/hooks/useEscapeKey';
 import {useWakeLock} from '@/common/hooks/useWakeLock';
 import {clearDeleteStatus, deleteRecipe, selectDeleteStatus} from '../recipesSlice';
+import {nutritionFacts} from '../nutrition';
 import {IngredientPicker} from './IngredientPicker';
 import {RecipeEditorModal} from './RecipeEditorModal';
 
@@ -68,6 +69,8 @@ export function RecipeDetailModal({recipe, onClose}: Props) {
         (a, b) => (a.stepCount ?? 0) - (b.stepCount ?? 0),
     );
 
+    const nutrition = nutritionFacts(recipe);
+
     return (
         <div
             className="fixed inset-0 z-50 flex items-end justify-center overflow-y-auto bg-black/70 p-0 backdrop-blur-sm sm:items-center sm:p-4"
@@ -106,6 +109,15 @@ export function RecipeDetailModal({recipe, onClose}: Props) {
                             </h2>
                             {recipe.description && (
                                 <p className="mt-2 text-sm text-gray-400">{recipe.description}</p>
+                            )}
+                            {recipe.extractionMethod && (
+                                <span
+                                    className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1 text-xs font-medium text-gray-400 ring-1 ring-white/5"
+                                    title="How this recipe was read from the source page"
+                                >
+                                    <Code2 size={12}/>
+                                    Extracted via {recipe.extractionMethod}
+                                </span>
                             )}
                         </div>
 
@@ -165,6 +177,27 @@ export function RecipeDetailModal({recipe, onClose}: Props) {
                                 <p className="text-xs text-red-400">Could not delete the recipe.</p>
                             )}
                         </div>
+
+                        {nutrition.length > 0 && (
+                            <section>
+                                <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+                                    Nutrition
+                                </h3>
+                                <dl className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                                    {nutrition.map((fact) => (
+                                        <div
+                                            key={fact.label}
+                                            className="rounded-lg bg-white/5 px-3 py-2 ring-1 ring-white/5"
+                                        >
+                                            <dt className="text-[11px] uppercase tracking-wider text-gray-500">
+                                                {fact.label}
+                                            </dt>
+                                            <dd className="mt-0.5 text-sm font-semibold text-white">{fact.value}</dd>
+                                        </div>
+                                    ))}
+                                </dl>
+                            </section>
+                        )}
 
                         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] lg:gap-8">
                             <section>

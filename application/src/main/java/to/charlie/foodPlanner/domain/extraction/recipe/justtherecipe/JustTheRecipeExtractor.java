@@ -39,6 +39,7 @@ public class JustTheRecipeExtractor implements RecipeExtractor {
 										.map(this::mapInstruction)
 										.toList())
 						.imageUrl(findMainRecipeImage(document))
+						.extractionMethod("JustTheRecipe")
 						.build();
 	}
 
