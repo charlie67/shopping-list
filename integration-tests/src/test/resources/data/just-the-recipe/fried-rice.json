@@ -1,0 +1,23 @@
+{
+  "version": "1.0",
+  "id": "fried-rice-1",
+  "name": "JustTheRecipe fried rice recipe",
+  "sourceUrl": "https://example.com/fried-rice",
+  "servings": 3,
+  "totalTime": 1200,
+  "categories": ["Dinner"],
+  "imageUrls": ["https://example.com/fried-rice-api.jpg"],
+  "keywords": ["Quick"],
+  "ingredients": [
+    { "name": "1 large onion" },
+    { "name": "1 red pepper" },
+    { "name": "2 garlic cloves" },
+    { "name": "1 tbsp oil" }
+  ],
+  "instructions": [
+    { "text": "Heat the oil in a wok over a high heat.", "type": "HowToStep" },
+    { "text": "Add the onion, pepper and garlic and stir-fry for 3 minutes.", "type": "HowToStep" },
+    { "text": "Add the rice and toss until piping hot.", "type": "HowToStep" }
+  ],
+  "source": "example"
+}

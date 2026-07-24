@@ -3,6 +3,8 @@ package to.charlie.foodPlanner.domain.model.entity.recipe;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -22,6 +24,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
+import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractionMethod;
 
 @Table(name = "recipe")
 @Entity
@@ -95,12 +98,14 @@ public class RecipeEntity {
   @Column(name = "sodium_content")
   private String sodiumContent;
 
+  @Enumerated(EnumType.STRING)
   @Column(name = "extraction_method")
-  private String extractionMethod;
+  private ExtractionMethod extractionMethod;
 
   private String imageUrl;
 
   @OneToMany(fetch = FetchType.EAGER, mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OrderBy("ingredientOrder")
   private Set<RecipeIngredientEntity> ingredients = new LinkedHashSet<>();
 
   @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL, orphanRemoval = true)

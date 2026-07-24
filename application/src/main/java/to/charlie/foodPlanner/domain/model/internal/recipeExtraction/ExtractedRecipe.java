@@ -36,6 +36,6 @@ public class ExtractedRecipe {
 	private String fiberContent;
 	private String proteinContent;
 	private String sodiumContent;
-	private String extractionMethod;
+	private ExtractionMethod extractionMethod;
 	private String imageUrl;
 }

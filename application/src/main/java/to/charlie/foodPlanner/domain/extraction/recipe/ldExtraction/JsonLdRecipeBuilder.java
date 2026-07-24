@@ -11,6 +11,7 @@ import to.charlie.foodPlanner.domain.extraction.recipe.ldExtraction.data.JsonLdH
 import to.charlie.foodPlanner.domain.extraction.recipe.ldExtraction.data.JsonLdRecipe;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipeInstruction;
+import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractionMethod;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,7 +55,7 @@ public class JsonLdRecipeBuilder {
 						.proteinContent(source.getNutrition().getProteinContent())
 						.sodiumContent(source.getNutrition().getSodiumContent())
 						.imageUrl(getImageUrl(source.getImage()))
-						.extractionMethod("JSON-LD")
+						.extractionMethod(ExtractionMethod.JSON_LD)
 						.build();
 	}
 

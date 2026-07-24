@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Microdata veggie hash</title>
+    <meta property="og:image" content="https://example.com/veggie-hash.jpg">
+</head>
+<body>
+<!-- No JSON-LD script here, so the JSON-LD extractor fails and the microdata extractor is used. -->
+<div itemscope itemtype="https://schema.org/Recipe">
+    <h1 itemprop="name">Microdata veggie hash recipe</h1>
+    <p itemprop="description">A quick vegetable hash described purely with schema.org microdata.</p>
+    <span itemprop="keywords">Vegetarian</span>
+    <span itemprop="keywords">Quick</span>
+    <span itemprop="recipeCategory">Dinner</span>
+    <span itemprop="recipeYield">2</span>
+    <span itemprop="prepTime">PT10M</span>
+    <span itemprop="cookTime">PT15M</span>
+    <span itemprop="totalTime">PT25M</span>
+    <div itemprop="nutrition" itemscope itemtype="https://schema.org/NutritionInformation">
+        <span itemprop="calories">210 calories</span>
+        <span itemprop="fatContent">9 grams fat</span>
+        <span itemprop="carbohydrateContent">28 grams carbohydrates</span>
+        <span itemprop="proteinContent">6 grams protein</span>
+    </div>
+    <ul>
+        <li itemprop="recipeIngredient">1 large onion</li>
+        <li itemprop="recipeIngredient">1 red pepper</li>
+        <li itemprop="recipeIngredient">2 garlic cloves</li>
+        <li itemprop="recipeIngredient">1 tbsp oil</li>
+    </ul>
+    <ol>
+        <li itemprop="recipeInstructions">Heat the oil in a large frying pan over a medium heat.</li>
+        <li itemprop="recipeInstructions">Add the onion, pepper and garlic and fry until soft.</li>
+        <li itemprop="recipeInstructions">Season well and serve hot.</li>
+    </ol>
+</div>
+</body>
+</html>

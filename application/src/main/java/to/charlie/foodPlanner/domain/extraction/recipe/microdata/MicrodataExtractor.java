@@ -12,6 +12,7 @@ import to.charlie.foodPlanner.domain.model.exception.RecipeExtractionFailed;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipeIngredient;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipeInstruction;
+import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractionMethod;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -126,7 +127,7 @@ public class MicrodataExtractor implements RecipeExtractor {
 						.fiberContent(fiberContent)
 						.proteinContent(proteinContent)
 						.sodiumContent(sodiumContent)
-						.extractionMethod("microdata")
+						.extractionMethod(ExtractionMethod.MICRODATA)
 						.build();
 	}
 }

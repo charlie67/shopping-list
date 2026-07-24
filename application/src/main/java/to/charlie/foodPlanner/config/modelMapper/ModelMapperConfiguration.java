@@ -18,6 +18,7 @@ import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedIn
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipeIngredient;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipeInstruction;
+import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractionMethod;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -44,6 +45,15 @@ public class ModelMapperConfiguration {
 			}
 		});
 
+		// The DTO exposes the extraction method as its human-readable display name (e.g. "JSON-LD"),
+		// while the internal model and entity hold the enum, so convert via the enum's name field.
+		final Converter<ExtractionMethod, String> extractionMethodToName =
+						ctx -> ctx.getSource() == null ? null : ctx.getSource().getName();
+		final Converter<String, ExtractionMethod> extractionMethodFromName =
+						ctx -> ctx.getSource() == null || ctx.getSource().isBlank()
+										? null
+										: ExtractionMethod.fromName(ctx.getSource());
+
 		// Keywords are a list internally but a single column on the entity and a single field on the DTO,
 		// so they are flattened to a comma-separated string and split back out on the way in.
 		final Converter<List<String>, String> joinKeywords =
@@ -65,15 +75,20 @@ public class ModelMapperConfiguration {
 			return steps;
 		};
 
-		// Map ingredients into an order-preserving LinkedHashSet so the result keeps the original ingredient
-		// order instead of relying on the iteration order of a HashSet.
+		// Map ingredients into an order-preserving LinkedHashSet and bake the recipe order into
+		// ingredientOrder, so the collection keeps its original order when read back from the database
+		// instead of relying on the iteration order of a HashSet. This mirrors how steps use stepCount.
 		final Converter<List<ExtractedRecipeIngredient>, Set<RecipeIngredientEntity>> orderedIngredients = ctx -> {
 			final Set<RecipeIngredientEntity> ingredients = new LinkedHashSet<>();
 			if (ctx.getSource() == null) {
 				return ingredients;
 			}
-			ctx.getSource().forEach(ingredient ->
-							ingredients.add(modelMapper.map(ingredient, RecipeIngredientEntity.class)));
+			final AtomicInteger ingredientOrder = new AtomicInteger(0);
+			ctx.getSource().forEach(ingredient -> {
+				final RecipeIngredientEntity entity = modelMapper.map(ingredient, RecipeIngredientEntity.class);
+				entity.setIngredientOrder(ingredientOrder.getAndIncrement());
+				ingredients.add(entity);
+			});
 			return ingredients;
 		};
 
@@ -127,8 +142,11 @@ public class ModelMapperConfiguration {
 
 		// Without this the DTO's flat keyword string would be filled from List::toString, brackets and all.
 		modelMapper.typeMap(ExtractedRecipe.class, ExtractedRecipeDto.class)
-						.addMappings(mapper ->
-										mapper.using(joinKeywords).map(ExtractedRecipe::getKeywords, ExtractedRecipeDto::setKeywords));
+						.addMappings(mapper -> {
+							mapper.using(joinKeywords).map(ExtractedRecipe::getKeywords, ExtractedRecipeDto::setKeywords);
+							mapper.using(extractionMethodToName)
+											.map(ExtractedRecipe::getExtractionMethod, ExtractedRecipeDto::setExtractionMethod);
+						});
 
 		modelMapper.typeMap(ExtractedRecipeDto.class, ExtractedRecipe.class)
 						.addMappings(mapper -> {
@@ -137,6 +155,8 @@ public class ModelMapperConfiguration {
 							mapper.using(toRecipeInstructions)
 											.map(ExtractedRecipeDto::getInstructions, ExtractedRecipe::setExtractedRecipeInstructions);
 							mapper.using(splitKeywords).map(ExtractedRecipeDto::getKeywords, ExtractedRecipe::setKeywords);
+							mapper.using(extractionMethodFromName)
+											.map(ExtractedRecipeDto::getExtractionMethod, ExtractedRecipe::setExtractionMethod);
 						});
 
 		modelMapper.addMappings(new PropertyMap<ExtractedRecipeIngredient, ExtractedIngredientDto>() {
@@ -165,7 +185,11 @@ public class ModelMapperConfiguration {
 
 		// use typeMap because these are just generic collections.
 		modelMapper.typeMap(RecipeEntity.class, ExtractedRecipeDto.class)
-						.addMapping(RecipeEntity::getSteps, ExtractedRecipeDto::setInstructions);
+						.addMappings(mapper -> {
+							mapper.map(RecipeEntity::getSteps, ExtractedRecipeDto::setInstructions);
+							mapper.using(extractionMethodToName)
+											.map(RecipeEntity::getExtractionMethod, ExtractedRecipeDto::setExtractionMethod);
+						});
 
 		final Converter<LocalDateTime, Long> toEpochSeconds =
 						ctx -> ctx.getSource().toEpochSecond(ZoneOffset.UTC);

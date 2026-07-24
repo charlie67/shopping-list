@@ -10,12 +10,53 @@ Feature: Recipe parsing and retrieval
     When I send an HTTP GET request to "/recipe/extract?url={WIREMOCK_URL}/mock/recipes/my-best-chilli"
     Then "RESPONSE_STATUS" should be "200"
     And the response body should contain the following fields:
-      | name                       | Chilli con carne recipe |
-      | ingredients[0].fullText    | 1 large onion           |
-      | instructions[0].type       | HowToStep               |
+      | name                    | Chilli con carne recipe |
+      | ingredients[0].fullText | 1 large onion           |
+      | instructions[0].type    | HowToStep               |
     When I send an HTTP POST request to "/recipe" with the previous response body
     Then "RESPONSE_STATUS" should be "201"
     And the response body should match the file: "recipes/my-best-chilli-response.json"
+
+  Scenario: microdata recipes are extracted and saved successfully
+    Given recipe URL "/mock/recipes/microdata-veggie-hash" is set to return the data from file "recipes/microdata-veggie-hash.html"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/onion.json" for ingredient "1 large onion"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/pepper.json" for ingredient "1 red pepper"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/garlic.json" for ingredient "2 garlic cloves"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/oil.json" for ingredient "1 tbsp oil"
+    When I send an HTTP GET request to "/recipe/extract?url={WIREMOCK_URL}/mock/recipes/microdata-veggie-hash"
+    Then "RESPONSE_STATUS" should be "200"
+    And the response body should contain the following fields:
+      | name                    | Microdata veggie hash recipe |
+      | ingredients[0].fullText | 1 large onion                |
+      | extractionMethod        | microdata                    |
+    When I send an HTTP POST request to "/recipe" with the previous response body
+    Then "RESPONSE_STATUS" should be "201"
+    And the response body should match the file: "recipes/microdata-veggie-hash-response.json"
+    And I store the value of "id" from the HTTP response as "RECIPE_ID"
+    When I send an HTTP GET request to "/recipe/{RECIPE_ID}"
+    Then "RESPONSE_STATUS" should be "200"
+    And the response body should match the file: "recipes/microdata-veggie-hash-response.json"
+
+  Scenario: JustTheRecipe recipes are extracted and saved successfully
+    Given recipe URL "/mock/recipes/justtherecipe-fried-rice" is set to return the data from file "recipes/justtherecipe-fried-rice.html"
+    And the JustTheRecipe service is set to return the data from file "just-the-recipe/fried-rice.json"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/onion.json" for ingredient "1 large onion"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/pepper.json" for ingredient "1 red pepper"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/garlic.json" for ingredient "2 garlic cloves"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/oil.json" for ingredient "1 tbsp oil"
+    When I send an HTTP GET request to "/recipe/extract?url={WIREMOCK_URL}/mock/recipes/justtherecipe-fried-rice"
+    Then "RESPONSE_STATUS" should be "200"
+    And the response body should contain the following fields:
+      | name                    | JustTheRecipe fried rice recipe |
+      | ingredients[0].fullText | 1 large onion                   |
+      | extractionMethod        | JustTheRecipe                   |
+    When I send an HTTP POST request to "/recipe" with the previous response body
+    Then "RESPONSE_STATUS" should be "201"
+    And the response body should match the file: "recipes/justtherecipe-fried-rice-response.json"
+    And I store the value of "id" from the HTTP response as "RECIPE_ID"
+    When I send an HTTP GET request to "/recipe/{RECIPE_ID}"
+    Then "RESPONSE_STATUS" should be "200"
+    And the response body should match the file: "recipes/justtherecipe-fried-rice-response.json"
 
   Scenario: Deleting a recipe leaves ingredients shared with other recipes intact
     Given recipe URL "/mock/recipes/my-best-chilli" is set to return the data from file "recipes/my-best-chilli.html"

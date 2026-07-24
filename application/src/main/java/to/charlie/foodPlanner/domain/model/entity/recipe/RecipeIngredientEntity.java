@@ -36,6 +36,11 @@ public class RecipeIngredientEntity {
 	@Column(name = "id", nullable = false)
 	private UUID id;
 
+	// Baked from the ingredient's position in the recipe during mapping so the collection keeps its
+	// original order when read back, mirroring how recipe steps use stepCount.
+	@Column(name = "ingredient_order", nullable = false)
+	private int ingredientOrder;
+
 	@Column
 	private double quantity;
 

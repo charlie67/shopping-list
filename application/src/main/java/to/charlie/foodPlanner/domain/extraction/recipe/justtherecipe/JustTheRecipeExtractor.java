@@ -11,6 +11,7 @@ import to.charlie.foodPlanner.domain.extraction.recipe.justtherecipe.dto.Instruc
 import to.charlie.foodPlanner.domain.extraction.recipe.justtherecipe.dto.JustTheRecipeResponseDto;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipeInstruction;
+import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractionMethod;
 import to.charlie.foodPlanner.infrastructure.rest.clients.JustTheRecipeClient;
 
 @Component
@@ -39,7 +40,7 @@ public class JustTheRecipeExtractor implements RecipeExtractor {
 										.map(this::mapInstruction)
 										.toList())
 						.imageUrl(findMainRecipeImage(document))
-						.extractionMethod("JustTheRecipe")
+						.extractionMethod(ExtractionMethod.JUST_THE_RECIPE)
 						.build();
 	}
 

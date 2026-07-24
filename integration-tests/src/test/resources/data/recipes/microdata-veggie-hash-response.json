@@ -1,0 +1,94 @@
+{
+  "id": "<valid_uuid>",
+  "url": "${WIREMOCK_URL:-http://localhost}/mock/recipes/microdata-veggie-hash",
+  "name": "Microdata veggie hash recipe",
+  "imageUrl": null,
+  "description": "A quick vegetable hash described purely with schema.org microdata.",
+  "dateModified": null,
+  "datePublished": null,
+  "keywords": "Vegetarian, Quick",
+  "cookTime": "PT15M",
+  "prepTime": "PT10M",
+  "totalTime": "PT25M",
+  "recipeCategory": "Dinner",
+  "recipeYield": "2",
+  "calories": "210 calories",
+  "fatContent": "9 grams fat",
+  "saturatedFatContent": null,
+  "carbohydrateContent": "28 grams carbohydrates",
+  "sugarContent": null,
+  "fiberContent": null,
+  "proteinContent": "6 grams protein",
+  "sodiumContent": null,
+  "extractionMethod": "microdata",
+  "instructions": [
+    {
+      "text": "Heat the oil in a large frying pan over a medium heat.",
+      "type": null,
+      "stepCount": 1,
+      "possibleDuplicate": false
+    },
+    {
+      "text": "Add the onion, pepper and garlic and fry until soft.",
+      "type": null,
+      "stepCount": 2,
+      "possibleDuplicate": false
+    },
+    {
+      "text": "Season well and serve hot.",
+      "type": null,
+      "stepCount": 3,
+      "possibleDuplicate": false
+    }
+  ],
+  "ingredients": [
+    {
+      "ingredientName": "onion",
+      "quantity": 1.0,
+      "unit": "UNKNOWN",
+      "size": "large",
+      "preparation": null,
+      "purpose": null,
+      "comment": null,
+      "quantityText": "1",
+      "fullText": "1 large onion",
+      "possibleDuplicate": false
+    },
+    {
+      "ingredientName": "red pepper",
+      "quantity": 1.0,
+      "unit": "UNKNOWN",
+      "size": null,
+      "preparation": null,
+      "purpose": null,
+      "comment": null,
+      "quantityText": "1",
+      "fullText": "1 red pepper",
+      "possibleDuplicate": false
+    },
+    {
+      "ingredientName": "garlic",
+      "quantity": 2.0,
+      "unit": "UNKNOWN",
+      "size": null,
+      "preparation": null,
+      "purpose": null,
+      "comment": null,
+      "quantityText": "2",
+      "fullText": "2 garlic cloves",
+      "possibleDuplicate": false
+    },
+    {
+      "ingredientName": "oil",
+      "quantity": 1.0,
+      "unit": "TABLESPOONS",
+      "size": null,
+      "preparation": null,
+      "purpose": null,
+      "comment": null,
+      "quantityText": "1",
+      "fullText": "1 tbsp oil",
+      "possibleDuplicate": false
+    }
+  ]
+}

@@ -55,6 +55,20 @@ public class WiremockSteps {
 		log.info("Stubbed ingredient breakdown URL: {} with data from {}", ingredientName, bodyFile);
 	}
 
+	@Given("the JustTheRecipe service is set to return the data from file {string}")
+	public void justTheRecipeIsSetToReturnTheDataFromFile(final String bodyFile) {
+		final String content = loader.loadData(bodyFile);
+
+		wireMockClient.register(
+						get(urlPathEqualTo("/just-the-recipe"))
+										.willReturn(aResponse()
+														.withStatus(200)
+														.withHeader("Content-Type", "application/json")
+														.withBody(content)));
+
+		log.info("Stubbed JustTheRecipe URL with data from {}", bodyFile);
+	}
+
 	@Given("ingredient breakdown service is set to return the data from file {string} for any ingredient")
 	public void ingredientBreakdownIsSetToReturnTheDataFromFileForAnyIngredient(final String bodyFile) {
 		final String content = loader.loadData(bodyFile);

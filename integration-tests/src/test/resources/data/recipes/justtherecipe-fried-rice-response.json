@@ -1,0 +1,94 @@
+{
+  "id": "<valid_uuid>",
+  "url": "https://example.com/fried-rice",
+  "name": "JustTheRecipe fried rice recipe",
+  "imageUrl": "https://example.com/fried-rice.jpg",
+  "description": null,
+  "dateModified": null,
+  "datePublished": null,
+  "keywords": "",
+  "cookTime": null,
+  "prepTime": null,
+  "totalTime": "1200",
+  "recipeCategory": null,
+  "recipeYield": "3",
+  "calories": null,
+  "fatContent": null,
+  "saturatedFatContent": null,
+  "carbohydrateContent": null,
+  "sugarContent": null,
+  "fiberContent": null,
+  "proteinContent": null,
+  "sodiumContent": null,
+  "extractionMethod": "JustTheRecipe",
+  "instructions": [
+    {
+      "text": "Heat the oil in a wok over a high heat.",
+      "type": "HowToStep",
+      "stepCount": 1,
+      "possibleDuplicate": false
+    },
+    {
+      "text": "Add the onion, pepper and garlic and stir-fry for 3 minutes.",
+      "type": "HowToStep",
+      "stepCount": 2,
+      "possibleDuplicate": false
+    },
+    {
+      "text": "Add the rice and toss until piping hot.",
+      "type": "HowToStep",
+      "stepCount": 3,
+      "possibleDuplicate": false
+    }
+  ],
+  "ingredients": [
+    {
+      "ingredientName": "onion",
+      "quantity": 1.0,
+      "unit": "UNKNOWN",
+      "size": "large",
+      "preparation": null,
+      "purpose": null,
+      "comment": null,
+      "quantityText": "1",
+      "fullText": "1 large onion",
+      "possibleDuplicate": false
+    },
+    {
+      "ingredientName": "red pepper",
+      "quantity": 1.0,
+      "unit": "UNKNOWN",
+      "size": null,
+      "preparation": null,
+      "purpose": null,
+      "comment": null,
+      "quantityText": "1",
+      "fullText": "1 red pepper",
+      "possibleDuplicate": false
+    },
+    {
+      "ingredientName": "garlic",
+      "quantity": 2.0,
+      "unit": "UNKNOWN",
+      "size": null,
+      "preparation": null,
+      "purpose": null,
+      "comment": null,
+      "quantityText": "2",
+      "fullText": "2 garlic cloves",
+      "possibleDuplicate": false
+    },
+    {
+      "ingredientName": "oil",
+      "quantity": 1.0,
+      "unit": "TABLESPOONS",
+      "size": null,
+      "preparation": null,
+      "purpose": null,
+      "comment": null,
+      "quantityText": "1",
+      "fullText": "1 tbsp oil",
+      "possibleDuplicate": false
+    }
+  ]
+}
