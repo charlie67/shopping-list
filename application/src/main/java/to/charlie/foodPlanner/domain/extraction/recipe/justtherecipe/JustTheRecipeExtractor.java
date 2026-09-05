@@ -44,6 +44,11 @@ public class JustTheRecipeExtractor implements RecipeExtractor {
 						.build();
 	}
 
+	@Override
+	public ExtractionMethod getExtractionMethod() {
+		return ExtractionMethod.JUST_THE_RECIPE;
+	}
+
 	private ExtractedRecipeInstruction mapInstruction(final InstructionDto instruction) {
 		return ExtractedRecipeInstruction.builder()
 						.text(instruction.text())

@@ -58,6 +58,29 @@ Feature: Recipe parsing and retrieval
     Then "RESPONSE_STATUS" should be "200"
     And the response body should match the file: "recipes/justtherecipe-fried-rice-response.json"
 
+  Scenario: A requested extraction method is used instead of the first one that works
+    Given recipe URL "/mock/recipes/my-best-chilli" is set to return the data from file "recipes/my-best-chilli.html"
+    And the JustTheRecipe service is set to return the data from file "just-the-recipe/fried-rice.json"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/onion.json" for any ingredient
+    # This page has ld+json, so without the requested method it would never reach JustTheRecipe.
+    When I send an HTTP GET request to "/recipe/extract?url={WIREMOCK_URL}/mock/recipes/my-best-chilli&extractionMethod=JustTheRecipe"
+    Then "RESPONSE_STATUS" should be "200"
+    And the response body should contain the following fields:
+      | name             | JustTheRecipe fried rice recipe |
+      | extractionMethod | JustTheRecipe                   |
+
+  Scenario: A requested extraction method that fails does not fall back to another method
+    Given recipe URL "/mock/recipes/my-best-chilli" is set to return the data from file "recipes/my-best-chilli.html"
+    And the JustTheRecipe service is set to return an error
+    # The ld+json extractor would happily read this page, but it was not the method that was asked for.
+    When I send an HTTP GET request to "/recipe/extract?url={WIREMOCK_URL}/mock/recipes/my-best-chilli&extractionMethod=JustTheRecipe"
+    Then "RESPONSE_STATUS" should be "422"
+
+  Scenario: An unknown extraction method is rejected
+    Given recipe URL "/mock/recipes/my-best-chilli" is set to return the data from file "recipes/my-best-chilli.html"
+    When I send an HTTP GET request to "/recipe/extract?url={WIREMOCK_URL}/mock/recipes/my-best-chilli&extractionMethod=Telepathy"
+    Then "RESPONSE_STATUS" should be "400"
+
   Scenario: Deleting a recipe leaves ingredients shared with other recipes intact
     Given recipe URL "/mock/recipes/my-best-chilli" is set to return the data from file "recipes/my-best-chilli.html"
     And recipe URL "/mock/recipes/onion-soup" is set to return the data from file "recipes/onion-soup.html"

@@ -15,8 +15,9 @@ public class JsonLdRecipe {
 	private String context;
 	@JsonProperty("@id")
 	private String id;
+	/** Either a single value or a list of them, hence untyped. */
 	@JsonProperty("@type")
-	private String type;
+	private JsonNode type;
 	private String description;
 	private JsonNode image;
 	private JsonNode mainEntityOfPage;
@@ -28,7 +29,7 @@ public class JsonLdRecipe {
 	@JsonProperty("datePublished")
 	private String datePublished;
 	private String headline;
-	private List<String> keywords;
+	private JsonNode keywords;
 	private JsonLdOrganization publisher;
 	private String isAccessibleForFree;
 	private JsonLdWebPageElement hasPart;

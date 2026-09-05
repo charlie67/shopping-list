@@ -130,4 +130,9 @@ public class MicrodataExtractor implements RecipeExtractor {
 						.extractionMethod(ExtractionMethod.MICRODATA)
 						.build();
 	}
+
+	@Override
+	public ExtractionMethod getExtractionMethod() {
+		return ExtractionMethod.MICRODATA;
+	}
 }

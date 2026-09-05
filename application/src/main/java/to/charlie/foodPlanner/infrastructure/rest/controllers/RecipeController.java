@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import to.charlie.foodPlanner.domain.model.dto.extraction.ExtractedRecipeDto;
 import to.charlie.foodPlanner.domain.model.exception.DuplicateRecipeException;
+import to.charlie.foodPlanner.domain.model.exception.RecipeExtractionFailed;
+import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractionMethod;
 import to.charlie.foodPlanner.domain.service.RecipeService;
 
 import java.io.IOException;
@@ -30,11 +32,26 @@ public class RecipeController {
 	private final RecipeService recipeService;
 
 	@GetMapping("/extract")
-	public ResponseEntity<ExtractedRecipeDto> extract(@RequestParam final String url) {
+	public ResponseEntity<ExtractedRecipeDto> extract(
+					@RequestParam final String url,
+					@RequestParam(required = false) final String extractionMethod) {
+
+		// Resolved before the extraction so an unknown method name is a bad request, rather than
+		// falling into the IllegalArgumentException catch below and reading as a server fault.
+		final ExtractionMethod method;
 		try {
-			return ResponseEntity.ok(recipeService.extractRecipeFromUrl(url));
+			method = extractionMethod == null ? null : ExtractionMethod.fromName(extractionMethod);
+		} catch (final IllegalArgumentException e) {
+			return ResponseEntity.badRequest().build();
+		}
+
+		try {
+			return ResponseEntity.ok(recipeService.extractRecipeFromUrl(url, method));
 		} catch (final IOException e) {
 			return ResponseEntity.notFound().build();
+		} catch (final RecipeExtractionFailed e) {
+			// The requested method could not read the page, and nothing else was tried.
+			return ResponseEntity.unprocessableEntity().build();
 		} catch (final IllegalArgumentException e) {
 			return ResponseEntity.internalServerError().build();
 		} catch (final DuplicateRecipeException e) {

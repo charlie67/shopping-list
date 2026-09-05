@@ -1,5 +1,5 @@
 import {createAsyncThunk, createSlice} from '@reduxjs/toolkit';
-import type {ExtractedRecipeDto} from '@/common/types/recipe';
+import type {ExtractedRecipeDto, ExtractionMethod} from '@/common/types/recipe';
 import * as api from '@/common/api/recipe.api';
 import type {RootState} from '@/store/store';
 
@@ -11,6 +11,9 @@ interface RecipesState {
     currentPage: number;
     status: 'idle' | 'loading' | 'failed';
     extractionStatus: 'idle' | 'loading' | 'succeeded' | 'failed';
+    // Kept apart from extractionStatus so a re-read from the editor does not put the URL bar behind it
+    // into a loading or failed state.
+    reExtractStatus: 'idle' | 'loading' | 'failed';
     saveStatus: 'idle' | 'loading' | 'failed';
     updateStatus: 'idle' | 'loading' | 'failed';
     deleteStatus: 'idle' | 'loading' | 'failed';
@@ -23,6 +26,7 @@ const initialState: RecipesState = {
     currentPage: -1,
     status: 'idle',
     extractionStatus: 'idle',
+    reExtractStatus: 'idle',
     saveStatus: 'idle',
     updateStatus: 'idle',
     deleteStatus: 'idle',
@@ -46,6 +50,15 @@ export const extractRecipeFromUrl = createAsyncThunk(
     'recipes/extract',
     async (url: string) => {
         return api.extractRecipe(url);
+    },
+);
+
+// Reads the draft's page again with one named extractor, replacing the draft under review. Nothing is
+// stored either way - the draft is only saved when the editor posts it back.
+export const reExtractDraft = createAsyncThunk(
+    'recipes/reExtractDraft',
+    async ({url, extractionMethod}: { url: string; extractionMethod: ExtractionMethod }) => {
+        return api.extractRecipe(url, extractionMethod);
     },
 );
 
@@ -80,6 +93,7 @@ const recipesSlice = createSlice({
         clearDraft: (state) => {
             state.draft = null;
             state.saveStatus = 'idle';
+            state.reExtractStatus = 'idle';
         },
         clearUpdateStatus: (state) => {
             state.updateStatus = 'idle';
@@ -128,6 +142,21 @@ const recipesSlice = createSlice({
             .addCase(extractRecipeFromUrl.rejected, (state) => {
                 state.extractionStatus = 'failed';
             })
+            .addCase(reExtractDraft.pending, (state) => {
+                state.reExtractStatus = 'loading';
+            })
+            // A payload with an id was read back out of the database rather than off the page, which
+            // means the URL was saved while the draft was being reviewed; there is nothing to re-read.
+            .addCase(reExtractDraft.fulfilled, (state, action) => {
+                state.reExtractStatus = 'idle';
+                if (action.payload && !action.payload.id) {
+                    state.draft = action.payload;
+                }
+            })
+            // The draft is left exactly as it was, so a reader that cannot read the page costs nothing.
+            .addCase(reExtractDraft.rejected, (state) => {
+                state.reExtractStatus = 'failed';
+            })
             .addCase(saveRecipe.pending, (state) => {
                 state.saveStatus = 'loading';
             })
@@ -174,6 +203,7 @@ export const selectRecipesStatus = (state: RootState) => state.recipes.status;
 export const selectRecipesPage = (state: RootState) => state.recipes.currentPage;
 export const selectExtractionStatus = (state: RootState) => state.recipes.extractionStatus;
 export const selectRecipeDraft = (state: RootState) => state.recipes.draft;
+export const selectReExtractStatus = (state: RootState) => state.recipes.reExtractStatus;
 export const selectSaveStatus = (state: RootState) => state.recipes.saveStatus;
 export const selectUpdateStatus = (state: RootState) => state.recipes.updateStatus;
 export const selectDeleteStatus = (state: RootState) => state.recipes.deleteStatus;

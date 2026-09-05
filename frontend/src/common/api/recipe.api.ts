@@ -1,5 +1,5 @@
 import type {Page} from '../types/api';
-import type {ExtractedRecipeDto} from '../types/recipe';
+import type {ExtractedRecipeDto, ExtractionMethod} from '../types/recipe';
 import {RECIPE_ENDPOINT, RECIPE_EXTRACT_ENDPOINT} from '../constants';
 import {apiDelete, apiGet, apiPatch, apiPost} from './client';
 
@@ -12,8 +12,18 @@ export function getRecipeById(id: string): Promise<ExtractedRecipeDto> {
 }
 
 // Extraction only scrapes the page; the recipe is not stored until it is posted back by saveRecipe.
-export function extractRecipe(url: string): Promise<ExtractedRecipeDto> {
-    return apiGet<ExtractedRecipeDto>(`${RECIPE_EXTRACT_ENDPOINT}?url=${encodeURIComponent(url)}`);
+// Naming a method uses only that extractor: the request fails rather than falling back to another one.
+export function extractRecipe(
+    url: string,
+    extractionMethod?: ExtractionMethod,
+): Promise<ExtractedRecipeDto> {
+    const method = extractionMethod
+        ? `&extractionMethod=${encodeURIComponent(extractionMethod)}`
+        : '';
+
+    return apiGet<ExtractedRecipeDto>(
+        `${RECIPE_EXTRACT_ENDPOINT}?url=${encodeURIComponent(url)}${method}`,
+    );
 }
 
 export function saveRecipe(recipe: ExtractedRecipeDto): Promise<ExtractedRecipeDto> {

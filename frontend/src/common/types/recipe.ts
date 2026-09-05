@@ -7,6 +7,11 @@ export enum IngredientUnit {
     UNKNOWN = 'UNKNOWN',
 }
 
+// The wire values the backend's ExtractionMethod enum serialises to, not its constant names.
+export type ExtractionMethod = 'microdata' | 'JSON-LD' | 'JustTheRecipe';
+
+export const JUST_THE_RECIPE: ExtractionMethod = 'JustTheRecipe';
+
 export interface RecipeInstruction {
     text: string;
     type: string;
@@ -50,7 +55,7 @@ export interface ExtractedRecipeDto {
     fiberContent: string | null;
     proteinContent: string | null;
     sodiumContent: string | null;
-    extractionMethod: string | null;
+    extractionMethod: ExtractionMethod | null;
     instructions: RecipeInstruction[];
     ingredients: RecipeIngredient[];
 }

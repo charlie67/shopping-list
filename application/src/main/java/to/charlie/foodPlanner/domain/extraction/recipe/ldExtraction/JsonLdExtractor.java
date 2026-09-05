@@ -1,6 +1,7 @@
 package to.charlie.foodPlanner.domain.extraction.recipe.ldExtraction;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import to.charlie.foodPlanner.domain.extraction.recipe.ldExtraction.data.JsonLdG
 import to.charlie.foodPlanner.domain.extraction.recipe.ldExtraction.data.JsonLdRecipe;
 import to.charlie.foodPlanner.domain.model.exception.RecipeExtractionFailed;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
+import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractionMethod;
 
 @Component
 @Slf4j
@@ -25,7 +27,7 @@ public class JsonLdExtractor implements RecipeExtractor {
 					throws RecipeExtractionFailed {
 		final Elements elements = document.select("script[type=application/ld+json]");
 
-		log.warn("{} JSON-LD scripts found for {}", elements.size(), document.title());
+		log.info("{} JSON-LD scripts found for {}", elements.size(), document.title());
 
 		for (final var element : elements) {
 			final String jsonLd = element.data();
@@ -34,9 +36,9 @@ public class JsonLdExtractor implements RecipeExtractor {
 				final JsonLdGraphRoot graphRoot = objectMapper.readValue(jsonLd, JsonLdGraphRoot.class);
 
 				if (graphRoot.getGraph() != null) {
-					for (final JsonLdRecipe candidate : graphRoot.getGraph()) {
-						if ("Recipe".equals(candidate.getType())) {
-							return converter.convert(candidate);
+					for (final JsonNode candidate : graphRoot.getGraph()) {
+						if (isRecipe(candidate)) {
+							return converter.convert(objectMapper.treeToValue(candidate, JsonLdRecipe.class));
 						}
 					}
 				} else {
@@ -46,9 +48,9 @@ public class JsonLdExtractor implements RecipeExtractor {
 				try {
 					log.info("Unable to parse JSON-LD into a graph root", e);
 
-					final JsonLdRecipe recipe = objectMapper.readValue(jsonLd, JsonLdRecipe.class);
-					if (recipe != null && "Recipe".equals(recipe.getType())) {
-						return converter.convert(recipe);
+					final JsonNode root = objectMapper.readTree(jsonLd);
+					if (isRecipe(root)) {
+						return converter.convert(objectMapper.treeToValue(root, JsonLdRecipe.class));
 					}
 				} catch (final JsonProcessingException e2) {
 					log.error("Unable to parse JSON-LD into a recipe", e2);
@@ -57,5 +59,32 @@ public class JsonLdExtractor implements RecipeExtractor {
 		}
 
 		throw new RecipeExtractionFailed("No recipe JSON-LD found");
+	}
+
+	/**
+	 * {@code "@type"} is either a single value or a list of them, so check for both.
+	 */
+	private boolean isRecipe(final JsonNode node) {
+		final JsonNode type = node.get("@type");
+
+		if (type == null) {
+			return false;
+		}
+
+		if (type.isArray()) {
+			for (final JsonNode candidate : type) {
+				if ("Recipe".equals(candidate.asText())) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		return "Recipe".equals(type.asText());
+	}
+
+	@Override
+	public ExtractionMethod getExtractionMethod() {
+		return ExtractionMethod.JSON_LD;
 	}
 }

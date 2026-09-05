@@ -1,12 +1,20 @@
 import {useCallback, useEffect, useState} from 'react';
-import {Loader2, Plus, Trash2} from 'lucide-react';
-import {ExtractedRecipeDto, IngredientUnit, RecipeIngredient, RecipeInstruction} from '@/common/types/recipe';
+import {AlertTriangle, Code2, Loader2, Plus, RotateCcw, Trash2} from 'lucide-react';
+import {
+    ExtractedRecipeDto,
+    IngredientUnit,
+    JUST_THE_RECIPE,
+    RecipeIngredient,
+    RecipeInstruction,
+} from '@/common/types/recipe';
 import {useAppDispatch, useAppSelector} from '@/common/hooks/redux';
 import {useEscapeKey} from '@/common/hooks/useEscapeKey';
 import {
     clearDraft,
     clearUpdateStatus,
+    reExtractDraft,
     saveRecipe,
+    selectReExtractStatus,
     selectSaveStatus,
     selectUpdateStatus,
     updateRecipe,
@@ -54,14 +62,27 @@ export function RecipeEditorModal({recipe, mode = 'create', onClose}: Props) {
     const dispatch = useAppDispatch();
     const saveStatus = useAppSelector(selectSaveStatus);
     const updateStatus = useAppSelector(selectUpdateStatus);
+    const reExtractStatus = useAppSelector(selectReExtractStatus);
     const [edited, setEdited] = useState<ExtractedRecipeDto>(recipe);
+    // Tracks whether anything has been typed, so a re-read only interrupts when there is work to lose.
+    const [hasEdits, setHasEdits] = useState(false);
+    const [confirmingReExtract, setConfirmingReExtract] = useState(false);
 
     const isEditMode = mode === 'edit';
     const status = isEditMode ? updateStatus : saveStatus;
     const isSaving = status === 'loading';
+    const isReExtracting = reExtractStatus === 'loading';
+    const isBusy = isSaving || isReExtracting;
+
+    // Only the review of a fresh draft can be re-read: an edit is of a stored recipe, where replacing
+    // the fields would throw away what was saved. JustTheRecipe is the only alternative on offer, so
+    // there is nothing to re-read once it is what produced the draft.
+    const canReExtract = !isEditMode && Boolean(edited.url) && recipe.extractionMethod !== JUST_THE_RECIPE;
 
     useEffect(() => {
         setEdited(recipe);
+        setHasEdits(false);
+        setConfirmingReExtract(false);
     }, [recipe]);
 
     const handleCancel = useCallback(() => {
@@ -76,7 +97,7 @@ export function RecipeEditorModal({recipe, mode = 'create', onClose}: Props) {
     // Escape is still swallowed mid-save, so it neither closes whatever is underneath nor reaches
     // the browser.
     useEscapeKey(() => {
-        if (!isSaving) handleCancel();
+        if (!isBusy) handleCancel();
     });
 
     useEffect(() => {
@@ -87,44 +108,69 @@ export function RecipeEditorModal({recipe, mode = 'create', onClose}: Props) {
         };
     }, []);
 
+    // Every change to the draft goes through here, so the re-read prompt knows there is something to
+    // lose without each handler having to say so.
+    const applyEdit = (change: (prev: ExtractedRecipeDto) => ExtractedRecipeDto) => {
+        setHasEdits(true);
+        setEdited(change);
+    };
+
     const setField = <K extends keyof ExtractedRecipeDto>(field: K, value: ExtractedRecipeDto[K]) => {
-        setEdited((prev) => ({...prev, [field]: value}));
+        applyEdit((prev) => ({...prev, [field]: value}));
     };
 
     const setIngredient = (index: number, changes: Partial<RecipeIngredient>) => {
-        setEdited((prev) => ({
+        applyEdit((prev) => ({
             ...prev,
             ingredients: prev.ingredients.map((ing, i) => (i === index ? {...ing, ...changes} : ing)),
         }));
     };
 
     const removeIngredient = (index: number) => {
-        setEdited((prev) => ({
+        applyEdit((prev) => ({
             ...prev,
             ingredients: prev.ingredients.filter((_, i) => i !== index),
         }));
     };
 
     const addIngredient = () => {
-        setEdited((prev) => ({...prev, ingredients: [...prev.ingredients, {...EMPTY_INGREDIENT}]}));
+        applyEdit((prev) => ({...prev, ingredients: [...prev.ingredients, {...EMPTY_INGREDIENT}]}));
     };
 
     const setStepText = (index: number, text: string) => {
-        setEdited((prev) => ({
+        applyEdit((prev) => ({
             ...prev,
             instructions: prev.instructions.map((step, i) => (i === index ? {...step, text} : step)),
         }));
     };
 
     const removeStep = (index: number) => {
-        setEdited((prev) => ({
+        applyEdit((prev) => ({
             ...prev,
             instructions: prev.instructions.filter((_, i) => i !== index),
         }));
     };
 
     const addStep = () => {
-        setEdited((prev) => ({...prev, instructions: [...prev.instructions, {...EMPTY_INSTRUCTION}]}));
+        applyEdit((prev) => ({...prev, instructions: [...prev.instructions, {...EMPTY_INSTRUCTION}]}));
+    };
+
+    const runReExtract = async () => {
+        setConfirmingReExtract(false);
+        try {
+            await dispatch(reExtractDraft({url: edited.url, extractionMethod: JUST_THE_RECIPE})).unwrap();
+        } catch {
+            // reExtractStatus renders the failure; the draft on screen is untouched.
+        }
+    };
+
+    const handleReExtract = () => {
+        // Re-reading replaces the whole draft, so anything typed here would go with it.
+        if (hasEdits) {
+            setConfirmingReExtract(true);
+            return;
+        }
+        runReExtract();
     };
 
     const handleSave = async () => {
@@ -163,14 +209,73 @@ export function RecipeEditorModal({recipe, mode = 'create', onClose}: Props) {
             <div
                 className="relative flex max-h-[95vh] w-full flex-col overflow-hidden rounded-t-2xl bg-gray-900 ring-1 ring-white/10 sm:max-w-3xl sm:rounded-2xl lg:max-w-5xl">
                 <div className="border-b border-white/5 p-4 sm:px-7">
-                    <h2 className="text-base font-semibold text-white">
-                        {isEditMode ? 'Edit recipe' : 'Review recipe'}
-                    </h2>
-                    <p className="mt-0.5 text-xs text-gray-400">
-                        {isEditMode
-                            ? 'Update anything that is wrong or missing.'
-                            : 'Check what was extracted and fix anything that looks wrong before saving.'}
-                    </p>
+                    <div className="flex flex-wrap items-start gap-x-4 gap-y-3">
+                        <div className="min-w-0 flex-1">
+                            <h2 className="text-base font-semibold text-white">
+                                {isEditMode ? 'Edit recipe' : 'Review recipe'}
+                            </h2>
+                            <p className="mt-0.5 text-xs text-gray-400">
+                                {isEditMode
+                                    ? 'Update anything that is wrong or missing.'
+                                    : 'Check what was extracted and fix anything that looks wrong before saving.'}
+                            </p>
+                        </div>
+
+                        {canReExtract && (
+                            <div className="flex shrink-0 flex-wrap items-center gap-2">
+                                {recipe.extractionMethod && (
+                                    <span
+                                        className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1 text-xs font-medium text-gray-400 ring-1 ring-white/5"
+                                        title="How this recipe was read from the source page"
+                                    >
+                                        <Code2 size={12}/>
+                                        Read via {recipe.extractionMethod}
+                                    </span>
+                                )}
+                                <button
+                                    onClick={handleReExtract}
+                                    disabled={isBusy}
+                                    className="flex cursor-pointer items-center gap-1.5 rounded-lg bg-white/5 px-3 py-2 text-xs font-medium text-gray-300 transition-colors hover:bg-white/10 hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                    {isReExtracting
+                                        ? <Loader2 size={14} className="animate-spin"/>
+                                        : <RotateCcw size={14}/>}
+                                    {isReExtracting ? 'Reading…' : 'Re-read with JustTheRecipe'}
+                                </button>
+                            </div>
+                        )}
+                    </div>
+
+                    {confirmingReExtract && (
+                        <div
+                            className="mt-3 flex items-start gap-2.5 rounded-lg bg-amber-500/10 p-3 ring-1 ring-amber-400/25">
+                            <AlertTriangle size={15} className="mt-0.5 shrink-0 text-amber-300"/>
+                            <div className="text-xs leading-relaxed text-gray-300">
+                                Re-reading with JustTheRecipe replaces the draft, including the edits you have
+                                made here. Nothing is saved yet either way.
+                                <div className="mt-2 flex gap-2">
+                                    <button
+                                        onClick={runReExtract}
+                                        className="cursor-pointer rounded-md bg-indigo-600 px-2.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-indigo-500"
+                                    >
+                                        Re-read anyway
+                                    </button>
+                                    <button
+                                        onClick={() => setConfirmingReExtract(false)}
+                                        className="cursor-pointer rounded-md bg-white/5 px-2.5 py-1.5 text-xs font-semibold text-gray-300 transition-colors hover:bg-white/10 hover:text-white"
+                                    >
+                                        Keep my edits
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {reExtractStatus === 'failed' && (
+                        <p className="mt-3 text-sm text-red-400">
+                            JustTheRecipe could not read this page.
+                        </p>
+                    )}
                 </div>
 
                 <div className="flex flex-1 flex-col gap-6 overflow-y-auto p-5 sm:p-7">
@@ -346,14 +451,14 @@ export function RecipeEditorModal({recipe, mode = 'create', onClose}: Props) {
                     )}
                     <button
                         onClick={handleCancel}
-                        disabled={isSaving}
+                        disabled={isBusy}
                         className="cursor-pointer rounded-lg bg-white/5 px-4 py-2.5 text-sm font-medium text-gray-300 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-50"
                     >
                         Cancel
                     </button>
                     <button
                         onClick={handleSave}
-                        disabled={isSaving}
+                        disabled={isBusy}
                         className="flex cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-gray-700 disabled:text-gray-400"
                     >
                         {isSaving && <Loader2 size={16} className="animate-spin"/>}

@@ -12,7 +12,9 @@ import to.charlie.foodPlanner.domain.exception.ResourceNotFoundException;
 import to.charlie.foodPlanner.domain.model.dto.extraction.ExtractedRecipeDto;
 import to.charlie.foodPlanner.domain.model.entity.recipe.RecipeEntity;
 import to.charlie.foodPlanner.domain.model.exception.DuplicateRecipeException;
+import to.charlie.foodPlanner.domain.model.exception.RecipeExtractionFailed;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
+import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractionMethod;
 import to.charlie.foodPlanner.infrastructure.dal.dao.RecipeDao;
 
 import java.io.IOException;
@@ -31,8 +33,12 @@ public class RecipeService {
 	private final RecipeExtractionService recipeExtractionService;
 	private final ModelMapper modelMapper;
 
-	public ExtractedRecipeDto extractRecipeFromUrl(final String url)
-					throws IOException, DuplicateRecipeException {
+	/**
+	 * @param extractionMethod when set, the only extractor used - the extraction fails rather than
+	 *                         falling back to another method. Null runs the usual chain.
+	 */
+	public ExtractedRecipeDto extractRecipeFromUrl(final String url, final ExtractionMethod extractionMethod)
+					throws IOException, DuplicateRecipeException, RecipeExtractionFailed {
 
 		if (recipeDao.existsByUrl(url)) {
 			log.info("Recipe for url {} already exists in database", url);
@@ -55,7 +61,9 @@ public class RecipeService {
 
 		final ExtractedRecipe recipe;
 		try {
-			recipe = recipeExtractionService.extractRecipe(document, url);
+			recipe = extractionMethod == null
+							? recipeExtractionService.extractRecipe(document, url)
+							: recipeExtractionService.extractRecipeUsing(document, url, extractionMethod);
 		} catch (final IllegalArgumentException e) {
 			log.error("Error extracting recipe {}", e.getMessage());
 			throw e;
