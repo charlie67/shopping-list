@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Sectioned traybake</title>
+    <!-- The recipe sits in a bare top level array beside a WebSite node, its instructions are
+         grouped into HowToSections, and its image is an @id reference to the ImageObject below. -->
+    <script type="application/ld+json; charset=utf-8">
+        [
+            {
+                "@type": "WebSite",
+                "@id": "https://example.com/#website",
+                "name": "Example"
+            },
+            {
+                "@type": "ImageObject",
+                "@id": "https://example.com/recipes/sectioned-traybake/#primaryimage",
+                "contentUrl": "https://example.com/images/sectioned-traybake.jpg",
+                "width": 440,
+                "height": 400
+            },
+            {
+                "@type": ["Recipe", "NewsArticle"],
+                "name": "Sectioned traybake recipe",
+                "description": "A traybake whose method is grouped into sections.",
+                "url": "https://example.com/recipes/sectioned-traybake",
+                "image": {"@id": "https://example.com/recipes/sectioned-traybake/#primaryimage"},
+                "keywords": "Traybake, Easy",
+                "recipeCategory": "Dinner",
+                "recipeYield": "4 servings",
+                "prepTime": "10 mins",
+                "cookTime": "1 hr 15 mins",
+                "ingredients": [
+                    "1 large onion",
+                    "1 red pepper",
+                    "2 garlic cloves",
+                    "1 tbsp oil"
+                ],
+                "recipeInstructions": [
+                    {
+                        "@type": "HowToSection",
+                        "name": "Prepare the vegetables",
+                        "itemListElement": [
+                            {"@type": "HowToStep", "text": "Chop the onion and pepper."},
+                            {"@type": "HowToStep", "name": "Crush the garlic."}
+                        ]
+                    },
+                    {
+                        "@type": "HowToSection",
+                        "name": "Bake",
+                        "itemListElement": {
+                            "@type": "HowToStep",
+                            "text": "Toss everything in <b>oil</b> and bake for an hour."
+                        }
+                    }
+                ]
+            }
+        ]
+    </script>
+</head>
+<body>
+<h1>Sectioned traybake recipe</h1>
+</body>
+</html>

@@ -17,6 +17,43 @@ Feature: Recipe parsing and retrieval
     Then "RESPONSE_STATUS" should be "201"
     And the response body should match the file: "recipes/my-best-chilli-response.json"
 
+  Scenario: sectioned ld+json recipes keep their headings and every nested step
+    Given recipe URL "/mock/recipes/howto-section" is set to return the data from file "recipes/howto-section.html"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/onion.json" for ingredient "1 large onion"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/pepper.json" for ingredient "1 red pepper"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/garlic.json" for ingredient "2 garlic cloves"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/oil.json" for ingredient "1 tbsp oil"
+    # The recipe sits in a bare top level array, lists its ingredients under the legacy "ingredients"
+    # property, references its image by @id, and writes its times in plain words.
+    When I send an HTTP GET request to "/recipe/extract?url={WIREMOCK_URL}/mock/recipes/howto-section"
+    Then "RESPONSE_STATUS" should be "200"
+    And the response body should contain the following fields:
+      | name                    | Sectioned traybake recipe                          |
+      | extractionMethod        | JSON-LD                                            |
+      | imageUrl                | https://example.com/images/sectioned-traybake.jpg  |
+      | prepTime                | PT10M                                              |
+      | cookTime                | PT1H15M                                            |
+      | ingredients[0].fullText | 1 large onion                                      |
+      | instructions[0].type    | HowToSection                                       |
+      | instructions[0].text    | Prepare the vegetables                             |
+      | instructions[1].text    | Chop the onion and pepper.                         |
+      | instructions[2].text    | Crush the garlic.                                  |
+      | instructions[3].text    | Bake                                               |
+      | instructions[4].text    | Toss everything in oil and bake for an hour.       |
+
+  Scenario: a stub ld+json recipe falls through to the next extractor
+    Given recipe URL "/mock/recipes/jsonld-stub-fallback" is set to return the data from file "recipes/jsonld-stub-fallback.html"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/onion.json" for ingredient "1 large onion"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/pepper.json" for ingredient "1 red pepper"
+    # The page's only ld+json is a Recipe with nothing to cook, so returning it would stop the chain
+    # before microdata ever saw the page.
+    When I send an HTTP GET request to "/recipe/extract?url={WIREMOCK_URL}/mock/recipes/jsonld-stub-fallback"
+    Then "RESPONSE_STATUS" should be "200"
+    And the response body should contain the following fields:
+      | name                    | Fallback veggie hash recipe |
+      | extractionMethod        | microdata                   |
+      | ingredients[0].fullText | 1 large onion               |
+
   Scenario: microdata recipes are extracted and saved successfully
     Given recipe URL "/mock/recipes/microdata-veggie-hash" is set to return the data from file "recipes/microdata-veggie-hash.html"
     And ingredient breakdown service is set to return the data from file "ingredient-breakdown/onion.json" for ingredient "1 large onion"

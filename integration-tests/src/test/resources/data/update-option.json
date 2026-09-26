@@ -1,0 +1,3 @@
+{
+  "value": "${optionValue:-true}"
+}

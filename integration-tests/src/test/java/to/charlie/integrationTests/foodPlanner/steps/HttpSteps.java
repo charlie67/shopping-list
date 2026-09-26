@@ -17,6 +17,7 @@ import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -93,6 +94,8 @@ public class HttpSteps {
 			sendGenericHttpRequest(new HttpPost(url), body);
 		} else if (method.equalsIgnoreCase("PATCH")) {
 			sendGenericHttpRequest(new HttpPatch(url), body);
+		} else if (method.equalsIgnoreCase("PUT")) {
+			sendGenericHttpRequest(new HttpPut(url), body);
 		} else if (method.equalsIgnoreCase("DELETE")) {
 			sendHttpDeleteRequest(url);
 		} else if (method.equalsIgnoreCase("GET")) {

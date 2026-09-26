@@ -221,17 +221,17 @@ export function RecipeEditorModal({recipe, mode = 'create', onClose}: Props) {
                             </p>
                         </div>
 
-                        {canReExtract && (
-                            <div className="flex shrink-0 flex-wrap items-center gap-2">
-                                {recipe.extractionMethod && (
-                                    <span
-                                        className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1 text-xs font-medium text-gray-400 ring-1 ring-white/5"
-                                        title="How this recipe was read from the source page"
-                                    >
-                                        <Code2 size={12}/>
-                                        Read via {recipe.extractionMethod}
-                                    </span>
-                                )}
+                        <div className="flex shrink-0 flex-wrap items-center gap-2">
+                            {recipe.extractionMethod && (
+                                <span
+                                    className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1 text-xs font-medium text-gray-400 ring-1 ring-white/5"
+                                    title="How this recipe was read from the source page"
+                                >
+                                    <Code2 size={12}/>
+                                    Read via {recipe.extractionMethod}
+                                </span>
+                            )}
+                            {canReExtract && (
                                 <button
                                     onClick={handleReExtract}
                                     disabled={isBusy}
@@ -242,8 +242,8 @@ export function RecipeEditorModal({recipe, mode = 'create', onClose}: Props) {
                                         : <RotateCcw size={14}/>}
                                     {isReExtracting ? 'Reading…' : 'Re-read with JustTheRecipe'}
                                 </button>
-                            </div>
-                        )}
+                            )}
+                        </div>
                     </div>
 
                     {confirmingReExtract && (

@@ -16,6 +16,6 @@ public class Hooks {
 		// CASCADE clears the named tables and their dependents (recipe_ingredient, recipe_steps)
 		// in one statement, avoiding JPA cascade-ordering issues with the recipe_ingredient FK.
 		jdbcTemplate.execute(
-						"TRUNCATE TABLE recipe, ingredient, shopping_list_item, tag RESTART IDENTITY CASCADE");
+						"TRUNCATE TABLE recipe, ingredient, shopping_list_item, tag, options RESTART IDENTITY CASCADE");
 	}
 }
