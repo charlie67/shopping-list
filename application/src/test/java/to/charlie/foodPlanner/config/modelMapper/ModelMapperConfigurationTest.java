@@ -140,4 +140,33 @@ class ModelMapperConfigurationTest {
 		assertThat(dto.getIngredients()).extracting("ingredientName").containsExactly("onion", "beef mince");
 		assertThat(dto.getInstructions()).extracting("text").containsExactly("Chop the onion", "Brown the mince");
 	}
+
+	@Test
+	void map_whenServingsIsSetOnTheInternalModel_thenItSurvivesToTheEntityAndBackToTheDto() {
+		// given the parser has read the yield, on the internal model, before the DAO sees it
+		final ExtractedRecipe recipe = modelMapper.map(buildDto(), ExtractedRecipe.class);
+		recipe.setServings(4);
+
+		// when
+		final RecipeEntity entity = modelMapper.map(recipe, RecipeEntity.class);
+		final ExtractedRecipeDto dto = modelMapper.map(entity, ExtractedRecipeDto.class);
+
+		// then
+		assertThat(entity.getServings()).isEqualTo(4);
+		assertThat(dto.getServings()).isEqualTo(4);
+	}
+
+	@Test
+	void map_whenAClientSendsServings_thenItIsDroppedOnTheWayIn() {
+		// given servings is server-derived: RecipeYieldParser is the only thing that sets it, so a
+		// value posted by a client must not ride in on the implicit same-name mapping
+		final ExtractedRecipeDto dto = buildDto();
+		dto.setServings(99);
+
+		// when
+		final ExtractedRecipe recipe = modelMapper.map(dto, ExtractedRecipe.class);
+
+		// then
+		assertThat(recipe.getServings()).isNull();
+	}
 }

@@ -83,6 +83,31 @@ Feature: Shopping list retrieval and manipulation
       | number           | 5 |
       | numberOfElements | 0 |
 
+  Scenario: A whole recipe's worth of items is added in one request and broadcast once
+    Given I am connected to the shopping list WebSocket
+    When I send an HTTP POST request to "/shoppinglist/batch" with the body from file: "add-items-batch.json"
+    Then "RESPONSE_STATUS" should be "201"
+    And the response body should contain the following fields:
+      | length()  | 3            |
+      | [0].title | Onion        |
+      | [0].id    | <valid_uuid> |
+      | [1].title | Red pepper   |
+      | [2].title | Beef mince   |
+    # One frame for the lot, rather than three that each make every connected phone re-sort the list
+    And I should receive a WebSocket message with the following fields:
+      | messageType           | SHOPPING_LIST_ITEMS_CREATED |
+      | data.items.length()   | 3                           |
+      | data.items[0].title   | Onion                       |
+      | data.items[2].title   | Beef mince                  |
+    When I send an HTTP GET request to "/shoppinglist/pageable/0"
+    Then "RESPONSE_STATUS" should be "200"
+    And the response body should contain the following fields:
+      | totalElements | 3 |
+
+  Scenario: Adding a batch with no usable titles is rejected
+    When I send an HTTP POST request to "/shoppinglist/batch" with the body from file: "add-items-batch-empty.json"
+    Then "RESPONSE_STATUS" should be "400"
+
   Scenario: Adding an item with an empty title is rejected
     When I send an HTTP POST request to "/shoppinglist" with the body from file: "add-item-empty-title.json"
     Then "RESPONSE_STATUS" should be "400"

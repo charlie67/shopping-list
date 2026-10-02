@@ -31,6 +31,14 @@ export const addShoppingListItem = createAsyncThunk(
     },
 );
 
+// Used when a recipe's ingredients go on the list in one go; a single item still uses addShoppingListItem.
+export const addShoppingListItems = createAsyncThunk(
+    'shoppingList/addItems',
+    async (titles: string[]) => {
+        return api.createShoppingListItems(titles);
+    },
+);
+
 export const toggleItemComplete = createAsyncThunk(
     'shoppingList/toggleComplete',
     async ({id, completed}: { id: string; completed: boolean }) => {
@@ -73,6 +81,12 @@ const shoppingListSlice = createSlice({
     reducers: {
         shoppingListItemCreated(state, action: PayloadAction<ShoppingListItemDto>) {
             state.items[action.payload.id] = action.payload;
+            state.items = sortItems(state.items);
+        },
+        shoppingListItemsCreated(state, action: PayloadAction<{ items: ShoppingListItemDto[] }>) {
+            for (const item of action.payload.items) {
+                state.items[item.id] = item;
+            }
             state.items = sortItems(state.items);
         },
         shoppingListItemUpdated(state, action: PayloadAction<ShoppingListItemDto>) {
@@ -132,12 +146,22 @@ const shoppingListSlice = createSlice({
             .addCase(addShoppingListItem.fulfilled, (state, action) => {
                 state.items[action.payload.id] = action.payload;
                 state.items = sortItems(state.items);
+            })
+            .addCase(addShoppingListItems.fulfilled, (state, action) => {
+                for (const item of action.payload) {
+                    state.items[item.id] = item;
+                }
+                state.items = sortItems(state.items);
             });
     },
 });
 
-export const {shoppingListItemCreated, shoppingListItemUpdated, shoppingListItemDeleted} =
-    shoppingListSlice.actions;
+export const {
+    shoppingListItemCreated,
+    shoppingListItemsCreated,
+    shoppingListItemUpdated,
+    shoppingListItemDeleted,
+} = shoppingListSlice.actions;
 
 export const selectShoppingListItems = (state: RootState) => state.shoppingList.items;
 export const selectShoppingListHasMore = (state: RootState) => state.shoppingList.hasMore;

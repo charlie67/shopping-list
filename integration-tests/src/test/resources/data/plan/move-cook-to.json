@@ -1,0 +1,4 @@
+{
+  "placement": "COOK",
+  "plannedDate": "${MEAL_DATE:-2026-09-23}"
+}

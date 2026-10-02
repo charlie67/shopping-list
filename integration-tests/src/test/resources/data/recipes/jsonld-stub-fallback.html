@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Stub JSON-LD hash</title>
+    <!-- The page carries a Recipe node with nothing to cook - the kind a review or breadcrumb
+         block leaves behind. The JSON-LD extractor must refuse it rather than return an empty
+         recipe, so that the microdata below is still reached. -->
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "Recipe",
+            "name": "Stub hash recipe",
+            "description": "A stub with no ingredients and no instructions."
+        }
+    </script>
+</head>
+<body>
+<div itemscope itemtype="https://schema.org/Recipe">
+    <h1 itemprop="name">Fallback veggie hash recipe</h1>
+    <p itemprop="description">Read from microdata because the JSON-LD on the page was a stub.</p>
+    <span itemprop="recipeCategory">Dinner</span>
+    <span itemprop="recipeYield">2</span>
+    <span itemprop="totalTime">PT25M</span>
+    <ul>
+        <li itemprop="recipeIngredient">1 large onion</li>
+        <li itemprop="recipeIngredient">1 red pepper</li>
+    </ul>
+    <ol>
+        <li itemprop="recipeInstructions">Fry the onion and pepper until soft.</li>
+        <li itemprop="recipeInstructions">Season well and serve hot.</li>
+    </ol>
+</div>
+</body>
+</html>

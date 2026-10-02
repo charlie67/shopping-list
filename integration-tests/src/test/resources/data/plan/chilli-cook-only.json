@@ -1,0 +1,5 @@
+{
+  "recipeId": "${RECIPE_ID:-unset}",
+  "cookDate": "${COOK_DATE:-2026-09-21}",
+  "leftovers": []
+}

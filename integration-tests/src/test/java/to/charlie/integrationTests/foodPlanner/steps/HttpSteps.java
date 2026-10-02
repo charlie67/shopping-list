@@ -1,6 +1,5 @@
 package to.charlie.integrationTests.foodPlanner.steps;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -17,6 +16,7 @@ import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -32,7 +32,6 @@ import to.charlie.integrationTests.foodPlanner.utilities.UrlVariableResolver;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 public class HttpSteps {
@@ -93,6 +92,8 @@ public class HttpSteps {
 			sendGenericHttpRequest(new HttpPost(url), body);
 		} else if (method.equalsIgnoreCase("PATCH")) {
 			sendGenericHttpRequest(new HttpPatch(url), body);
+		} else if (method.equalsIgnoreCase("PUT")) {
+			sendGenericHttpRequest(new HttpPut(url), body);
 		} else if (method.equalsIgnoreCase("DELETE")) {
 			sendHttpDeleteRequest(url);
 		} else if (method.equalsIgnoreCase("GET")) {
@@ -130,7 +131,11 @@ public class HttpSteps {
 		final CloseableHttpResponse response = client.execute(request);
 
 		context.set("RESPONSE_STATUS", String.valueOf(response.getStatusLine().getStatusCode()));
-		context.set("RESPONSE_BODY", "");
+		// A DELETE under /plan answers 200 with the whole week, so its body has to be readable like any
+		// other. A 204 has no entity at all, which reads as an empty body.
+		context.set("RESPONSE_BODY", response.getEntity() == null
+						? ""
+						: EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8));
 	}
 
 	@Then("the response body should contain the following fields:")
@@ -234,30 +239,20 @@ public class HttpSteps {
 		}
 	}
 
+	/**
+	 * Reads the path with JsonPath, the same engine the field assertions use, so a scenario can store
+	 * something out of a collection - {@code batches[0].meals[1].id} - and not only a top level field.
+	 */
 	@Then("I store the value of {string} from the HTTP response as {string}")
 	@SneakyThrows
-	public void iStoreTheValueOfFromTheResponseAs(final String jsonPath, final String arg1) {
-		final String responseBody = context.get("RESPONSE_BODY");
+	public void iStoreTheValueOfFromTheResponseAs(final String jsonPath, final String key) {
+		final String value = JsonPath.parse(context.get("RESPONSE_BODY")).read(jsonPath, String.class);
 
-		final ObjectMapper mapper = new ObjectMapper();
-		final Map<String, Object> json = mapper.readValue(responseBody, new TypeReference<>() {
-		});
-		final Object value = getValueByPath(json, jsonPath);
-
-		context.set(arg1, value.toString());
-	}
-
-	public static Object getValueByPath(final Map<String, Object> obj, final String path) {
-		final String[] keys = path.split("\\.");
-		Object current = obj;
-
-		for (final String key : keys) {
-			if (current instanceof Map) {
-				current = ((Map<String, Object>) current).get(key);
-			} else {
-				return null;
-			}
+		if (value == null) {
+			throw new AssertionError("Nothing to store: JSON path '" + jsonPath
+							+ "' was not found in the response body.");
 		}
-		return current;
+
+		context.set(key, value);
 	}
 }

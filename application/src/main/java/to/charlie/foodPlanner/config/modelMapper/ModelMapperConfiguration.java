@@ -150,6 +150,10 @@ public class ModelMapperConfiguration {
 
 		modelMapper.typeMap(ExtractedRecipeDto.class, ExtractedRecipe.class)
 						.addMappings(mapper -> {
+							// servings is server-derived: the DTO carries it so clients can read it, but a value
+							// sent in is dropped here rather than relying on RecipeService happening to overwrite
+							// it. RecipeYieldParser is the only thing that sets it.
+							mapper.skip(ExtractedRecipe::setServings);
 							mapper.using(toRecipeIngredients)
 											.map(ExtractedRecipeDto::getIngredients, ExtractedRecipe::setExtractedRecipeIngredients);
 							mapper.using(toRecipeInstructions)

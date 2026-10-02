@@ -47,6 +47,9 @@ export interface ExtractedRecipeDto {
     totalTime: string | null;
     recipeCategory: string | null;
     recipeYield: string | null;
+    // recipeYield read as a number by the backend, for the planner's portion maths. Null when the
+    // scraped text had no usable figure.
+    servings: number | null;
     calories: string | null;
     fatContent: string | null;
     saturatedFatContent: string | null;

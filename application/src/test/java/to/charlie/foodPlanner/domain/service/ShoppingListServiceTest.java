@@ -15,18 +15,22 @@ import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemDto;
 import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemUpdateDto;
 import to.charlie.foodPlanner.domain.model.dto.websocket.WebSocketMessageDto;
 import to.charlie.foodPlanner.domain.model.dto.websocket.WebsocketUpdateType;
+import to.charlie.foodPlanner.domain.model.dto.websocket.shoppingList.ShoppingListItemsCreatedDto;
 import to.charlie.foodPlanner.domain.model.entity.ShoppingListItemEntity;
 import to.charlie.foodPlanner.domain.service.websocket.WebSocketService;
 import to.charlie.foodPlanner.infrastructure.dal.repository.TodoPagingRepository;
 import to.charlie.foodPlanner.infrastructure.dal.repository.TodoRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -78,6 +82,60 @@ class ShoppingListServiceTest {
 		final ArgumentCaptor<WebSocketMessageDto> messageCaptor = ArgumentCaptor.forClass(WebSocketMessageDto.class);
 		verify(webSocketService).sendMessageToAllClients(messageCaptor.capture());
 		assertThat(messageCaptor.getValue().getMessageType()).isEqualTo(WebsocketUpdateType.SHOPPING_LIST_ITEM_CREATED);
+	}
+
+	@Test
+	void createAll_whenSeveralTitles_thenSavesThemAllAndBroadcastsOnce() {
+		// given a recipe's ingredients: one request rather than a dozen, and one broadcast rather than
+		// a dozen re-sorts on every connected phone
+		final List<String> titles = List.of("Onion", "Red pepper", "Beef mince");
+		when(todoRepository.saveAllAndFlush(anyList())).thenAnswer(call -> {
+			final List<ShoppingListItemEntity> toSave = call.getArgument(0);
+			return toSave.stream()
+							.map(entity -> buildSavedEntity(UUID.randomUUID(), entity.getTitle(), false))
+							.toList();
+		});
+
+		// when
+		final List<ShoppingListItemDto> created = service.createAll(titles);
+
+		// then
+		assertThat(created).extracting(ShoppingListItemDto::getTitle)
+						.containsExactly("Onion", "Red pepper", "Beef mince");
+
+		final ArgumentCaptor<WebSocketMessageDto> messageCaptor = ArgumentCaptor.forClass(WebSocketMessageDto.class);
+		verify(webSocketService, times(1)).sendMessageToAllClients(messageCaptor.capture());
+		assertThat(messageCaptor.getValue().getMessageType())
+						.isEqualTo(WebsocketUpdateType.SHOPPING_LIST_ITEMS_CREATED);
+		assertThat(((ShoppingListItemsCreatedDto) messageCaptor.getValue().getData()).getItems())
+						.hasSize(3);
+	}
+
+	@Test
+	void createAll_whenATitleIsBlank_thenItIsDroppedRatherThanFailingTheBatch() {
+		// given the titles come from a scraped ingredient list, so losing the whole recipe over one
+		// unreadable line is the worse outcome
+		when(todoRepository.saveAllAndFlush(anyList())).thenAnswer(call -> {
+			final List<ShoppingListItemEntity> toSave = call.getArgument(0);
+			return toSave.stream()
+							.map(entity -> buildSavedEntity(UUID.randomUUID(), entity.getTitle(), false))
+							.toList();
+		});
+
+		// when
+		final List<ShoppingListItemDto> created = service.createAll(List.of("Onion", "   ", "Garlic"));
+
+		// then
+		assertThat(created).extracting(ShoppingListItemDto::getTitle)
+						.containsExactly("Onion", "Garlic");
+	}
+
+	@Test
+	void createAll_whenNothingUsableIsGiven_thenThrowsBadRequestExceptionAndBroadcastsNothing() {
+		// given / when / then
+		assertThatThrownBy(() -> service.createAll(List.of(" ")))
+						.isInstanceOf(BadRequestException.class);
+		verify(webSocketService, times(0)).sendMessageToAllClients(any());
 	}
 
 	@Test

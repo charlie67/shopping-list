@@ -1,144 +1,92 @@
 package to.charlie.foodPlanner.domain.extraction.recipe.ldExtraction;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import to.charlie.foodPlanner.domain.extraction.ingredient.IngredientBreakdownService;
-import to.charlie.foodPlanner.domain.extraction.recipe.ldExtraction.data.JsonLdHowToStep;
-import to.charlie.foodPlanner.domain.extraction.recipe.ldExtraction.data.JsonLdNutritionInformation;
 import to.charlie.foodPlanner.domain.extraction.recipe.ldExtraction.data.JsonLdRecipe;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipeInstruction;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractionMethod;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 public class JsonLdRecipeBuilder {
 
 	private final IngredientBreakdownService ingredientExtractor;
-	private final ObjectMapper objectMapper;
+	private final JsonLdInstructionReader instructionReader;
 
-	public ExtractedRecipe convert(final JsonLdRecipe source) {
-		final List<ExtractedRecipeInstruction> instructions = extractInstructions(
-						source.getRecipeInstructions());
+	/**
+	 * @param idIndex every {@code @id} seen anywhere in the page, so a recipe that references its
+	 *                image or nutrition block rather than inlining it still resolves.
+	 */
+	public ExtractedRecipe convert(final JsonLdRecipe source, final Map<String, JsonNode> idIndex) {
+		final List<ExtractedRecipeInstruction> instructions =
+						instructionReader.read(source.getRecipeInstructions(), idIndex);
 		// plenty of recipes carry no nutrition block at all
-		final JsonLdNutritionInformation nutrition = source.getNutrition() != null
-						? source.getNutrition()
-						: new JsonLdNutritionInformation();
+		final JsonNode nutrition =
+						JsonLdValues.resolve(JsonLdValues.unwrap(source.getNutrition()), idIndex);
 
-		return ExtractedRecipe.builder().url(source.getUrl())
-						.name(source.getName())
-						.description(source.getDescription())
-						.dateModified(source.getDateModified())
-						.datePublished(source.getDatePublished())
+		return ExtractedRecipe.builder().url(JsonLdValues.url(source.getUrl(), idIndex))
+						.name(JsonLdValues.text(source.getName()))
+						.description(JsonLdValues.text(source.getDescription()))
+						.dateModified(JsonLdValues.text(source.getDateModified()))
+						.datePublished(JsonLdValues.text(source.getDatePublished()))
 						.keywords(extractKeywords(source.getKeywords()))
-						.cookTime(source.getCookTime())
-						.prepTime(source.getPrepTime())
-						.totalTime(source.getTotalTime())
-						.recipeCategory(firstOrEmpty(source.getRecipeCategory()))// todo
-						.recipeYield(firstOrEmpty(
+						.cookTime(JsonLdValues.duration(source.getCookTime()))
+						.prepTime(JsonLdValues.duration(source.getPrepTime()))
+						.totalTime(JsonLdValues.duration(source.getTotalTime()))
+						.recipeCategory(JsonLdValues.first(source.getRecipeCategory()))// todo
+						.recipeYield(JsonLdValues.first(
 										source.getRecipeYield()))// todo map these as lists all the way down
 						.extractedRecipeIngredients(
-										orEmpty(source.getRecipeIngredients()).stream()
+										JsonLdValues.texts(source.getRecipeIngredients()).stream()
 														.flatMap(ingredient -> ingredientExtractor.convertIngredient(ingredient).stream())
 														.toList())
 						.extractedRecipeInstructions(instructions)
-						.calories(nutrition.getCalories())
-						.fatContent(nutrition.getFatContent())
-						.saturatedFatContent(nutrition.getSaturatedFatContent())
-						.carbohydrateContent(nutrition.getCarbohydrateContent())
-						.sugarContent(nutrition.getSugarContent())
-						.fiberContent(nutrition.getFiberContent())
-						.proteinContent(nutrition.getProteinContent())
-						.sodiumContent(nutrition.getSodiumContent())
-						.imageUrl(getImageUrl(source.getImage()))
+						.calories(nutrient(nutrition, "calories"))
+						.fatContent(nutrient(nutrition, "fatContent"))
+						.saturatedFatContent(nutrient(nutrition, "saturatedFatContent"))
+						.carbohydrateContent(nutrient(nutrition, "carbohydrateContent"))
+						.sugarContent(nutrient(nutrition, "sugarContent"))
+						.fiberContent(nutrient(nutrition, "fiberContent"))
+						.proteinContent(nutrient(nutrition, "proteinContent"))
+						.sodiumContent(nutrient(nutrition, "sodiumContent"))
+						// todo use nutrition servingSize
+						.imageUrl(JsonLdValues.url(source.getImage(), idIndex))
 						.extractionMethod(ExtractionMethod.JSON_LD)
 						.build();
 	}
 
-	private List<String> orEmpty(final List<String> values) {
-		return values != null ? values : List.of();
-	}
-
-	private String firstOrEmpty(final List<String> values) {
-		return orEmpty(values).stream().findFirst().orElse("");
+	private String nutrient(final JsonNode nutrition, final String property) {
+		return nutrition == null ? null : JsonLdValues.text(nutrition.get(property));
 	}
 
 	/**
-	 * Keywords come either as a list or as a single comma separated string.
+	 * Keywords come either as a list or as a single comma separated string. Only the string form is
+	 * split - an entry in a list is one keyword however many commas it holds.
 	 */
 	private List<String> extractKeywords(final JsonNode keywords) {
-		if (keywords == null || keywords.isNull()) {
+		if (JsonLdValues.isAbsent(keywords)) {
 			return List.of();
 		}
 
 		if (keywords.isArray()) {
-			final List<String> extracted = new ArrayList<>();
-			for (final JsonNode keyword : keywords) {
-				extracted.add(keyword.asText());
-			}
-			return extracted;
+			return JsonLdValues.texts(keywords);
 		}
 
-		return Arrays.stream(keywords.asText().split(","))
-						.map(String::trim)
-						.filter(keyword -> !keyword.isEmpty())
-						.toList();
-	}
-
-	private List<ExtractedRecipeInstruction> extractInstructions(final JsonNode recipeInstructions) {
-		final List<ExtractedRecipeInstruction> instructions;
-
-		if (recipeInstructions == null || recipeInstructions.isNull()) {
+		final String joined = JsonLdValues.text(keywords);
+		if (joined == null) {
 			return List.of();
 		}
 
-		if (!recipeInstructions.isEmpty()) {
-			instructions = new ArrayList<>();
-			// extract as an array of instructions
-			for (final JsonNode recipeInstruction : recipeInstructions) {
-				JsonLdHowToStep step;
-				try {
-					step = objectMapper.treeToValue(recipeInstruction, JsonLdHowToStep.class);
-				} catch (final JsonProcessingException e) {
-					step = JsonLdHowToStep.builder().text(recipeInstruction.asText()).build();
-				}
-				instructions.add(convertInstruction(step));
-			}
-		} else {
-			// extract as a single instruction
-			instructions = Arrays.stream(recipeInstructions.asText().split("\n"))
-							.map(in -> ExtractedRecipeInstruction.builder().text(in).build()).toList();
-		}
-
-		return instructions;
-	}
-
-	private ExtractedRecipeInstruction convertInstruction(final JsonLdHowToStep instruction) {
-		return ExtractedRecipeInstruction.builder()
-						.text(instruction.getText())
-						.type(instruction.getType())
-						.build();
-	}
-
-	private String getImageUrl(final JsonNode image) {
-		if (image == null || image.isMissingNode() || image.isNull()) {
-			return null;
-		}
-
-		if (image.get("@type") != null && image.get("@type").asText().equals("ImageObject")) {
-			return image.get("url").asText();
-		} else if (image instanceof ArrayNode) {
-			return getImageUrl(image.get(0));
-		} else {
-			return image.asText();
-		}
+		return Arrays.stream(joined.split(","))
+						.map(String::trim)
+						.filter(keyword -> !keyword.isEmpty())
+						.toList();
 	}
 }

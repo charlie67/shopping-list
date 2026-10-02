@@ -1,12 +1,13 @@
 package to.charlie.foodPlanner.domain.model.dto.extraction;
 
-import java.util.List;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -15,51 +16,53 @@ import lombok.Setter;
 @Builder
 public class ExtractedRecipeDto {
 
-  private UUID id;
+	private UUID id;
 
-  private String url;
+	private String url;
 
-  private String name;
+	private String name;
 
-  private String imageUrl;
+	private String imageUrl;
 
-  private String description;
+	private String description;
 
-  private String dateModified;
+	private String dateModified;
 
-  private String datePublished;
+	private String datePublished;
 
-  private String keywords;
+	private String keywords;
 
-  private String cookTime;
+	private String cookTime;
 
-  private String prepTime;
+	private String prepTime;
 
-  private String totalTime;
+	private String totalTime;
 
-  private String recipeCategory;
+	private String recipeCategory;
 
-  private String recipeYield;
+	private String recipeYield;
 
-  private String calories;
+	private Integer servings;
 
-  private String fatContent;
+	private String calories;
 
-  private String saturatedFatContent;
+	private String fatContent;
 
-  private String carbohydrateContent;
+	private String saturatedFatContent;
 
-  private String sugarContent;
+	private String carbohydrateContent;
 
-  private String fiberContent;
+	private String sugarContent;
 
-  private String proteinContent;
+	private String fiberContent;
 
-  private String sodiumContent;
+	private String proteinContent;
 
-  private String extractionMethod;
+	private String sodiumContent;
 
-  private List<ExtractedRecipeStepsDto> instructions;
+	private String extractionMethod;
 
-  private List<ExtractedIngredientDto> ingredients;
+	private List<ExtractedRecipeStepsDto> instructions;
+
+	private List<ExtractedIngredientDto> ingredients;
 }
