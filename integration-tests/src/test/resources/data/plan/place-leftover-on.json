@@ -1,0 +1,4 @@
+{
+  "placement": "LEFTOVER",
+  "plannedDate": "${MEAL_DATE:-2026-09-24}"
+}

@@ -74,6 +74,13 @@ public class RecipeEntity {
   @Column(name = "recipe_yield")
   private String recipeYield;
 
+  /**
+   * recipeYield read as a number, for the planner's portion maths. Null when the scraped text held no
+   * usable figure. Always derived by RecipeYieldParser on save, never taken from the client.
+   */
+  @Column(name = "servings")
+  private Integer servings;
+
   @Column(name = "calories")
   private String calories;
 

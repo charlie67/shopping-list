@@ -1,5 +1,6 @@
 package to.charlie.foodPlanner.domain.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -15,14 +16,17 @@ import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemDto;
 import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemUpdateDto;
 import to.charlie.foodPlanner.domain.model.dto.websocket.WebSocketMessageDto;
 import to.charlie.foodPlanner.domain.model.dto.websocket.shoppingList.ShoppingListItemDeletedDto;
+import to.charlie.foodPlanner.domain.model.dto.websocket.shoppingList.ShoppingListItemsCreatedDto;
 import to.charlie.foodPlanner.domain.model.entity.ShoppingListItemEntity;
 import to.charlie.foodPlanner.domain.service.websocket.WebSocketService;
 import to.charlie.foodPlanner.infrastructure.dal.repository.TodoPagingRepository;
 import to.charlie.foodPlanner.infrastructure.dal.repository.TodoRepository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static to.charlie.foodPlanner.domain.model.dto.websocket.WebsocketUpdateType.SHOPPING_LIST_ITEMS_CREATED;
 import static to.charlie.foodPlanner.domain.model.dto.websocket.WebsocketUpdateType.SHOPPING_LIST_ITEM_CREATED;
 import static to.charlie.foodPlanner.domain.model.dto.websocket.WebsocketUpdateType.SHOPPING_LIST_ITEM_DELETED;
 import static to.charlie.foodPlanner.domain.model.dto.websocket.WebsocketUpdateType.SHOPPING_LIST_ITEM_UPDATED;
@@ -53,6 +57,36 @@ public class ShoppingListService {
 						.messageType(SHOPPING_LIST_ITEM_CREATED)
 						.build());
 		return shoppingListItemDto;
+	}
+
+	@Transactional
+	public List<ShoppingListItemDto> createAll(final List<String> titles) {
+		if (titles == null) {
+			throw new BadRequestException("No items to add");
+		}
+
+		final List<ShoppingListItemEntity> toSave = titles.stream()
+						.filter(title -> title != null && !title.isBlank())
+						.map(title -> ShoppingListItemEntity.builder().title(title.trim()).build())
+						.toList();
+
+		if (toSave.isEmpty()) {
+			throw new BadRequestException("No items to add");
+		}
+
+		final List<ShoppingListItemDto> created = todoRepository.saveAllAndFlush(toSave).stream()
+						.map(saved -> modelMapper.map(saved, ShoppingListItemDto.class))
+						.toList();
+
+		log.info("Added {} items to the shopping list in one batch", created.size());
+
+		webSocketService.sendMessageToAllClients(WebSocketMessageDto
+						.builder()
+						.data(ShoppingListItemsCreatedDto.builder().items(created).build())
+						.messageType(SHOPPING_LIST_ITEMS_CREATED)
+						.build());
+
+		return created;
 	}
 
 	public Page<ShoppingListItemEntity> readAllPageable(final int pageNumber, final int pageSize) {

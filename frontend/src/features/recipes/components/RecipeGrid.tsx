@@ -1,9 +1,9 @@
-import {useCallback, useEffect, useRef} from 'react';
+import {useCallback} from 'react';
 import {Loader2} from 'lucide-react';
 import {useAppDispatch, useAppSelector} from '@/common/hooks/redux';
 import {useInfiniteScroll} from '@/common/hooks/useInfiniteScroll';
+import {useRecipeById} from '@/common/hooks/useRecipeById';
 import {
-    fetchRecipeById,
     fetchRecipesPage,
     selectRecipeItems,
     selectRecipesHasMore,
@@ -21,20 +21,9 @@ export function RecipeGrid() {
     const status = useAppSelector(selectRecipesStatus);
     const currentPage = useAppSelector(selectRecipesPage);
     const [selectedRecipeId, setSelectedRecipeId] = useSelectedRecipeId();
-    const requestedIdRef = useRef<string | null>(null);
-
-    // When a recipe is selected via the URL (e.g. after a refresh) but it is not
-    // among the loaded pages yet, fetch it directly so the modal can reopen.
-    useEffect(() => {
-        if (
-            selectedRecipeId &&
-            !items[selectedRecipeId] &&
-            requestedIdRef.current !== selectedRecipeId
-        ) {
-            requestedIdRef.current = selectedRecipeId;
-            dispatch(fetchRecipeById(selectedRecipeId));
-        }
-    }, [dispatch, selectedRecipeId, items]);
+    // Fetches the recipe when the URL names one that is not among the loaded pages yet, so the
+    // modal reopens after a refresh. Shared with the planner, which only ever holds recipe ids.
+    const selectedRecipe = useRecipeById(selectedRecipeId);
 
     const loadMore = useCallback(() => {
         dispatch(fetchRecipesPage(currentPage + 1));
@@ -54,8 +43,6 @@ export function RecipeGrid() {
             </div>
         );
     }
-
-    const selectedRecipe = selectedRecipeId ? items[selectedRecipeId] : null;
 
     return (
         <>

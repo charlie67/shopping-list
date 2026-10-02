@@ -6,5 +6,8 @@ export const WEBSOCKET_URL =
 
 export const SHOPPING_LIST_ENDPOINT = `${API_BASE}shoppinglist`;
 export const SHOPPING_LIST_PAGEABLE_ENDPOINT = `${API_BASE}shoppinglist/pageable/`;
+export const SHOPPING_LIST_BATCH_ENDPOINT = `${API_BASE}shoppinglist/batch`;
 export const RECIPE_ENDPOINT = `${API_BASE}recipe`;
 export const RECIPE_EXTRACT_ENDPOINT = `${API_BASE}recipe/extract`;
+export const PLAN_ENDPOINT = `${API_BASE}plan`;
+export const OPTIONS_ENDPOINT = `${API_BASE}options`;

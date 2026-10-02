@@ -31,7 +31,7 @@ public class JustTheRecipeExtractor implements RecipeExtractor {
 		return ExtractedRecipe.builder()
 						.name(response.name())
 						.url(response.sourceUrl())
-						.recipeYield(String.valueOf(response.servings()))
+						.recipeYield(response.servings() == null ? null : String.valueOf(response.servings()))
 						.totalTime(String.valueOf(response.totalTime()))
 						.extractedRecipeIngredients(response.ingredients().stream()
 										.flatMap(ingredient -> ingredientBreakdownService.convertIngredient(ingredient.name()).stream())

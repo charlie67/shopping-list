@@ -15,6 +15,7 @@ import to.charlie.foodPlanner.domain.model.exception.DuplicateRecipeException;
 import to.charlie.foodPlanner.domain.model.exception.RecipeExtractionFailed;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractedRecipe;
 import to.charlie.foodPlanner.domain.model.internal.recipeExtraction.ExtractionMethod;
+import to.charlie.foodPlanner.domain.service.plan.RecipeYieldParser;
 import to.charlie.foodPlanner.infrastructure.dal.dao.RecipeDao;
 
 import java.io.IOException;
@@ -32,6 +33,7 @@ public class RecipeService {
 	private final RecipeDao recipeDao;
 	private final RecipeExtractionService recipeExtractionService;
 	private final ModelMapper modelMapper;
+	private final RecipeYieldParser recipeYieldParser;
 
 	/**
 	 * @param extractionMethod when set, the only extractor used - the extraction fails rather than
@@ -77,6 +79,11 @@ public class RecipeService {
 						recipe.getExtractedRecipeIngredients().size(),
 						recipe.getExtractedRecipeInstructions().size());
 
+		// Parsed here as well as on save, so the plan sheet can offer a meal count from the preview,
+		// before the recipe is saved at all. One rule in one place: no extractor sets this itself, or a
+		// preview could advertise a number the save would then reject.
+		recipe.setServings(recipeYieldParser.parse(recipe.getRecipeYield()));
+
 		return modelMapper.map(recipe, ExtractedRecipeDto.class);
 	}
 
@@ -98,6 +105,7 @@ public class RecipeService {
 		}
 
 		final ExtractedRecipe recipe = modelMapper.map(extractedRecipe, ExtractedRecipe.class);
+		recipe.setServings(recipeYieldParser.parse(recipe.getRecipeYield()));
 
 		final RecipeEntity savedRecipe = recipeDao.save(recipe);
 
@@ -111,6 +119,9 @@ public class RecipeService {
 	public ExtractedRecipeDto updateRecipe(final UUID id, final ExtractedRecipeDto extractedRecipe) {
 		final ExtractedRecipe recipe = modelMapper.map(extractedRecipe, ExtractedRecipe.class);
 		recipe.setId(id);
+		// Re-parsed rather than trusted: editing Serves in the recipe editor is how a bad parse is
+		// corrected, so the number always comes from the text that is being saved.
+		recipe.setServings(recipeYieldParser.parse(recipe.getRecipeYield()));
 
 		final RecipeEntity savedRecipe = recipeDao.save(recipe);
 

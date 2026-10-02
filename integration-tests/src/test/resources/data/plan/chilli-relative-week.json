@@ -1,0 +1,9 @@
+{
+  "recipeId": "${RECIPE_ID:-unset}",
+  "cookDate": "${COOK_DATE:-2026-09-21}",
+  "leftovers": [
+    {"placement": "LEFTOVER", "plannedDate": "${LEFTOVER_1:-2026-09-22}"},
+    {"placement": "LEFTOVER", "plannedDate": "${LEFTOVER_2:-2026-09-23}"},
+    {"placement": "LEFTOVER", "plannedDate": "${LEFTOVER_3:-2026-09-24}"}
+  ]
+}

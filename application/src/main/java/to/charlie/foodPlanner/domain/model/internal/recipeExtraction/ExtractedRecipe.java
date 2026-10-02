@@ -26,6 +26,7 @@ public class ExtractedRecipe {
 	private String totalTime;
 	private String recipeCategory;
 	private String recipeYield;
+	private Integer servings;
 	private List<ExtractedRecipeIngredient> extractedRecipeIngredients;
 	private List<ExtractedRecipeInstruction> extractedRecipeInstructions;
 	private String calories;

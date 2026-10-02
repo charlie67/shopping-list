@@ -1,4 +1,4 @@
-import {defineConfig} from 'vite';
+import {defineConfig} from 'vitest/config';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
@@ -23,5 +23,10 @@ export default defineConfig({
     },
     build: {
         outDir: 'build',
+    },
+    test: {
+        // The only tested modules are pure date and portion maths, so no DOM is needed.
+        environment: 'node',
+        include: ['src/**/*.test.ts'],
     },
 });

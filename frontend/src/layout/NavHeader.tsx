@@ -1,5 +1,5 @@
 import {NavLink} from 'react-router-dom';
-import {ChefHat, ShoppingCart} from 'lucide-react';
+import {CalendarDays, ChefHat, ShoppingCart} from 'lucide-react';
 
 export function NavHeader() {
     return (
@@ -35,6 +35,19 @@ export function NavHeader() {
                     >
                         <ChefHat size={18}/>
                         <span className="hidden sm:inline">Recipes</span>
+                    </NavLink>
+                    <NavLink
+                        to="/to-cook"
+                        className={({isActive}) =>
+                            `flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                                isActive
+                                    ? 'bg-white/10 text-white'
+                                    : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                            }`
+                        }
+                    >
+                        <CalendarDays size={18}/>
+                        <span className="hidden sm:inline">To Cook</span>
                     </NavLink>
                 </div>
             </nav>

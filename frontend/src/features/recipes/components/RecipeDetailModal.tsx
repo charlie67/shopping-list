@@ -1,5 +1,6 @@
 import {useEffect, useState} from 'react';
-import {Code2, ExternalLink, Loader2, Pencil, Plus, Trash2, X} from 'lucide-react';
+import {useNavigate} from 'react-router-dom';
+import {Code2, CookingPot, ExternalLink, Loader2, Pencil, Plus, Trash2, Users, X} from 'lucide-react';
 import {ExtractedRecipeDto} from '@/common/types/recipe';
 import {useAppDispatch, useAppSelector} from '@/common/hooks/redux';
 import {useEscapeKey} from '@/common/hooks/useEscapeKey';
@@ -7,17 +8,31 @@ import {useWakeLock} from '@/common/hooks/useWakeLock';
 import {clearDeleteStatus, deleteRecipe, selectDeleteStatus} from '../recipesSlice';
 import {nutritionFacts} from '../nutrition';
 import {IngredientPicker} from './IngredientPicker';
+import {isScaled, scaleQuantityText} from '../scaleIngredient';
+import {PlanRecipeSheet} from './PlanRecipeSheet';
 import {RecipeEditorModal} from './RecipeEditorModal';
 
 interface Props {
     recipe: ExtractedRecipeDto;
     onClose: () => void;
+    /**
+     * What the planned batch this was opened from is being cooked for, when that is not the recipe's
+     * own yield. Opened from anywhere else there is no batch, and the recipe's figure stands.
+     */
+    plannedServings?: number | null;
 }
 
-export function RecipeDetailModal({recipe, onClose}: Props) {
+export function RecipeDetailModal({recipe, onClose, plannedServings}: Props) {
+    // Opened from a planned batch that was scaled, the amounts on show are the ones actually being
+    // cooked - and the ones already on the shopping list - not the recipe's own.
+    const scale = plannedServings == null || recipe.servings == null || recipe.servings <= 0
+        ? 1
+        : plannedServings / recipe.servings;
     const dispatch = useAppDispatch();
     const deleteStatus = useAppSelector(selectDeleteStatus);
+    const navigate = useNavigate();
     const [showPicker, setShowPicker] = useState(false);
+    const [showPlanner, setShowPlanner] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [confirmingDelete, setConfirmingDelete] = useState(false);
 
@@ -110,15 +125,28 @@ export function RecipeDetailModal({recipe, onClose}: Props) {
                             {recipe.description && (
                                 <p className="mt-2 text-sm text-gray-400">{recipe.description}</p>
                             )}
-                            {recipe.extractionMethod && (
-                                <span
-                                    className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1 text-xs font-medium text-gray-400 ring-1 ring-white/5"
-                                    title="How this recipe was read from the source page"
-                                >
-                                    <Code2 size={12}/>
-                                    Extracted via {recipe.extractionMethod}
-                                </span>
-                            )}
+                            <div className="mt-3 flex flex-wrap items-center gap-2">
+                                {(plannedServings ?? recipe.servings) !== null && (
+                                    <span
+                                        className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1 text-xs font-medium text-gray-400 ring-1 ring-white/5"
+                                        title={plannedServings != null && plannedServings !== recipe.servings
+                                            ? `This cook was planned for ${plannedServings}. The recipe itself serves ${recipe.servings}.`
+                                            : 'How many the planner divides between the people eating'}
+                                    >
+                                        <Users size={12}/>
+                                        Serves {plannedServings ?? recipe.servings}
+                                    </span>
+                                )}
+                                {recipe.extractionMethod && (
+                                    <span
+                                        className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-2.5 py-1 text-xs font-medium text-gray-400 ring-1 ring-white/5"
+                                        title="How this recipe was read from the source page"
+                                    >
+                                        <Code2 size={12}/>
+                                        Extracted via {recipe.extractionMethod}
+                                    </span>
+                                )}
+                            </div>
                         </div>
 
                         <div className="flex flex-wrap items-center gap-2">
@@ -137,6 +165,13 @@ export function RecipeDetailModal({recipe, onClose}: Props) {
                             >
                                 <Plus size={14}/>
                                 Add ingredients
+                            </button>
+                            <button
+                                onClick={() => setShowPlanner(true)}
+                                className="flex cursor-pointer items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-2 text-xs font-medium text-white transition-colors hover:bg-indigo-500"
+                            >
+                                <CookingPot size={14}/>
+                                Plan to cook
                             </button>
                             <button
                                 onClick={() => setIsEditing(true)}
@@ -213,7 +248,9 @@ export function RecipeDetailModal({recipe, onClose}: Props) {
                                                 key={`${ing.fullText}-${i}`}
                                                 className="rounded-lg bg-white/5 px-3 py-2 text-sm text-gray-200 ring-1 ring-white/5"
                                             >
-                                                {ing.fullText}
+                                                {(isScaled(scale)
+                                                    && scaleQuantityText(ing.fullText, scale))
+                                                    || ing.fullText}
                                             </li>
                                         ))}
                                     </ul>
@@ -252,7 +289,22 @@ export function RecipeDetailModal({recipe, onClose}: Props) {
                     <IngredientPicker
                         recipeName={recipe.name}
                         ingredients={recipe.ingredients}
+                        scale={scale}
                         onClose={() => setShowPicker(false)}
+                    />
+                </div>
+            )}
+
+            {showPlanner && (
+                <div onClick={(e) => e.stopPropagation()}>
+                    <PlanRecipeSheet
+                        recipe={recipe}
+                        onClose={() => setShowPlanner(false)}
+                        onOpenPlanner={() => {
+                            setShowPlanner(false);
+                            onClose();
+                            navigate('/to-cook');
+                        }}
                     />
                 </div>
             )}

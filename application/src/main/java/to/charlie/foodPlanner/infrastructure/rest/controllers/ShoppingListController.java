@@ -15,12 +15,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import to.charlie.foodPlanner.domain.exception.BadRequestException;
 import to.charlie.foodPlanner.domain.exception.ResourceNotFoundException;
 import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemCreateDto;
 import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemDto;
 import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemUpdateDto;
+import to.charlie.foodPlanner.domain.model.dto.shoppingList.ShoppingListItemsCreateDto;
 import to.charlie.foodPlanner.domain.service.ShoppingListService;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -39,6 +42,18 @@ public class ShoppingListController {
 					@Valid @RequestBody final ShoppingListItemCreateDto createDto) {
 		final ShoppingListItemDto shoppingListItemDto = shoppingListService.create(createDto);
 		return new ResponseEntity<>(shoppingListItemDto, HttpStatus.CREATED);
+	}
+
+	@ResponseStatus(code = HttpStatus.CREATED)
+	@PostMapping(value = "/batch")
+	public ResponseEntity<List<ShoppingListItemDto>> createAll(
+					@Valid @RequestBody final ShoppingListItemsCreateDto createDto) {
+		try {
+			return new ResponseEntity<>(shoppingListService.createAll(createDto.getTitles()),
+							HttpStatus.CREATED);
+		} catch (final BadRequestException e) {
+			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+		}
 	}
 
 	@ResponseStatus(code = HttpStatus.OK)

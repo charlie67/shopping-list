@@ -1,7 +1,9 @@
 import {useState} from 'react';
-import {ExternalLink, Plus} from 'lucide-react';
+import {useNavigate} from 'react-router-dom';
+import {CookingPot, ExternalLink, Plus} from 'lucide-react';
 import {ExtractedRecipeDto} from '@/common/types/recipe';
 import {IngredientPicker} from './IngredientPicker';
+import {PlanRecipeSheet} from './PlanRecipeSheet';
 
 interface Props {
     recipe: ExtractedRecipeDto;
@@ -9,7 +11,9 @@ interface Props {
 }
 
 export function RecipeCard({recipe, onOpen}: Props) {
+    const navigate = useNavigate();
     const [showPicker, setShowPicker] = useState(false);
+    const [showPlanner, setShowPlanner] = useState(false);
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -39,7 +43,10 @@ export function RecipeCard({recipe, onOpen}: Props) {
                 {recipe.description && (
                     <p className="mt-1 line-clamp-2 text-xs text-gray-400">{recipe.description}</p>
                 )}
-                <div className="mt-auto flex items-center gap-2 pt-4">
+                {/* Wraps because the card is a quarter of the grid at xl and the three labels do not
+                    fit on one line; the card clips its overflow, so without this the last button
+                    disappears rather than moving down. */}
+                <div className="mt-auto flex flex-wrap items-center gap-2 pt-4">
                     <a
                         href={recipe.url}
                         target="_blank"
@@ -58,7 +65,17 @@ export function RecipeCard({recipe, onOpen}: Props) {
                         className="cursor-pointer flex items-center gap-1.5 rounded-lg bg-indigo-600/20 px-3 py-2 text-xs font-medium text-indigo-300 hover:bg-indigo-600/30 hover:text-indigo-200 transition-colors"
                     >
                         <Plus size={14}/>
-                        Add Ingredients
+                        Ingredients
+                    </button>
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setShowPlanner(true);
+                        }}
+                        className="cursor-pointer flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-2 text-xs font-medium text-white hover:bg-indigo-500 transition-colors"
+                    >
+                        <CookingPot size={14}/>
+                        Plan to cook
                     </button>
                 </div>
             </div>
@@ -68,6 +85,15 @@ export function RecipeCard({recipe, onOpen}: Props) {
                         recipeName={recipe.name}
                         ingredients={recipe.ingredients}
                         onClose={() => setShowPicker(false)}
+                    />
+                </div>
+            )}
+            {showPlanner && (
+                <div onClick={(e) => e.stopPropagation()}>
+                    <PlanRecipeSheet
+                        recipe={recipe}
+                        onClose={() => setShowPlanner(false)}
+                        onOpenPlanner={() => navigate('/to-cook')}
                     />
                 </div>
             )}
