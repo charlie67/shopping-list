@@ -1,0 +1,80 @@
+{
+  "id": "<valid_uuid>",
+  "url": "https://example.com/recipes/slow-cooker-chicken",
+  "name": "Slow cooker chicken recipe",
+  "imageUrl": "https://example.com/images/slow-cooker-chicken.jpg",
+  "description": "A whole chicken cooked low and slow. Its ingredients give their quantities as ranges, including a decimal range followed by imperial equivalents, the way BBC Food writes them.",
+  "dateModified": "2025-03-31T17:35:33+01:00",
+  "datePublished": "2025-03-31T17:35:33+01:00",
+  "keywords": "Chicken, Slow cooker",
+  "cookTime": "PT5H",
+  "prepTime": "PT15M",
+  "totalTime": "PT5H15M",
+  "recipeCategory": "Dinner",
+  "recipeYield": "4 servings",
+  "servings": 4,
+  "calories": null,
+  "fatContent": null,
+  "saturatedFatContent": null,
+  "carbohydrateContent": null,
+  "sugarContent": null,
+  "fiberContent": null,
+  "proteinContent": null,
+  "sodiumContent": null,
+  "extractionMethod": "JSON-LD",
+  "instructions": [
+    {
+      "text": "Put the carrots and onion in the slow cooker and sit the chicken on top.",
+      "type": "HowToStep",
+      "stepCount": 1,
+      "possibleDuplicate": false
+    },
+    {
+      "text": "Cover and cook on low for 5 hours.",
+      "type": "HowToStep",
+      "stepCount": 2,
+      "possibleDuplicate": false
+    }
+  ],
+  "ingredients": [
+    {
+      "ingredientName": "whole chicken",
+      "quantity": 1.0,
+      "quantityMax": 1.2,
+      "unit": "UNKNOWN",
+      "size": null,
+      "preparation": null,
+      "purpose": null,
+      "comment": null,
+      "quantityText": "1-1.2 kg",
+      "fullText": "1-1.2kg/2lb 4oz-2lb 10oz whole chicken",
+      "possibleDuplicate": false
+    },
+    {
+      "ingredientName": "carrots",
+      "quantity": 2.0,
+      "quantityMax": 3.0,
+      "unit": "UNKNOWN",
+      "size": null,
+      "preparation": null,
+      "purpose": null,
+      "comment": null,
+      "quantityText": "2-3",
+      "fullText": "2-3 carrots",
+      "possibleDuplicate": false
+    },
+    {
+      "ingredientName": "onion",
+      "quantity": 1.0,
+      "quantityMax": null,
+      "unit": "UNKNOWN",
+      "size": "large",
+      "preparation": null,
+      "purpose": null,
+      "comment": null,
+      "quantityText": "1",
+      "fullText": "1 large onion",
+      "possibleDuplicate": false
+    }
+  ]
+}

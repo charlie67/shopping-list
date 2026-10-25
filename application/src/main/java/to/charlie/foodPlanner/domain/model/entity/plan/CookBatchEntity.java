@@ -44,29 +44,29 @@ public class CookBatchEntity {
   @Id
   @GeneratedValue
   @JdbcTypeCode(SqlTypes.UUID)
-  @Column(name = "id", nullable = false)
+  @Column(nullable = false)
   private UUID id;
 
   @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "recipe_id", nullable = false)
   private RecipeEntity recipe;
 
-  @Column(name = "meals_total", nullable = false)
+  @Column(nullable = false)
   private int mealsTotal;
 
-  @Column(name = "cooking_for", nullable = false)
+  @Column(nullable = false)
   private int cookingFor;
 
   /** Portions the pot was planned to make, when scaled off the recipe's yield. Null means unscaled. */
-  @Column(name = "serves")
+  @Column
   private Integer serves;
 
   @Builder.Default
   @CreationTimestamp
-  @Column(name = "created_at_time")
+  @Column
   private LocalDateTime createdAtTime = LocalDateTime.now();
 
   @UpdateTimestamp
-  @Column(name = "updated_at_time")
+  @Column
   private LocalDateTime updatedAtTime;
 }

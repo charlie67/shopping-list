@@ -124,6 +124,7 @@
     {
       "ingredientName": "onion",
       "quantity": 1.0,
+      "quantityMax": null,
       "unit": "UNKNOWN",
       "size": "large",
       "preparation": null,
@@ -136,6 +137,7 @@
     {
       "ingredientName": "red pepper",
       "quantity": 1.0,
+      "quantityMax": null,
       "unit": "UNKNOWN",
       "size": null,
       "preparation": null,
@@ -148,6 +150,7 @@
     {
       "ingredientName": "garlic",
       "quantity": 2.0,
+      "quantityMax": null,
       "unit": "UNKNOWN",
       "size": null,
       "preparation": null,
@@ -160,6 +163,7 @@
     {
       "ingredientName": "oil",
       "quantity": 1.0,
+      "quantityMax": null,
       "unit": "TABLESPOONS",
       "size": null,
       "preparation": null,

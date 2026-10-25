@@ -2,6 +2,8 @@ package to.charlie.foodPlanner.domain.model.dto.ingredientextractor;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import tools.jackson.databind.PropertyNamingStrategies;
+import tools.jackson.databind.annotation.JsonNaming;
 
 import java.util.List;
 
@@ -24,7 +26,8 @@ public record IngredientBreakdownDto(
 	}
 
 	@JsonIgnoreProperties(ignoreUnknown = true)
-	public record QuantityItemDto(Double quantity, String text, String unit) {
+	@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+	public record QuantityItemDto(Double quantity, Double quantityMax, String text, String unit) {
 
 	}
 }

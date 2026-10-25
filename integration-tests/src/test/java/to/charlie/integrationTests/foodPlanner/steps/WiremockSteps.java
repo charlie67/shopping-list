@@ -55,6 +55,16 @@ public class WiremockSteps {
 		log.info("Stubbed ingredient breakdown URL: {} with data from {}", ingredientName, bodyFile);
 	}
 
+	@Given("ingredient breakdown service is set to return error status {int} for ingredient {string}")
+	public void ingredientBreakdownIsSetToReturnErrorStatusForIngredient(final int status, final String ingredientName) {
+		wireMockClient.register(
+						get(urlPathEqualTo("/ingredient-breakdown"))
+										.withQueryParam("ingredient", equalTo(ingredientName))
+										.willReturn(aResponse().withStatus(status)));
+
+		log.info("Stubbed ingredient breakdown URL: {} to return error status {}", ingredientName, status);
+	}
+
 	@Given("the JustTheRecipe service is set to return the data from file {string}")
 	public void justTheRecipeIsSetToReturnTheDataFromFile(final String bodyFile) {
 		final String content = loader.loadData(bodyFile);

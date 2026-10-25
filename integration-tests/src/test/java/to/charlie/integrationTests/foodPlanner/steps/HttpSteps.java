@@ -87,6 +87,11 @@ public class HttpSteps {
 		sendRequest(method, builtUrl, context.get("RESPONSE_BODY"));
 	}
 
+	@When("I set {string} in the previous response body to {double}")
+	public void iSetInThePreviousResponseBodyTo(final String jsonPath, final Double value) {
+		context.set("RESPONSE_BODY", JsonPath.parse(context.get("RESPONSE_BODY")).set(jsonPath, value).jsonString());
+	}
+
 	private void sendRequest(final String method, final String url, final String body) {
 		if (method.equalsIgnoreCase("POST")) {
 			sendGenericHttpRequest(new HttpPost(url), body);
@@ -146,8 +151,9 @@ public class HttpSteps {
 	/**
 	 * Asserts that the given JSON document contains every field listed in the data table, where each
 	 * row is a JSON path and its expected value. The special value {@code <valid_uuid>} asserts the
-	 * field is a parseable UUID rather than checking an exact value. Shared by the HTTP response and
-	 * WebSocket message assertions so both use the same matching semantics.
+	 * field is a parseable UUID rather than checking an exact value, and {@code <null>} asserts the
+	 * field is present but null. Shared by the HTTP response and WebSocket message assertions so both
+	 * use the same matching semantics.
 	 */
 	static void assertJsonFields(final String body, final DataTable table) {
 		final DocumentContext document = JsonPath.parse(body);
@@ -156,7 +162,16 @@ public class HttpSteps {
 			final String jsonPath = row.get(0);
 			final String expectedValue = row.get(1);
 
+			// A path missing from the body throws here, so <null> can only pass for a field that is there.
 			final String actualValue = document.read(jsonPath, String.class);
+			if (expectedValue.equals("<null>")) {
+				if (actualValue != null) {
+					throw new AssertionError("Expected null for JSON path '" + jsonPath
+									+ "', but got '" + actualValue + "'.");
+				}
+				continue;
+			}
+
 			if (actualValue == null) {
 				throw new AssertionError(
 								"Expected value for JSON path '" + jsonPath + "' not found in JSON body.");

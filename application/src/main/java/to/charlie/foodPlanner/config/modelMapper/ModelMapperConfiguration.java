@@ -5,6 +5,7 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+import to.charlie.foodPlanner.domain.extraction.ingredient.IngredientBreakdownService;
 import to.charlie.foodPlanner.domain.model.dto.IngredientDto;
 import to.charlie.foodPlanner.domain.model.dto.extraction.ExtractedIngredientDto;
 import to.charlie.foodPlanner.domain.model.dto.extraction.ExtractedRecipeDto;
@@ -111,6 +112,7 @@ public class ModelMapperConfiguration {
 											.fullText(dto.getFullText())
 											.ingredient(ExtractedIngredient.builder().name(dto.getIngredientName()).build())
 											.quantity(dto.getQuantity())
+											.quantityMax(IngredientBreakdownService.rangeMax(dto.getQuantity(), dto.getQuantityMax()))
 											.quantityText(dto.getQuantityText())
 											.unit(dto.getUnit())
 											.size(dto.getSize())

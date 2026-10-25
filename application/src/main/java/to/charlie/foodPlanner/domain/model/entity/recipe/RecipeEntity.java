@@ -38,75 +38,75 @@ public class RecipeEntity {
   @Id
   @GeneratedValue
   @JdbcTypeCode(SqlTypes.UUID)
-  @Column(name = "id", nullable = false)
+  @Column(nullable = false)
   private UUID id;
 
-  @Column(name = "description")
+  @Column
   private String description;
 
-  @Column(name = "name")
+  @Column
   private String name;
 
-  @Column(name = "url")
+  @Column
   private String url;
 
-  @Column(name = "date_modified")
+  @Column
   private String dateModified;
 
-  @Column(name = "date_published")
+  @Column
   private String datePublished;
 
-  @Column(name = "keywords")
+  @Column
   private String keywords;
 
-  @Column(name = "cook_time")
+  @Column
   private String cookTime;
 
-  @Column(name = "prep_time")
+  @Column
   private String prepTime;
 
-  @Column(name = "total_time")
+  @Column
   private String totalTime;
 
-  @Column(name = "recipe_category")
+  @Column
   private String recipeCategory;
 
-  @Column(name = "recipe_yield")
+  @Column
   private String recipeYield;
 
   /**
    * recipeYield read as a number, for the planner's portion maths. Null when the scraped text held no
    * usable figure. Always derived by RecipeYieldParser on save, never taken from the client.
    */
-  @Column(name = "servings")
+  @Column
   private Integer servings;
 
-  @Column(name = "calories")
+  @Column
   private String calories;
 
-  @Column(name = "fat_content")
+  @Column
   private String fatContent;
 
-  @Column(name = "saturated_fat_content")
+  @Column
   private String saturatedFatContent;
 
-  @Column(name = "carbohydrate_content")
+  @Column
   private String carbohydrateContent;
 
-  @Column(name = "sugar_content")
+  @Column
   private String sugarContent;
 
-  @Column(name = "fiber_content")
+  @Column
   private String fiberContent;
 
-  @Column(name = "protein_content")
+  @Column
   private String proteinContent;
 
-  @Column(name = "sodium_content")
+  @Column
   private String sodiumContent;
 
   @Enumerated(EnumType.STRING)
-  @Column(name = "extraction_method")
+  @Column
   private ExtractionMethod extractionMethod;
 
   private String imageUrl;
@@ -121,10 +121,10 @@ public class RecipeEntity {
 
   @Builder.Default
   @CreationTimestamp
-  @Column(name = "created_at_time")
+  @Column
   private LocalDateTime createdAtTime = LocalDateTime.now();
 
   @UpdateTimestamp
-  @Column(name = "updated_at_time")
+  @Column
   private LocalDateTime updatedAtTime;
 }

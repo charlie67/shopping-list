@@ -26,9 +26,9 @@ public class IngredientEntity {
   @Id
   @GeneratedValue
   @JdbcTypeCode(SqlTypes.UUID)
-  @Column(name = "id", nullable = false)
+  @Column(nullable = false)
   private UUID id;
 
-  @Column(name = "name", nullable = false)
+  @Column(nullable = false)
   private String name;
 }

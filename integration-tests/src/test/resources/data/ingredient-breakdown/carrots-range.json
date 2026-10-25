@@ -1,0 +1,20 @@
+{
+  "ingredient": [
+    {
+      "name": "carrots"
+    }
+  ],
+  "original": "2-3 carrots",
+  "preparation": null,
+  "quantity": [
+    {
+      "quantity": 2.0,
+      "quantity_max": 3.0,
+      "text": "2-3",
+      "unit": null
+    }
+  ],
+  "size": null,
+  "comment": null,
+  "purpose": null
+}

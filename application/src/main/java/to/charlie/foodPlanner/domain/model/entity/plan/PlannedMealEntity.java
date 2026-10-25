@@ -37,7 +37,7 @@ public class PlannedMealEntity {
 	@Id
 	@GeneratedValue
 	@JdbcTypeCode(SqlTypes.UUID)
-	@Column(name = "id", nullable = false)
+	@Column(nullable = false)
 	private UUID id;
 
 	@ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -45,18 +45,18 @@ public class PlannedMealEntity {
 	private CookBatchEntity batch;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "placement", nullable = false)
+	@Column(nullable = false)
 	private MealPlacement placement;
 
-	@Column(name = "planned_date")
+	@Column
 	private LocalDate plannedDate;
 
 	@Builder.Default
 	@CreationTimestamp
-	@Column(name = "created_at_time")
+	@Column
 	private LocalDateTime createdAtTime = LocalDateTime.now();
 
 	@UpdateTimestamp
-	@Column(name = "updated_at_time")
+	@Column
 	private LocalDateTime updatedAtTime;
 }

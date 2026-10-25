@@ -146,3 +146,78 @@ Feature: Recipe parsing and retrieval
       | name                    | Onion soup recipe |
       | ingredients[0].fullText | 1 large onion     |
 
+
+  Scenario: Ingredients with a ranged quantity are extracted and saved with their upper bound
+    Given recipe URL "/mock/recipes/slow-cooker-chicken" is set to return the data from file "recipes/slow-cooker-chicken.html"
+    # The chicken is written the way BBC Food writes it: a decimal metric range followed by imperial
+    # ranges. Only the first, metric, quantity is kept.
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/whole-chicken-range.json" for ingredient "1-1.2kg/2lb 4oz-2lb 10oz whole chicken"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/carrots-range.json" for ingredient "2-3 carrots"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/onion.json" for ingredient "1 large onion"
+    When I send an HTTP GET request to "/recipe/extract?url={WIREMOCK_URL}/mock/recipes/slow-cooker-chicken"
+    Then "RESPONSE_STATUS" should be "200"
+    # The onion is a single value, which the extractor sends with quantity_max equal to quantity, so
+    # it is not treated as a range.
+    And the response body should contain the following fields:
+      | name                        | Slow cooker chicken recipe |
+      | ingredients[0].quantity     | 1.0                        |
+      | ingredients[0].quantityMax  | 1.2                        |
+      | ingredients[0].quantityText | 1-1.2 kg                   |
+      | ingredients[1].quantity     | 2.0                        |
+      | ingredients[1].quantityMax  | 3.0                        |
+      | ingredients[2].quantity     | 1.0                        |
+      | ingredients[2].quantityMax  | <null>                     |
+    When I send an HTTP POST request to "/recipe" with the previous response body
+    Then "RESPONSE_STATUS" should be "201"
+    And the response body should match the file: "recipes/slow-cooker-chicken-response.json"
+    And I store the value of "id" from the HTTP response as "RECIPE_ID"
+    When I send an HTTP GET request to "/recipe/{RECIPE_ID}"
+    Then "RESPONSE_STATUS" should be "200"
+    And the response body should match the file: "recipes/slow-cooker-chicken-response.json"
+
+  Scenario: Editing a ranged quantity above its upper bound drops the range
+    Given recipe URL "/mock/recipes/slow-cooker-chicken" is set to return the data from file "recipes/slow-cooker-chicken.html"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/whole-chicken-range.json" for ingredient "1-1.2kg/2lb 4oz-2lb 10oz whole chicken"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/carrots-range.json" for ingredient "2-3 carrots"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/onion.json" for ingredient "1 large onion"
+    When I send an HTTP GET request to "/recipe/extract?url={WIREMOCK_URL}/mock/recipes/slow-cooker-chicken"
+    And I send an HTTP POST request to "/recipe" with the previous response body
+    Then "RESPONSE_STATUS" should be "201"
+    And I store the value of "id" from the HTTP response as "RECIPE_ID"
+    When I set "ingredients[0].quantity" in the previous response body to 1.5
+    And I send an HTTP PATCH request to "/recipe/{RECIPE_ID}" with the previous response body
+    Then "RESPONSE_STATUS" should be "200"
+    And the response body should contain the following fields:
+      | ingredients[0].quantity    | 1.5    |
+      | ingredients[0].quantityMax | <null> |
+      | ingredients[1].quantity    | 2.0    |
+      | ingredients[1].quantityMax | 3.0    |
+    When I send an HTTP GET request to "/recipe/{RECIPE_ID}"
+    Then "RESPONSE_STATUS" should be "200"
+    And the response body should contain the following fields:
+      | ingredients[0].quantity    | 1.5    |
+      | ingredients[0].quantityMax | <null> |
+      | ingredients[1].quantityMax | 3.0    |
+
+  Scenario: An ingredient the breakdown service fails on is kept unparsed instead of failing the recipe
+    Given recipe URL "/mock/recipes/my-best-chilli" is set to return the data from file "recipes/my-best-chilli.html"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/onion.json" for ingredient "1 large onion"
+    And ingredient breakdown service is set to return error status 500 for ingredient "1 red pepper"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/garlic.json" for ingredient "2 garlic cloves"
+    And ingredient breakdown service is set to return the data from file "ingredient-breakdown/oil.json" for ingredient "1 tbsp oil"
+    When I send an HTTP GET request to "/recipe/extract?url={WIREMOCK_URL}/mock/recipes/my-best-chilli"
+    Then "RESPONSE_STATUS" should be "200"
+    And the response body should contain the following fields:
+      | name                          | Chilli con carne recipe |
+      | ingredients[0].ingredientName | onion                   |
+      | ingredients[0].quantity       | 1.0                     |
+      | ingredients[1].ingredientName | 1 red pepper            |
+      | ingredients[1].fullText       | 1 red pepper            |
+      | ingredients[1].quantityText   | <null>                  |
+      | ingredients[2].ingredientName | garlic                  |
+      | ingredients[3].ingredientName | oil                     |
+    When I send an HTTP POST request to "/recipe" with the previous response body
+    Then "RESPONSE_STATUS" should be "201"
+    And the response body should contain the following fields:
+      | ingredients[1].ingredientName | 1 red pepper |
+      | ingredients[1].quantity       | 0.0          |

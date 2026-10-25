@@ -22,6 +22,7 @@ export interface RecipeInstruction {
 export interface RecipeIngredient {
     ingredientName: string;
     quantity: number;
+    quantityMax: number | null;
     // Extraction leaves the unit unset for ingredients with no measurable quantity.
     unit: IngredientUnit | null;
     size: string | null;

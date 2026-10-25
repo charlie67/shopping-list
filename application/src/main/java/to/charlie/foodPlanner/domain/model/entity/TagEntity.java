@@ -29,9 +29,9 @@ public class TagEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   @JdbcTypeCode(SqlTypes.UUID)
-  @Column(name = "id", nullable = false)
+  @Column(nullable = false)
   private UUID id;
 
-  @Column(name = "name")
+  @Column
   private String name;
 }

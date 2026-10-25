@@ -10,6 +10,7 @@ public class ExtractedRecipeIngredient {
 	private String fullText;
 	private ExtractedIngredient ingredient;
 	private Double quantity;
+	private Double quantityMax;
 	private String quantityText;
 	private String quantityUnit;
 

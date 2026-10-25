@@ -18,6 +18,8 @@ public class ExtractedIngredientDto {
 
 	private double quantity;
 
+	private Double quantityMax;
+
 	private MeasurementUnit unit;
 
 	private String size;

@@ -1,0 +1,32 @@
+{
+  "ingredient": [
+    {
+      "name": "whole chicken"
+    }
+  ],
+  "original": "1-1.2kg/2lb 4oz-2lb 10oz whole chicken",
+  "preparation": null,
+  "quantity": [
+    {
+      "quantity": 1.0,
+      "quantity_max": 1.2,
+      "text": "1-1.2 kg",
+      "unit": "kilogram"
+    },
+    {
+      "quantity": 2.25,
+      "quantity_max": 2.25,
+      "text": "2 lbs 4 oz",
+      "unit": "pound"
+    },
+    {
+      "quantity": 2.625,
+      "quantity_max": 2.625,
+      "text": "2 lbs 10 oz",
+      "unit": "pound"
+    }
+  ],
+  "size": null,
+  "comment": null,
+  "purpose": null
+}

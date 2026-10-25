@@ -46,6 +46,32 @@ class IngredientBreakdownDtoTest {
 		assertThat(result.quantities().getFirst().quantity()).isEqualTo(100.0);
 		assertThat(result.quantities().getFirst().text()).isEqualTo("100 g");
 		assertThat(result.quantities().getFirst().unit()).isEqualTo("gram");
+		assertThat(result.quantities().getFirst().quantityMax()).isNull();
+	}
+
+	@Test
+	void deserialize_whenQuantityIsRange_thenMapsQuantityMax() throws Exception {
+		// given
+		final String json = """
+						{
+						  "ingredient": [{"name": "whole chicken"}],
+						  "quantity": [
+						    {
+						      "quantity": 1.0,
+						      "quantity_max": 1.2,
+						      "text": "1-1.2 kg",
+						      "unit": "kilogram"
+						    }
+						  ]
+						}
+						""";
+
+		// when
+		final IngredientBreakdownDto result = objectMapper.readValue(json, IngredientBreakdownDto.class);
+
+		// then
+		assertThat(result.quantities().getFirst().quantity()).isEqualTo(1.0);
+		assertThat(result.quantities().getFirst().quantityMax()).isEqualTo(1.2);
 	}
 }
 

@@ -9,6 +9,7 @@
   "quantity": [
     {
       "quantity": 2.0,
+      "quantity_max": 2.0,
       "text": "2",
       "unit": "clove"
     }

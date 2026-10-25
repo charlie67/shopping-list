@@ -33,19 +33,23 @@ public class RecipeIngredientEntity {
 	@Id
 	@GeneratedValue
 	@JdbcTypeCode(SqlTypes.UUID)
-	@Column(name = "id", nullable = false)
+	@Column(nullable = false)
 	private UUID id;
 
 	// Baked from the ingredient's position in the recipe during mapping so the collection keeps its
 	// original order when read back, mirroring how recipe steps use stepCount.
-	@Column(name = "ingredient_order", nullable = false)
+	@Column(nullable = false)
 	private int ingredientOrder;
 
 	@Column
 	private double quantity;
 
+	// Upper bound of a ranged quantity ("1-1.2kg"); null when the quantity is a single value.
+	@Column
+	private Double quantityMax;
+
 	@Enumerated(EnumType.STRING)
-	@Column(name = "unit")
+	@Column
 	private MeasurementUnit unit;
 
 	@Column
@@ -77,6 +81,6 @@ public class RecipeIngredientEntity {
 	@JoinColumn(name = "recipe_id", nullable = false)
 	private RecipeEntity recipe;
 
-	@Column(name = "whole_text")
+	@Column
 	private String wholeText;
 }

@@ -31,6 +31,7 @@ interface Props {
 const EMPTY_INGREDIENT: RecipeIngredient = {
     ingredientName: '',
     quantity: 0,
+    quantityMax: null,
     unit: IngredientUnit.UNKNOWN,
     size: null,
     preparation: null,
