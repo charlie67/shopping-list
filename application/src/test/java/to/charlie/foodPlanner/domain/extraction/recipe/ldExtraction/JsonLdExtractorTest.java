@@ -1,6 +1,6 @@
 package to.charlie.foodPlanner.domain.extraction.recipe.ldExtraction;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.BeforeEach;

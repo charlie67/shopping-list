@@ -1,7 +1,7 @@
 package to.charlie.foodPlanner.domain.extraction.recipe.ldExtraction;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -123,7 +123,7 @@ public class JsonLdExtractor implements RecipeExtractor {
 		if (JsonLdValues.isAbsent(node)) {
 			return 0;
 		}
-		return node.isContainerNode() ? node.size() : 1;
+		return node.isContainer() ? node.size() : 1;
 	}
 
 	private void collect(final JsonNode node, final List<JsonNode> candidates,

@@ -52,7 +52,7 @@ public class ShoppingListController {
 			return new ResponseEntity<>(shoppingListService.createAll(createDto.getTitles()),
 							HttpStatus.CREATED);
 		} catch (final BadRequestException e) {
-			return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
 		}
 	}
 
@@ -81,8 +81,8 @@ public class ShoppingListController {
 		try {
 			shoppingListService.deleteById(id);
 		} catch (final ResourceNotFoundException e) {
-			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
 		}
-		return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+		return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 	}
 }

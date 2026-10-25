@@ -2,10 +2,10 @@ package to.charlie.foodPlanner;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.retry.annotation.EnableRetry;
+import org.springframework.resilience.annotation.EnableResilientMethods;
 
 @SpringBootApplication
-@EnableRetry
+@EnableResilientMethods
 public class ShoppingListApplication {
 
   public static void main(final String[] args) {

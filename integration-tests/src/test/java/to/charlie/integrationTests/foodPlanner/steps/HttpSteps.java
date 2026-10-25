@@ -1,9 +1,9 @@
 package to.charlie.integrationTests.foodPlanner.steps;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import io.cucumber.datatable.DataTable;
@@ -205,7 +205,7 @@ public class HttpSteps {
 			}
 			final ObjectNode expectedObject = (ObjectNode) expected;
 			final ObjectNode actualObject = (ObjectNode) actual;
-			expectedObject.fieldNames().forEachRemaining(field -> {
+			expectedObject.propertyNames().forEach(field -> {
 				if (!actualObject.has(field)) {
 					throw new AssertionError("Expected field '" + field + "' at '" + path + "' was missing.");
 				}

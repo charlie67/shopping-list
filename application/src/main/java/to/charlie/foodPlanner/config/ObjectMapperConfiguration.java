@@ -1,11 +1,10 @@
 package to.charlie.foodPlanner.config;
 
 
-import com.fasterxml.jackson.core.json.JsonReadFeature;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.json.JsonMapper;
+import tools.jackson.core.json.JsonReadFeature;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -15,12 +14,12 @@ public class ObjectMapperConfiguration {
 
 	@Bean
 	@Primary
-	public ObjectMapper objectMapper() {
-		final ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.findAndRegisterModules();
-		objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-		objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-		return objectMapper;
+	public JsonMapper objectMapper() {
+		return JsonMapper.builder()
+						.findAndAddModules()
+						.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+						.disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+						.build();
 	}
 
 	/**
@@ -31,17 +30,15 @@ public class ObjectMapperConfiguration {
 	 * stay strict.
 	 */
 	@Bean("jsonLdObjectMapper")
-	public ObjectMapper jsonLdObjectMapper() {
-		final ObjectMapper objectMapper = JsonMapper.builder()
+	public JsonMapper jsonLdObjectMapper() {
+		return JsonMapper.builder()
 						.enable(JsonReadFeature.ALLOW_TRAILING_COMMA)
 						.enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
 						.enable(JsonReadFeature.ALLOW_JAVA_COMMENTS)
 						.enable(JsonReadFeature.ALLOW_SINGLE_QUOTES)
+						.findAndAddModules()
+						.enable(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+						.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
 						.build();
-
-		objectMapper.findAndRegisterModules();
-		objectMapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
-		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-		return objectMapper;
 	}
 }

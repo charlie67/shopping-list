@@ -1,6 +1,6 @@
 package to.charlie.foodPlanner.domain.extraction.recipe.ldExtraction;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import to.charlie.foodPlanner.domain.extraction.ingredient.IngredientBreakdownService;

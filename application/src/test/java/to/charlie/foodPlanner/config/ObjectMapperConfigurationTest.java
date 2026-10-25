@@ -1,6 +1,6 @@
 package to.charlie.foodPlanner.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import to.charlie.foodPlanner.domain.model.dto.plan.PlannedMealUpdateDto;
 import to.charlie.foodPlanner.domain.model.internal.plan.MealPlacement;

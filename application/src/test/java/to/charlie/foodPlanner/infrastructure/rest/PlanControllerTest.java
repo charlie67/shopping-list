@@ -1,6 +1,6 @@
 package to.charlie.foodPlanner.infrastructure.rest;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,7 +8,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import to.charlie.foodPlanner.config.ObjectMapperConfiguration;
@@ -59,7 +59,7 @@ class PlanControllerTest {
 	private WebSocketService webSocketService;
 
 	private MockMvc mockMvc;
-	private ObjectMapper objectMapper;
+	private JsonMapper objectMapper;
 
 	@BeforeEach
 	void setUp() {
@@ -69,7 +69,7 @@ class PlanControllerTest {
 		objectMapper = new ObjectMapperConfiguration().objectMapper();
 		mockMvc = MockMvcBuilders
 						.standaloneSetup(new PlanController(planService, webSocketService))
-						.setMessageConverters(new MappingJackson2HttpMessageConverter(objectMapper))
+						.setMessageConverters(new JacksonJsonHttpMessageConverter(objectMapper))
 						.build();
 	}
 

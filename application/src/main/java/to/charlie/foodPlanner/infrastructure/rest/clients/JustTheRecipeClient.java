@@ -2,8 +2,7 @@ package to.charlie.foodPlanner.infrastructure.rest.clients;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
+import org.springframework.resilience.annotation.Retryable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -22,10 +21,9 @@ public class JustTheRecipeClient {
 	private final JustTheRecipeConfiguration justTheRecipeConfiguration;
 
 	@Retryable(
-					retryFor = JustTheRecipeExtractionException.class,
-					maxAttempts = 3,
-					backoff = @Backoff(delay = 1000),
-					listeners = "justTheRecipeRetryListener"
+					includes = JustTheRecipeExtractionException.class,
+					maxRetries = 2,
+					delay = 1000
 	)
 	public JustTheRecipeResponseDto getRecipe(final String recipeUrl) {
 		// https://www.justtherecipe.com/extractRecipeAtUrl?url={recipeUrl}

@@ -6,8 +6,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -118,9 +118,9 @@ class WebSocketServiceTest {
 
     @Test
     void sendMessageToAllClients_whenSerializationFails_thenDoesNotThrow()
-            throws JsonProcessingException {
+            throws JacksonException {
         // given
-        when(objectMapper.writeValueAsString(any())).thenThrow(new JsonProcessingException("fail") {});
+        when(objectMapper.writeValueAsString(any())).thenThrow(new JacksonException("fail") {});
 
         WebSocketMessageDto message = WebSocketMessageDto.builder()
                 .messageType(WebsocketUpdateType.SHOPPING_LIST_ITEM_CREATED)

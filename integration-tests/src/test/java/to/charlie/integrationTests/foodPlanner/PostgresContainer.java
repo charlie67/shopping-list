@@ -2,9 +2,9 @@ package to.charlie.integrationTests.foodPlanner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 
-public class PostgresContainer extends PostgreSQLContainer<PostgresContainer> {
+public class PostgresContainer extends PostgreSQLContainer {
 
   private static final Logger logger = LoggerFactory.getLogger(PostgresContainer.class);
   private static final String IMAGE_VERSION = "postgres:15.2-alpine";
@@ -12,14 +12,14 @@ public class PostgresContainer extends PostgreSQLContainer<PostgresContainer> {
 
   private PostgresContainer() {
     super(IMAGE_VERSION);
+    withUsername("food-planner");
+    withPassword("food-planner");
+    withDatabaseName("food-planner");
   }
 
   public static PostgresContainer getInstance() {
     if (container == null) {
-      container = new PostgresContainer()
-          .withUsername("food-planner")
-          .withPassword("food-planner")
-          .withDatabaseName("food-planner");
+      container = new PostgresContainer();
       container.start();
       logger.info("PostgresContainer started with URL: {}", container.getJdbcUrl());
       System.setProperty("DB_URL", container.getJdbcUrl());
