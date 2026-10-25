@@ -36,6 +36,9 @@ public class PlanBatchDto {
   /** The household when this batch was planned, kept so the row can explain an old figure. */
   private int cookingFor;
 
+  /** Portions the pot was planned to make, when scaled off the recipe's yield. Null means unscaled. */
+  private Integer serves;
+
   /** How many meals this pot makes: a snapshot taken at plan time, not a live division. */
   private int mealsTotal;
 

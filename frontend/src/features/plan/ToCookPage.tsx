@@ -132,9 +132,7 @@ export function ToCookPage() {
     const plannedServingsOf = (recipeId: string) => {
         const batch = [...(batches ?? []), ...queue].find(
             (candidate) => candidate.recipeId === recipeId);
-        return batch === undefined || batch.cookingFor === batch.servings
-            ? null
-            : batch.cookingFor;
+        return batch?.serves ?? null;
     };
 
     const isoDates = weekDays(fromIsoDate(weekStart)).map(toIsoDate);

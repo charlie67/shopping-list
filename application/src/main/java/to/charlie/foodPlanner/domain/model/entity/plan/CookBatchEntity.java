@@ -57,6 +57,10 @@ public class CookBatchEntity {
   @Column(name = "cooking_for", nullable = false)
   private int cookingFor;
 
+  /** Portions the pot was planned to make, when scaled off the recipe's yield. Null means unscaled. */
+  @Column(name = "serves")
+  private Integer serves;
+
   @Builder.Default
   @CreationTimestamp
   @Column(name = "created_at_time")

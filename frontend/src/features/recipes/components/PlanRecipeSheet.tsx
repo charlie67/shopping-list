@@ -171,6 +171,7 @@ export function PlanRecipeSheet({recipe, onClose, onOpenPlanner}: Props) {
                     // work it out from the recipe's own yield and miss the scaling. The batch holds
                     // the scaled count; the recipe row is untouched.
                     ...(recipe.servings === null || isScaled(scale) ? {mealsTotal} : {}),
+                    ...(isScaled(scale) ? {serves} : {}),
                     leftovers: cookDate === QUEUE ? [] : leftoverRequests,
                 },
                 weekStart: cookWeek,

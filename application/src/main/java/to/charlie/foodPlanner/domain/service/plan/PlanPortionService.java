@@ -86,8 +86,10 @@ public class PlanPortionService {
 			if (servings == null) {
 				continue;
 			}
+			// A scaled batch keeps the pot size it was planned with, and only its share per head moves.
+			final int serves = batch.getServes() == null ? servings : batch.getServes();
 
-			final int mealsTotal = PlanService.mealsTotalFor(servings, cookingFor);
+			final int mealsTotal = PlanService.mealsTotalFor(serves, cookingFor);
 			if (batch.getMealsTotal() == mealsTotal && batch.getCookingFor() == cookingFor) {
 				continue;
 			}

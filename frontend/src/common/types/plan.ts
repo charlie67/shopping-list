@@ -20,6 +20,9 @@ export interface PlanBatchDto {
     servings: number | null;
     // The household when this batch was planned, kept so the row can explain an old figure.
     cookingFor: number;
+    // Portions this pot was planned to make, when it was scaled off the recipe's yield. Null means
+    // the recipe's own yield.
+    serves: number | null;
     // How many meals this pot makes. A snapshot taken at plan time, deliberately not a live
     // division of servings by the current household - see docs. Editing a recipe's yield or
     // changing the household must not rewrite a leftover that has already been eaten.
@@ -62,6 +65,8 @@ export interface PlanCreateDto {
     // Null parks the batch in the queue, in which case it may carry no leftovers at all.
     cookDate: string | null;
     cookingFor?: number;
+    // Only sent when the batch is scaled off the recipe's yield.
+    serves?: number;
     // Only sent when the user set it by hand, which happens when servings could not be read.
     mealsTotal?: number;
     leftovers: PlanLeftoverRequest[];

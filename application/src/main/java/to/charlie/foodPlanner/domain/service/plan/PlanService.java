@@ -99,8 +99,13 @@ public class PlanService {
 						? householdSize()
 						: requireHousehold(createDto.getCookingFor());
 
+		final Integer serves = createDto.getServes();
+		if (serves != null && serves < 1) {
+			throw new BadRequestException("A batch has to serve at least one");
+		}
+
 		final int mealsTotal = createDto.getMealsTotal() == null
-						? mealsTotalFor(recipe.getServings(), cookingFor)
+						? mealsTotalFor(serves == null ? recipe.getServings() : serves, cookingFor)
 						: createDto.getMealsTotal();
 
 		if (mealsTotal < MIN_MEALS_TOTAL || mealsTotal > MAX_MEALS_TOTAL) {
@@ -128,6 +133,7 @@ public class PlanService {
 						.recipe(recipe)
 						.mealsTotal(mealsTotal)
 						.cookingFor(cookingFor)
+						.serves(serves)
 						.build());
 
 		if (cookDate != null) {
@@ -356,6 +362,7 @@ public class PlanService {
 						.recipeYield(recipe.getRecipeYield())
 						.servings(recipe.getServings())
 						.cookingFor(batch.getCookingFor())
+						.serves(batch.getServes())
 						.mealsTotal(batch.getMealsTotal())
 						// A queued batch's meals cannot be placed anywhere - every day would be before the
 						// cook night - so counting them into the pool would advertise meals nothing can spend.

@@ -23,6 +23,8 @@ public class PlanCreateDto {
 
 	private Integer cookingFor;
 
+	private Integer serves;
+
 	private Integer mealsTotal;
 
 	private List<PlanLeftoverDto> leftovers;

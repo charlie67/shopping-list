@@ -23,6 +23,7 @@ const batch = (overrides: Partial<PlanBatchDto> = {}): PlanBatchDto => ({
     recipeYield: '6',
     servings: 6,
     cookingFor: 2,
+    serves: null,
     mealsTotal: 3,
     spareMeals: 0,
     meals: [],

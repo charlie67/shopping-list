@@ -19,6 +19,7 @@ const batch = (meals: PlannedMealDto[], name = 'Chilli'): PlanBatchDto => ({
     recipeYield: '6',
     servings: 6,
     cookingFor: 2,
+    serves: null,
     mealsTotal: 3,
     spareMeals: 1,
     meals,
