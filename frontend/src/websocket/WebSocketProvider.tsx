@@ -1,5 +1,5 @@
 import {useEffect} from 'react';
-import useWebSocket from 'react-use-websocket';
+import {useWebSocket} from 'react-use-websocket/dist/lib/use-websocket';
 import {useAppDispatch, useAppSelector} from '@/common/hooks/redux';
 import {WEBSOCKET_URL} from '@/common/constants';
 import type {WebSocketMessage} from '@/common/types/websocket';
